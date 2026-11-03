@@ -67,7 +67,7 @@ public sealed partial class StudioWindow
         ProjectLocation location = StudioProjectOpening.Resolve(root);
         if (IsCurrentProject(location))
         {
-            _output.Text = "Already open: " + _project.Document.Name;
+            _output.Text = "Already open: " + Project.Document.Name;
             return;
         }
         OpenedProject opened = await Task.Run(() => StudioProjectOpening.Open(location, token), token);
