@@ -197,7 +197,19 @@ internal sealed class ClientWorkspace
             }
 
             ImmutableArray<ImportedImageFrame> images = await Task.Run(() => connection.ReadAnimation(entry.Path, section, token), token);
-            id = _owner.Project.ImportAnimation(section, images, duration);
+            if (replace)
+            {
+                if (_owner.SelectedAsset is not ResourceInfo { Kind: "animation" } selected)
+                {
+                    throw new InvalidOperationException("Select the target animation in Authored, then return to Client content and refresh it.");
+                }
+                id = selected.Id;
+                _owner.Project.ReimportAnimation(id, images);
+            }
+            else
+            {
+                id = _owner.Project.ImportAnimation(section, images, duration);
+            }
         }
         else
         {
@@ -219,7 +231,7 @@ internal sealed class ClientWorkspace
         }
 
         await _owner.SelectAsset(id, token);
-        _owner.Diagnostic = $"Imported client content into editable resource {id}. Save and build to produce runtime assets. The source client files remain unchanged.";
+        _owner.Diagnostic = $"Authored resource {id} is ready to save and build. Client source files remain unchanged.";
     });
 
 }

@@ -31,6 +31,10 @@ images, and puzzle files. Select a map for the shared client-renderer preview; u
 tile controls to navigate. Select an ANI section or image, then **Import editable copy**.
 Use **Client content folder** to attach an original installation instead. Source files remain
 unchanged. Imported copies save and compile through the regular authoring workflow.
+To refresh an authored ANI clip, select that animation in **Authored**, return to **Client
+content**, select the matching ANI section and choose **Refresh selected authored animation**.
+Refresh preserves the authored frame durations and resource IDs and requires the same ordered
+source-frame identities and count. Import a new clip if the source structure has changed.
 
 The automatically created `.studio/authoring` workspace is local and ignored by Git.
 For a version-controlled game-asset project, use **New project** in your chosen content

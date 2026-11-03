@@ -369,7 +369,7 @@ public sealed partial class StudioWindowTests
             Assert.Null(browser.SelectedItem);
             Assert.False(panel.Inspector.IsVisible);
             Assert.False(Find<Button>(window, "ImportClientAsset").IsVisible);
-            Assert.False(Find<Button>(window, "ReimportClientImage").IsVisible);
+            Assert.False(Find<Button>(window, "ReimportClientAsset").IsVisible);
             Assert.Equal(1, cleared);
         }
         finally { window.Close(); }
