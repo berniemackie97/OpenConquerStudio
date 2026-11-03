@@ -490,7 +490,10 @@ public sealed partial class StudioWindowTests
     public Task TerrainCreationDialogRejectsOversizedGridAndCreatesEditableResource() => s_session.Value.Dispatch(async () =>
     {
         using ProjectDirectory directory = new();
-        using (StudioProject project = StudioProject.Create(directory.Project, "World")) { }
+        using (StudioProject project = StudioProject.Create(directory.Project, "World"))
+        {
+            Assert.Equal("World", project.Document.Name);
+        }
         StudioWindow window = new();
         window.Show();
         try
