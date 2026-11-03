@@ -14,7 +14,7 @@
 
     <PackageVersion Include="OpenConquer.FreeType.Native" Version="1.0.0" />
 
-    <PackageVersion Include="SharpCompress" Version="0.50.7" />
+    <PackageVersion Include="SharpCompress" Version="0.50.8" />
     <PackageVersion Include="Serilog" Version="4.4.0" />
     <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
 
