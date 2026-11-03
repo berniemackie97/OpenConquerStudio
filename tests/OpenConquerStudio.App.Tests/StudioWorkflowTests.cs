@@ -279,4 +279,101 @@ public sealed partial class StudioWindowTests
         finally { window.Close(); }
     }, TestContext.Current.CancellationToken);
 
+    [Fact]
+    public Task ClearingAuthoredSelectionCommitsDraftAndUndoRestoresIt() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        directory.CreateSavedTexture();
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            ListBox browser = Find<ListBox>(window, "AssetBrowser");
+            browser.SelectedIndex = 0;
+            await window.PendingOperation;
+            Find<TextBox>(window, "AssetName").Text = "Edited without Apply";
+
+            browser.SelectedIndex = -1;
+            await window.PendingOperation;
+
+            Assert.Null(browser.SelectedItem);
+            Assert.False(Find<TextBox>(window, "AssetName").IsEffectivelyVisible);
+            Assert.True(Find<TextBlock>(window, "EmptyPreview").IsVisible);
+            Assert.Equal("Edited without Apply", Assert.Single(window.Project.Document.Assets).Name);
+            Assert.True(Find<Button>(window, "Undo").IsEnabled);
+
+            Find<Button>(window, "Undo").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+
+            Assert.Null(browser.SelectedItem);
+            Assert.Equal("Color", Assert.Single(window.Project.Document.Assets).Name);
+            Assert.False(window.Project.IsModified);
+        }
+        finally { window.Close(); }
+    }, TestContext.Current.CancellationToken);
+
+    [Fact]
+    public Task ClearingAuthoredSelectionRejectsInvalidDraftWithoutLosingIt() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        directory.CreateSavedTexture();
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            ListBox browser = Find<ListBox>(window, "AssetBrowser");
+            browser.SelectedIndex = 0;
+            await window.PendingOperation;
+            Guid original = Assert.IsType<ResourceInfo>(browser.SelectedItem).Id;
+            Find<TextBox>(window, "AssetName").Text = "";
+
+            browser.SelectedIndex = -1;
+            await window.PendingOperation;
+
+            Assert.Equal(original, Assert.IsType<ResourceInfo>(browser.SelectedItem).Id);
+            Assert.Equal("", Find<TextBox>(window, "AssetName").Text);
+            Assert.True(Find<TextBox>(window, "AssetName").IsEffectivelyVisible);
+            Assert.Equal("Color", Assert.Single(window.Project.Document.Assets).Name);
+            Assert.False(window.Project.IsModified);
+        }
+        finally
+        {
+            Find<TextBox>(window, "AssetName").Text = "Color";
+            window.Close();
+        }
+    }, TestContext.Current.CancellationToken);
+
+    [Fact]
+    public Task ClearingClientSelectionHidesItsInspectorAndActions() => s_session.Value.Dispatch(async () =>
+    {
+        int cleared = 0;
+        ClientContentPanel panel = new((_, _) => Task.CompletedTask, (_, _, _) => Task.CompletedTask,
+            (_, _) => { }, () => cleared++);
+        Window window = new()
+        {
+            Content = new StackPanel { Children = { panel, panel.Inspector } }
+        };
+        window.Show();
+        try
+        {
+            panel.Load([new ClientAssetEntry("texture", "artwork/image.tga")], "sources");
+            ListBox browser = Find<ListBox>(window, "ClientContentBrowser");
+            browser.SelectedIndex = 0;
+            Assert.True(panel.Inspector.IsVisible);
+            Assert.True(Find<Button>(window, "ImportClientAsset").IsVisible);
+
+            browser.SelectedIndex = -1;
+
+            Assert.Null(browser.SelectedItem);
+            Assert.False(panel.Inspector.IsVisible);
+            Assert.False(Find<Button>(window, "ImportClientAsset").IsVisible);
+            Assert.False(Find<Button>(window, "ReimportClientImage").IsVisible);
+            Assert.Equal(1, cleared);
+        }
+        finally { window.Close(); }
+    }, TestContext.Current.CancellationToken);
+
+
 }

@@ -45,8 +45,9 @@ directory, then **File → Client content folder** to attach the client sources.
 5. **Build** saves, compiles and validates a new content directory under `Builds/` in the project. The Activity panel shows its path. Existing builds are retained.
 
 Original import files stay unchanged. Apply/Rename buttons provide an explicit preview update;
-Save and navigation also commit visible fields. Invalid fields block the action and remain available
-to correct. Undo first reverts pending fields, then restores project transactions. Closing or
+Save and navigation also commit visible fields. Clearing an authored selection commits its
+visible draft and clears the inspector; an invalid draft retains the selection for correction.
+Undo first reverts pending fields, then restores project transactions. Closing or
 switching projects offers Save, Discard and Cancel, including when a field is invalid.
 When opening or creating a project, choose its destination before deciding what to do with
 unsaved changes; canceling the picker leaves current edits untouched. Reconnecting client sources

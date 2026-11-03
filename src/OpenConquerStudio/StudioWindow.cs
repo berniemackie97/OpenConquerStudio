@@ -197,10 +197,20 @@ public sealed partial class StudioWindow : Window
         _projectCommands.Add(_projectName);
         _assets.SelectionChanged += async (_, _) =>
         {
-            if (!_busy && !_refreshing && _assets.SelectedItem is ResourceInfo row)
+            if (_busy || _refreshing)
             {
-                await ExecuteAsync(token => UpdatePreview(row.Id, token));
+                return;
             }
+            ResourceInfo? selected = _assets.SelectedItem as ResourceInfo;
+            await ExecuteAsync(token =>
+            {
+                if (selected is not null)
+                {
+                    return UpdatePreview(selected.Id, token);
+                }
+                ClearPreview();
+                return Task.CompletedTask;
+            });
         };
 
         Grid body = new()
