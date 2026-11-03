@@ -76,6 +76,61 @@ public sealed class ProjectWorkflowTests
         Assert.Equal(originalSource, File.ReadAllBytes(source));
     }
 
+
+    [Fact]
+    public void ReplacingWithIdenticalFileDoesNotCreateAnEditOrDiscardRedo()
+    {
+        using ProjectDirectory directory = new();
+        string source = directory.WriteTga();
+        using StudioProject project = StudioProject.Create(directory.Project, "Game");
+        Guid id = project.ImportTexture(source, "Source", TestContext.Current.CancellationToken);
+        project.Save(TestContext.Current.CancellationToken);
+        ProjectDocument saved = project.Document;
+
+        project.EditTexture(id, "Changed", false, 0);
+        project.Undo();
+        Assert.True(project.CanRedo);
+
+        project.ReplaceTexture(id, source, TestContext.Current.CancellationToken);
+        Assert.Same(saved, project.Document);
+        Assert.False(project.IsModified);
+        Assert.True(project.CanRedo);
+
+        project.Redo();
+        Assert.Equal("Changed", Assert.Single(project.Document.Assets).Name);
+    }
+
+    [Fact]
+    public void FileReplacementKeepsConnectedSourceIdentityAndAuthoredTransforms()
+    {
+        using ProjectDirectory directory = new();
+        string source = directory.WriteTga();
+        byte[] sourceBytes = File.ReadAllBytes(source);
+        using StudioProject project = StudioProject.Create(directory.Project, "Game");
+        byte[] initial = [10, 20, 30, 255, 40, 50, 60, 255];
+        string digest = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(initial));
+        Guid texture = project.ImportSourceImage(new ImportedImageFrame("Connected", new TextureData(2, 1, initial),
+            "rgba", digest, "images/connected"));
+        Guid atlas = project.CreateAtlas("Atlas", texture);
+        Guid sprite = project.Document.Atlases.Single().Sprites.Single().Id;
+        project.EditTexture(texture, "Styled", flipHorizontal: true, clockwiseQuarterTurns: 2);
+        project.Save(TestContext.Current.CancellationToken);
+
+        project.ReplaceTexture(texture, source, TestContext.Current.CancellationToken);
+
+        TextureAsset updated = Assert.Single(project.Document.Assets);
+        Assert.Equal(texture, updated.Id);
+        Assert.Equal("Styled", updated.Name);
+        Assert.Equal("images/connected", updated.SourceKey);
+        Assert.Equal("tga", updated.SourceFormat);
+        Assert.True(updated.FlipHorizontal);
+        Assert.Equal(2, updated.ClockwiseQuarterTurns);
+        Assert.Equal(texture, project.Document.Atlases.Single().TextureId);
+        Assert.Equal(atlas, project.Document.Atlases.Single().Id);
+        Assert.Equal(sprite, project.Document.Atlases.Single().Sprites.Single().Id);
+        Assert.Equal(sourceBytes, File.ReadAllBytes(source));
+    }
+
     [Fact]
     public void CreateTextureAndCompile_RequiresNoSourceInstallation()
     {

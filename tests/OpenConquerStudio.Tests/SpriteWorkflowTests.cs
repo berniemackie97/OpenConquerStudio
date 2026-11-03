@@ -122,6 +122,117 @@ public sealed class SpriteWorkflowTests
         Assert.False(project.CanRedo);
     }
 
+
+    [Fact]
+    public void IdenticalSourceReimportDoesNotChangeSavedStateOrRedo()
+    {
+        using ProjectDirectory directory = new();
+        using StudioProject project = StudioProject.Create(directory.Project, "Game");
+        byte[] pixels = [10, 20, 30, 255];
+        string digest = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(pixels));
+        ImportedImageFrame source = new("Source", new TextureData(1, 1, pixels), "rgba", digest, "images/item");
+        Guid texture = project.ImportSourceImage(source);
+        project.Save(TestContext.Current.CancellationToken);
+        ProjectDocument saved = project.Document;
+
+        project.ReplaceSourceImage(texture, source with
+        {
+            Texture = new TextureData(1, 1, pixels)
+        });
+        Assert.Same(saved, project.Document);
+        Assert.False(project.IsModified);
+
+        project.Rename("Changed");
+        project.Undo();
+        Assert.True(project.CanRedo);
+        project.ReplaceSourceImage(texture, source);
+        Assert.Same(saved, project.Document);
+        Assert.False(project.IsModified);
+        Assert.True(project.CanRedo);
+    }
+
+    [Fact]
+    public void ChangedSourceReimportPreservesGraphAndCompilesAfterReopen()
+    {
+        using ProjectDirectory directory = new();
+        Guid texture;
+        byte[] replacementPixels = [90, 80, 70, 255, 60, 50, 40, 255];
+        string replacementDigest = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(replacementPixels));
+        using (StudioProject project = StudioProject.Create(directory.Project, "Game"))
+        {
+            byte[] pixels = [10, 20, 30, 255, 40, 50, 60, 255];
+            string digest = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(pixels));
+            ImportedImageFrame source = new("Source", new TextureData(2, 1, pixels), "rgba", digest, "images/item");
+            texture = project.ImportSourceImage(source);
+            Guid atlas = project.CreateAtlas("Atlas", texture);
+            Guid animation = project.CreateAnimation("Animation", atlas);
+            Guid sprite = project.Document.Atlases.Single().Sprites.Single().Id;
+            Guid frame = project.Document.Animations.Single().Frames.Single().Id;
+            project.Save(TestContext.Current.CancellationToken);
+            ProjectDocument saved = project.Document;
+
+            project.ReplaceSourceImage(texture, source with
+            {
+                Texture = new TextureData(2, 1, replacementPixels),
+                SourceDigest = replacementDigest
+            });
+
+            Assert.True(project.IsModified);
+            Assert.Equal(texture, project.Document.Atlases.Single().TextureId);
+            Assert.Equal(atlas, project.Document.Animations.Single().Frames.Single().AtlasId);
+            Assert.Equal(animation, project.Document.Animations.Single().Id);
+            Assert.Equal(sprite, project.Document.Atlases.Single().Sprites.Single().Id);
+            Assert.Equal(frame, project.Document.Animations.Single().Frames.Single().Id);
+            Assert.Equal(replacementPixels, project.Preview(texture, TestContext.Current.CancellationToken).Pixels.ToArray());
+
+            project.Undo();
+            Assert.Same(saved, project.Document);
+            Assert.False(project.IsModified);
+            Assert.Equal(pixels, project.Preview(texture, TestContext.Current.CancellationToken).Pixels.ToArray());
+            project.Redo();
+            project.Save(TestContext.Current.CancellationToken);
+        }
+
+        using StudioProject reopened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken);
+        Assert.Equal(texture, Assert.Single(reopened.Document.Assets).Id);
+        Assert.Equal(replacementDigest, reopened.Document.Assets[0].SourceDigest);
+        Assert.Equal("images/item", reopened.Document.Assets[0].SourceKey);
+        Assert.Equal(replacementPixels, reopened.Preview(texture, TestContext.Current.CancellationToken).Pixels.ToArray());
+
+        string destination = directory.PathFor("build");
+        StudioCompiler.Compile(reopened, destination, TestContext.Current.CancellationToken);
+        ContentPackage runtime = ContentPackage.Load(destination, TestContext.Current.CancellationToken);
+        Assert.Equal(replacementPixels, runtime.Sprites.Textures[texture].Pixels.ToArray());
+    }
+
+    [Fact]
+    public void InvalidSourceReimportDoesNotChangeResourcesOrHistory()
+    {
+        using ProjectDirectory directory = new();
+        using StudioProject project = StudioProject.Create(directory.Project, "Game");
+        Guid texture = project.CreateTexture("Texture", 2, 1, 1, 2, 3);
+        project.CreateAtlas("Atlas", texture);
+        project.Save(TestContext.Current.CancellationToken);
+        byte[] manifest = File.ReadAllBytes(directory.Manifest);
+        ProjectDocument before = project.Document;
+        byte[] pixels = [10, 20, 30, 255];
+        string digest = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(pixels));
+        ImportedImageFrame reduced = new("Smaller", new TextureData(1, 1, pixels), "rgba", digest, "images/item");
+        Assert.Throws<InvalidDataException>(() => project.ReplaceSourceImage(texture, reduced));
+        Assert.Same(before, project.Document);
+        Assert.False(project.IsModified);
+        Assert.Equal(manifest, File.ReadAllBytes(directory.Manifest));
+
+        ImportedImageFrame invalidKey = reduced with
+        {
+            Texture = new TextureData(2, 1, [10, 20, 30, 255, 10, 20, 30, 255]),
+            SourceKey = "../invalid"
+        };
+        Assert.Throws<InvalidDataException>(() => project.ReplaceSourceImage(texture, invalidKey));
+        Assert.Same(before, project.Document);
+        Assert.False(project.IsModified);
+    }
+
     [Fact]
     public void FailedRevisionPublication_ReopensLastCommittedGraph()
     {
