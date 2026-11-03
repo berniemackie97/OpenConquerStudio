@@ -254,7 +254,10 @@ public sealed class SpriteWorkflowTests
             AnimationAsset animation = Assert.Single(project.Document.Animations);
             project.EditAnimation(animation with
             {
-                Frames = animation.Frames.SetItem(0, animation.Frames[0] with { DurationTicks = 250 })
+                Frames = animation.Frames.SetItem(0, animation.Frames[0] with
+                {
+                    DurationTicks = 250
+                })
             });
             project.Save(TestContext.Current.CancellationToken);
             ProjectDocument original = project.Document;
