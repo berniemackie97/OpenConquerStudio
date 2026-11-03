@@ -131,21 +131,20 @@ project limits are foundation safety bounds, not an enterprise asset-library siz
 ## Shared ownership and repository extraction
 
 The new Studio repository owns authoring, orchestration, its content reader library and GUI.
-The pinned read-only client dependency supplies existing import readers and preview backends.
+Recorded snapshots of the existing Content and Rendering projects supply import readers and preview backends.
 The server continues to own and validate its `.ocbt`/`.ocmc` consumers and generation tools.
 Studio's server build adapter must invoke an explicitly versioned tool/output contract, or use
 a deliberately extracted shared codec package. It must not reference a neighboring server
 checkout in MSBuild or copy its binary serializer into the editor.
 
-The first extracted repository still uses a pinned source dependency; this is a documented
-transition. Package/source ownership must be explicit before further extraction. Advance the
-client dependency with actual-asset tests, not a floating `main` reference. PR #213 is concurrent
-game work and must not be absorbed or rewritten to make this preparation appear complete.
+Client source snapshots are ordinary tracked files with commit/hash provenance, not new shared
+assemblies or a whole-client submodule. Update them with actual-asset tests. PR #213 has since
+merged initial character-body drawing; full multipart and action-driven animation remain incomplete.
 
 ## Delivery gates
 
 1. **Repository extraction:** standalone build, project workflow, actual import/preview, tested
-   dependency pin, clean publish, and preserved client rendering CI. Keep the extraction reviewable
+   source provenance, clean publish, and preserved client rendering CI. Keep the extraction reviewable
    separately from map schema changes.
 2. **Versioned project and terrain editing:** migrate existing scratch projects without loss;
    create a new terrain without original assets; edit surface/elevation/traversal, undo, save,

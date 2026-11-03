@@ -6,6 +6,8 @@ namespace OpenConquerStudio.Authoring;
 public sealed record TextureAsset(Guid Id, string Name, int Width, int Height, string PixelDigest,
     string SourceFormat, string SourceDigest, bool FlipHorizontal, int ClockwiseQuarterTurns, string? SourceKey = null);
 
+public sealed record ModelAsset(Guid Id, string Name, string DataDigest, int ByteLength);
+
 public sealed record AtlasAsset(Guid Id, string Name, Guid TextureId, ImmutableArray<SpriteRegion> Sprites);
 public sealed record AnimationAsset(Guid Id, string Name, int TicksPerSecond, bool Repeat, ImmutableArray<AnimationFrame> Frames);
 public sealed record ResourceInfo(Guid Id, string Name, string Kind)
@@ -16,6 +18,8 @@ public sealed record ResourceInfo(Guid Id, string Name, string Kind)
 public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, ImmutableArray<TextureAsset> Assets,
     ImmutableArray<AtlasAsset> Atlases, ImmutableArray<AnimationAsset> Animations)
 {
+    public ImmutableArray<ModelAsset> Models { get; init; } = [];
+    public const int MaximumModelBytes = 128 * 1024 * 1024;
     public const int CurrentVersion = 2;
     public const int MaximumAssets = 64;
     public const int MaximumResources = 256;
@@ -23,6 +27,7 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
 
     public IEnumerable<ResourceInfo> Resources => Assets.Select(a => new ResourceInfo(a.Id, a.Name, "texture"))
         .Concat(Atlases.Select(a => new ResourceInfo(a.Id, a.Name, "atlas")))
+        .Concat(Models.Select(a => new ResourceInfo(a.Id, a.Name, "model")))
         .Concat(Animations.Select(a => new ResourceInfo(a.Id, a.Name, "animation"))).OrderBy(a => a.Id);
 
     public void Validate()
@@ -34,7 +39,7 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
 
         ValidateName(Name);
         if (Id == Guid.Empty || Assets.IsDefault || Atlases.IsDefault || Animations.IsDefault || Assets.Length > MaximumAssets ||
-            Assets.Length + Atlases.Length + Animations.Length > MaximumResources)
+            Models.IsDefault || Assets.Length + Atlases.Length + Animations.Length + Models.Length > MaximumResources)
         {
             throw new InvalidDataException("Project identity or asset count is invalid.");
         }
@@ -66,6 +71,23 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
         if (total > MaximumTotalPixelBytes)
         {
             throw new InvalidDataException("The project exceeds its 64 MiB aggregate pixel budget.");
+        }
+
+        long modelBytes = 0;
+        foreach (ModelAsset model in Models)
+        {
+            if (model is null || model.Id == Guid.Empty || !ids.Add(model.Id) || model.ByteLength < 1 ||
+                model.ByteLength > OpenConquer.Content.Mesh.C3ModelCodec.MaximumLength)
+            {
+                throw new InvalidDataException("Invalid model identity or payload length.");
+            }
+            ValidateName(model.Name);
+            ValidateDigest(model.DataDigest);
+            modelBytes += model.ByteLength;
+        }
+        if (modelBytes > MaximumModelBytes)
+        {
+            throw new InvalidDataException("Model assets exceed the 128 MiB project budget.");
         }
 
         Dictionary<Guid, TextureAsset> textures = Assets.ToDictionary(a => a.Id);
@@ -132,7 +154,7 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
             return [.. animation.Frames.Select(f => f.AtlasId).Distinct().Order()];
         }
 
-        if (Assets.Any(a => a.Id == id))
+        if (Assets.Any(a => a.Id == id) || Models.Any(a => a.Id == id))
         {
             return [];
         }

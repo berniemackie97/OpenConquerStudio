@@ -16,7 +16,7 @@ internal static class ProjectStorage
     private const int MaximumResourceBytes = 2 * 1024 * 1024;
     private const int MaximumMetadataBytes = 8 * 1024 * 1024;
 
-    internal static (ProjectDocument Document, Dictionary<string, TextureData> Pixels, string Digest) Read(string root, CancellationToken token)
+    internal static (ProjectDocument Document, Dictionary<string, TextureData> Pixels, string Digest, Dictionary<string, byte[]> Models) Read(string root, CancellationToken token)
     {
         byte[] bytes = ProjectFiles.Read(Path.Combine(root, ProjectStorage.ManifestName), ProjectFiles.MaximumManifestBytes);
         using (JsonDocument json = JsonDocument.Parse(bytes))
@@ -35,6 +35,7 @@ internal static class ProjectStorage
             throw new InvalidDataException("Unsupported project index version, identity, or resource count.");
         }
 
+        List<ModelAsset> models = [];
         List<TextureAsset> textures = [];
         List<AtlasAsset> atlases = [];
         List<AnimationAsset> animations = [];
@@ -60,6 +61,11 @@ internal static class ProjectStorage
             Guid id;
             switch (revision.Kind)
             {
+                case "model":
+                    ModelAsset model = Decode<ModelAsset>(assetBytes);
+                    models.Add(model);
+                    id = model.Id;
+                    break;
                 case "texture":
                     TextureAsset texture = Decode<TextureAsset>(assetBytes);
                     textures.Add(texture);
@@ -85,9 +91,24 @@ internal static class ProjectStorage
             }
         }
 
-        ProjectDocument document = new(index.SchemaVersion, index.Id, index.Name, [.. textures], [.. atlases], [.. animations]);
+        ProjectDocument document = new(index.SchemaVersion, index.Id, index.Name, [.. textures], [.. atlases], [.. animations])
+        {
+            Models = [.. models]
+        };
         document.Validate();
-        return (document, ReadPixels(root, document, token), ProjectFiles.Hash(bytes));
+        Dictionary<string, byte[]> payloads = [];
+        foreach (ModelAsset model in models)
+        {
+            token.ThrowIfCancellationRequested();
+            byte[] data = ProjectFiles.Read(ModelPath(root, model.DataDigest), OpenConquer.Content.Mesh.C3ModelCodec.MaximumLength);
+            if (data.Length != model.ByteLength || ProjectFiles.Hash(data) != model.DataDigest ||
+                OpenConquer.Content.Mesh.C3ModelCodec.Read(data).Definition.Id != model.Id)
+            {
+                throw new InvalidDataException("Model data does not match its revision.");
+            }
+            payloads.TryAdd(model.DataDigest, data);
+        }
+        return (document, ReadPixels(root, document, token), ProjectFiles.Hash(bytes), payloads);
     }
 
     private static T Decode<T>(byte[] bytes) where T : class
@@ -128,7 +149,7 @@ internal static class ProjectStorage
         return pixels;
     }
 
-    internal static string Save(string root, ProjectDocument document, Dictionary<string, TextureData> pixels, string? savedDigest, CancellationToken token)
+    internal static string Save(string root, ProjectDocument document, Dictionary<string, TextureData> pixels, Dictionary<string, byte[]> models, string? savedDigest, CancellationToken token)
     {
         document.Validate();
         string manifest = Path.Combine(root, ProjectStorage.ManifestName);
@@ -139,6 +160,11 @@ internal static class ProjectStorage
             WriteImmutable(PixelPath(root, asset.PixelDigest), pixels[asset.PixelDigest].Pixels.Span, TextureData.MaximumPixelBytes);
         }
 
+        foreach (ModelAsset model in document.Models)
+        {
+            token.ThrowIfCancellationRequested();
+            WriteImmutable(ModelPath(root, model.DataDigest), models[model.DataDigest], OpenConquer.Content.Mesh.C3ModelCodec.MaximumLength);
+        }
         List<ResourceRevision> revisions = [];
         int metadataBytes = 0;
         foreach (ResourceInfo info in document.Resources)
@@ -146,6 +172,7 @@ internal static class ProjectStorage
             token.ThrowIfCancellationRequested();
             byte[] bytes = info.Kind switch
             {
+                "model" => ProjectFiles.Serialize(new ResourceDocument<ModelAsset>(1, document.Models.Single(a => a.Id == info.Id))),
                 "texture" => ProjectFiles.Serialize(new ResourceDocument<TextureAsset>(1, document.Assets.Single(a => a.Id == info.Id))),
                 "atlas" => ProjectFiles.Serialize(new ResourceDocument<AtlasAsset>(1, document.Atlases.Single(a => a.Id == info.Id))),
                 "animation" => ProjectFiles.Serialize(new ResourceDocument<AnimationAsset>(1, document.Animations.Single(a => a.Id == info.Id))),
@@ -196,6 +223,8 @@ internal static class ProjectStorage
 
     private static string RevisionPath(string root, ResourceRevision revision) =>
         Path.Combine(root, "Assets", revision.Id.ToString("N"), revision.Sha256 + ".ocasset.json");
+
+    private static string ModelPath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".ocmodel");
 
     private static string PixelPath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".rgba");
 }

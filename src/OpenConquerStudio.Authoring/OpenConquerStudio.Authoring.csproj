@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <ProjectReference Include="../../dependencies/OpenConquerClient/src/OpenConquer.Content/OpenConquer.Content.csproj" />
     <ProjectReference Include="../OpenConquerStudio.Runtime/OpenConquerStudio.Runtime.csproj" />
-    <ProjectReference Include="../../dependencies/OpenConquerClient/src/OpenConquerStudio.Imaging/OpenConquerStudio.Imaging.csproj" />
   </ItemGroup>
 </Project>

@@ -40,3 +40,24 @@ Current runtime formats and authoring limits were not changed. Map editing, the 
 manifest/server export adapter, stable import identity migration, versioned default team projects,
 streaming, and safe revision compaction remain implementation milestones. This checkpoint is a
 working repository extraction and an audited content plan, not final production certification.
+
+## Project consolidation follow-up
+
+The earlier submodule/four-library validation above describes the extraction baseline. The current
+layout instead includes regular source snapshots of Content and Rendering, with image decoders
+in Content and world drawing in Rendering. See `dependencies/OpenConquerClient/source.json`.
+The separate integration fixture supplies actual client content, not build dependencies.
+
+Local macOS follow-up checks:
+
+- Client: locked restore, Release build (zero warnings/errors), formatting/analyzers, 3,410 tests passed.
+- Client indexed-mesh OpenGL conformance passed on Apple M4, including geometric shadows and sprite-state restoration.
+- Studio: locked restore, Release build (zero warnings/errors), formatting/analyzers, 88 tests and five CLI workflows passed.
+- Real Control.ani import/build/load/framebuffer checks and map 1010 puzzle/terrain rendering passed on Apple M4.
+  Camera movement, resize and context recreation passed, using both the actual client checkout and the exact CI fixture.
+- Studio publish contains Content and Rendering, with no removed assemblies, Client or Networking executable assemblies,
+  or loose retail archives/maps/images. Embedded Content artwork remains available for editing.
+- A fresh Studio source copy, with no existing build outputs or client submodule, passed locked restore, Release build and all 88 tests.
+- The source snapshot's file hashes match `source.json`. No map or C3 format was promoted or changed by this consolidation.
+
+Windows and Linux CI have not run for this local follow-up.

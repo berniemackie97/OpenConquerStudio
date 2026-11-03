@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using OpenConquer.Content.Map;
+using OpenConquer.Rendering.World;
 using OpenConquerStudio.Authoring;
 using OpenConquerStudio.ConquerImport;
-using OpenConquerStudio.ConquerRendering;
 using OpenConquerStudio.Runtime;
 
 namespace OpenConquerStudio;

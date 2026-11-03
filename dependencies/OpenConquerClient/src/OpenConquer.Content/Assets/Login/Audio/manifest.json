@@ -1,0 +1,100 @@
+[
+  {
+    "cue": "Music",
+    "sampleRate": 44100,
+    "channelCount": 2,
+    "length": 5299200,
+    "sha256": "9512fcb22755239fa39ce88e95a2a805bd17d5e8a5b2414754382145283a9e67"
+  },
+  {
+    "cue": "Glide",
+    "sampleRate": 22050,
+    "channelCount": 1,
+    "length": 11520,
+    "sha256": "e93e7bb99d8d2c9b87b696ee8247b0e45df90d147c964c8095723d0beb8914e3"
+  },
+  {
+    "cue": "ServerSelect",
+    "sampleRate": 22050,
+    "channelCount": 1,
+    "length": 41472,
+    "sha256": "fdd34965d059bdc27667113e9d98a1a2dad9908c913f99ac0ff5b3ae28e2cf5e"
+  },
+  {
+    "cue": "Page",
+    "sampleRate": 22050,
+    "channelCount": 1,
+    "length": 33408,
+    "sha256": "bfc6cdd3fab21ae4efbd3707e96c1188b17520463999c48921577c4a355e94b3"
+  },
+  {
+    "cue": "Dragon",
+    "sampleRate": 22050,
+    "channelCount": 2,
+    "length": 112896,
+    "sha256": "d509867f9a57370d2a6837e31322287bd97e88a477e272c0fe23a7fbda2c59b9"
+  },
+  {
+    "cue": "ButtonClick",
+    "sampleRate": 22050,
+    "channelCount": 1,
+    "length": 10368,
+    "sha256": "ebfd04942add2f4fd32cce06dc9224e1e7fdbccad7d66924321b79f74c6d9d5b"
+  },
+  {
+    "cue": "ButtonHover",
+    "sampleRate": 22050,
+    "channelCount": 1,
+    "length": 9216,
+    "sha256": "b7d82e29dcf09de0768b4d3d78cfa9ca3e74b3e3315c0c41a477d43cc7a0a31b"
+  },
+  {
+    "cue": "Confirm",
+    "sampleRate": 22050,
+    "channelCount": 2,
+    "length": 324864,
+    "sha256": "e09699da989573e077a9c0ae67d0aa3a70158ac16e439a1fc043b3a68274d04a"
+  },
+  {
+    "cue": "KeyOne",
+    "sampleRate": 22050,
+    "channelCount": 1,
+    "length": 23040,
+    "sha256": "76e683239293f3b797ee338eab0cd028247f79081f6efe65b2bb00bec413a153"
+  },
+  {
+    "cue": "KeyTwo",
+    "sampleRate": 22050,
+    "channelCount": 1,
+    "length": 31104,
+    "sha256": "b6186b1da76a320e38e0c6490e251deb9af1d1a97bf4752d1d22b02ad5b4a0bb"
+  },
+  {
+    "cue": "KeyThree",
+    "sampleRate": 22050,
+    "channelCount": 1,
+    "length": 23040,
+    "sha256": "141bcc2fa5f83987b5423d259bcf637c9324a85880b78cad1354c9dfc1b79bae"
+  },
+  {
+    "cue": "Error",
+    "sampleRate": 22050,
+    "channelCount": 1,
+    "length": 41472,
+    "sha256": "25b43d6597e9f320e6895a0363b5efcfb9a3911ddfc45600ac66875fc5b9e067"
+  },
+  {
+    "cue": "CharacterHover",
+    "sampleRate": 22050,
+    "channelCount": 1,
+    "length": 20736,
+    "sha256": "4050100296a5c84b03aa8fc72bb4f015d4135c1091baf49024b94ea51c952a1b"
+  },
+  {
+    "cue": "CharacterSelect",
+    "sampleRate": 22050,
+    "channelCount": 1,
+    "length": 44928,
+    "sha256": "c167e81ba7dd21118b6bdcfc2a3ce991d0e5410e5f9a895a8a0987184d08988b"
+  }
+]

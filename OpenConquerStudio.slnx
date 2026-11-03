@@ -1,9 +1,7 @@
 <Solution>
-  <Project Path="dependencies/OpenConquerClient/src/OpenConquerStudio.ConquerRendering/OpenConquerStudio.ConquerRendering.csproj" />
   <Folder Name="/shared/">
     <Project Path="dependencies/OpenConquerClient/src/OpenConquer.Rendering/OpenConquer.Rendering.csproj" />
     <Project Path="dependencies/OpenConquerClient/src/OpenConquer.Content/OpenConquer.Content.csproj" />
-    <Project Path="dependencies/OpenConquerClient/src/OpenConquerStudio.Imaging/OpenConquerStudio.Imaging.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/OpenConquerStudio.ConquerImport/OpenConquerStudio.ConquerImport.csproj" />

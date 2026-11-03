@@ -81,9 +81,9 @@ public sealed class TextureCodecTests
     }
 
     [Fact]
-    public void Decode_HasNoEditorOrCompatibilityDependency()
+    public void Decode_HasNoEditorOrGameApplicationDependency()
     {
         string[] dependencies = typeof(TextureCodec).Assembly.GetReferencedAssemblies().Select(a => a.Name!).ToArray();
-        Assert.DoesNotContain(dependencies, name => name.StartsWith("Avalonia", StringComparison.Ordinal) || name.StartsWith("OpenConquer.", StringComparison.Ordinal) || name.Contains("Authoring", StringComparison.Ordinal));
+        Assert.DoesNotContain(dependencies, name => name.StartsWith("Avalonia", StringComparison.Ordinal) || name is "OpenConquer.Client" or "OpenConquer.Launcher" or "OpenConquer.Networking" or "OpenConquer.Rendering" || name.Contains("Authoring", StringComparison.Ordinal));
     }
 }

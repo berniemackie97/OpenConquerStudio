@@ -1,0 +1,15 @@
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Client payload bytes are integrity-addressed by the content manifest. The built-in `binary`
+# macro expands to `-text -diff -merge`, which does three necessary things:
+#   -text   never normalize line endings, so a checkout still hashes to the manifest value;
+#   -diff   never render a payload as text, so a CRLF-and-trailing-space retail INI cannot
+#           trip whitespace checks or produce a misleading patch;
+#   -merge  never attempt a textual merge of an artifact that must be replaced whole.
+/content/retail-5517/payload/** binary
+
+# The manifest itself is generated JSON that the tool writes with LF and a trailing newline.
+/content/retail-5517/manifest.json text eol=lf

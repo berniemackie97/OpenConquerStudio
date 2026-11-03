@@ -8,18 +8,20 @@ public sealed partial class StudioProject : IDisposable
 {
     private readonly FileStream _lease;
     private readonly Dictionary<string, TextureData> _pixels;
+    private readonly Dictionary<string, byte[]> _models;
     private readonly List<ProjectDocument> _undo = [];
     private readonly List<ProjectDocument> _redo = [];
     private ProjectDocument? _savedDocument;
     private string? _savedDigest;
     private bool _disposed;
 
-    private StudioProject(string root, FileStream lease, ProjectDocument document, Dictionary<string, TextureData> pixels, string? savedDigest)
+    private StudioProject(string root, FileStream lease, ProjectDocument document, Dictionary<string, TextureData> pixels, string? savedDigest, Dictionary<string, byte[]>? models = null)
     {
         Root = root;
         _lease = lease;
         Document = document;
         _pixels = pixels;
+        _models = models ?? [];
         _savedDocument = savedDigest is null ? null : document;
         _savedDigest = savedDigest;
         IsModified = savedDigest is null;
@@ -68,8 +70,8 @@ public sealed partial class StudioProject : IDisposable
         FileStream lease = AcquireLease(root);
         try
         {
-            (ProjectDocument document, Dictionary<string, TextureData> pixels, string digest) = ProjectStorage.Read(root, cancellationToken);
-            return new StudioProject(root, lease, document, pixels, digest);
+            (ProjectDocument document, Dictionary<string, TextureData> pixels, string digest, Dictionary<string, byte[]> models) = ProjectStorage.Read(root, cancellationToken);
+            return new StudioProject(root, lease, document, pixels, digest, models);
         }
         catch
         {
@@ -196,7 +198,7 @@ public sealed partial class StudioProject : IDisposable
     public void Save(CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
-        _savedDigest = ProjectStorage.Save(Root, Document, _pixels, _savedDigest, cancellationToken);
+        _savedDigest = ProjectStorage.Save(Root, Document, _pixels, _models, _savedDigest, cancellationToken);
         _savedDocument = Document;
         IsModified = false;
     }
@@ -238,17 +240,24 @@ public sealed partial class StudioProject : IDisposable
             _undo.RemoveAt(0);
         }
 
-        // Pixels are immutable and shared by snapshots. Limit retained undo pixels to 128 MiB.
+        // Immutable pixels and model payloads are shared by snapshots. Bound their combined history to 128 MiB.
         HashSet<string> retained;
+        HashSet<string> retainedModels;
         while (true)
         {
             retained = Document.Assets.Concat(_undo.SelectMany(d => d.Assets)).Select(a => a.PixelDigest).ToHashSet(StringComparer.Ordinal);
-            if (_undo.Count == 0 || retained.Sum(d => (long)_pixels[d].Pixels.Length) <= 128 * 1024 * 1024)
+            retainedModels = Document.Models.Concat(_undo.SelectMany(d => d.Models)).Select(a => a.DataDigest).ToHashSet(StringComparer.Ordinal);
+            if (_undo.Count == 0 || retained.Sum(d => (long)_pixels[d].Pixels.Length) + retainedModels.Sum(d => (long)_models[d].Length) <= 128 * 1024 * 1024)
             {
                 break;
             }
 
             _undo.RemoveAt(0);
+        }
+
+        foreach (string digest in _models.Keys.Where(d => !retainedModels.Contains(d)).ToArray())
+        {
+            _models.Remove(digest);
         }
 
         foreach (string digest in _pixels.Keys.Where(d => !retained.Contains(d)).ToArray())
@@ -306,6 +315,7 @@ public sealed partial class StudioProject : IDisposable
         {
             _lease.Dispose();
             _pixels.Clear();
+            _models.Clear();
             _undo.Clear();
             _redo.Clear();
             _disposed = true;

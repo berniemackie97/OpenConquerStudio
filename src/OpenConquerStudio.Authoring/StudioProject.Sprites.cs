@@ -159,6 +159,7 @@ public sealed partial class StudioProject
         Apply(Document with
         {
             Assets = [.. Document.Assets.Where(a => a.Id != id)],
+            Models = [.. Document.Models.Where(a => a.Id != id)],
             Atlases = [.. Document.Atlases.Where(a => a.Id != id)],
             Animations = [.. Document.Animations.Where(a => a.Id != id)],
         });

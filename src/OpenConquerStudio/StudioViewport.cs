@@ -10,7 +10,7 @@ using OpenConquer.Rendering.OpenGL;
 using OpenConquer.Rendering.OpenGL.Resources;
 using OpenConquer.Rendering.Presentation;
 using OpenConquer.Rendering.Sprites;
-using OpenConquerStudio.ConquerRendering;
+using OpenConquer.Rendering.World;
 using OpenConquerStudio.Runtime;
 using Silk.NET.OpenGL;
 

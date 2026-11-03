@@ -59,7 +59,11 @@ public static class StudioCompiler
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using MemoryStream output = new();
-                if (info.Kind == "atlas")
+                if (info.Kind == "model")
+                {
+                    output.Write(project.ModelBytes(info.Id).Span);
+                }
+                else if (info.Kind == "atlas")
                 {
                     AtlasAsset asset = project.Document.Atlases.Single(a => a.Id == info.Id);
                     SpriteAssetCodec.WriteAtlas(output, new SpriteAtlas(asset.Id, asset.TextureId, asset.Sprites));
@@ -99,6 +103,7 @@ public static class StudioCompiler
 
     private static string ResourceFileName(Guid id, string kind) => id.ToString("N") + (kind switch
     {
+        "model" => ".ocmodel",
         "atlas" => ".ocatlas",
         "animation" => ".ocanim",
         _ => throw new InvalidDataException("Unsupported compiled resource kind."),

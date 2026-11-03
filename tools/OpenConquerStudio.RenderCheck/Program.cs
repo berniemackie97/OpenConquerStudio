@@ -6,9 +6,9 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Themes.Fluent;
 using Avalonia.Threading;
 using OpenConquer.Rendering.Presentation;
+using OpenConquer.Rendering.World;
 using OpenConquerStudio.Authoring;
 using OpenConquerStudio.ConquerImport;
-using OpenConquerStudio.ConquerRendering;
 using OpenConquerStudio.Runtime;
 
 namespace OpenConquerStudio.RenderCheck;
@@ -30,11 +30,12 @@ internal static class Program
             studio = Path.GetDirectoryName(studio);
         }
         string repository = args.Length == 1 ? Path.GetFullPath(args[0])
-            : Path.Combine(studio ?? throw new DirectoryNotFoundException("Specify a client repository for rendering validation."),
-                "dependencies", "OpenConquerClient");
+            : Environment.GetEnvironmentVariable("OPENCONQUER_CLIENT_ROOT")
+                ?? Path.Combine(studio ?? throw new DirectoryNotFoundException("Specify a client repository for rendering validation."),
+                    ".fixtures", "client");
         if (!ClientProjectConnection.IsClientRepository(repository))
         {
-            throw new DirectoryNotFoundException("Select a client source checkout, or initialize the pinned client dependency.");
+            throw new DirectoryNotFoundException("Specify a client source checkout, set OPENCONQUER_CLIENT_ROOT, or check out the CI fixture under .fixtures/client.");
         }
 
         string parent = OperatingSystem.IsMacOS() ? "/private/tmp" : Path.GetTempPath();

@@ -31,7 +31,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-          submodules: recursive
       - name: Setup .NET
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
         with:
@@ -46,14 +45,13 @@ jobs:
         run: dotnet test OpenConquerStudio.slnx --configuration Release --no-build --no-restore
       - name: Verify command-line workflow and reproducible content
         run: python3 -m unittest discover -s tests/development -p test_studio_cli.py
-      - name: Install Linux rendering prerequisites
-        if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y xvfb dbus-x11 libgl1-mesa-dri libglx-mesa0 libglfw3
-      - name: Validate embedded viewport on Linux
-        if: runner.os == 'Linux'
-        env:
-          LIBGL_ALWAYS_SOFTWARE: 'true'
-        run: dbus-run-session -- xvfb-run -a dotnet run --project tools/OpenConquerStudio.RenderCheck -c Release --no-build --no-restore
+      - name: Record asset validation boundary
+        shell: python
+        run: |
+          import os
+          from pathlib import Path
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('Local retail assets are outside Git. Asset integration tests report skipped coverage; actual-asset OpenGL checks require a configured local checkout.\n')
       - name: Record macOS GPU validation boundary
         if: runner.os == 'macOS'
         run: |
@@ -61,7 +59,7 @@ jobs:
           macOS build, authoring, runtime, headless desktop, CLI, and publish checks run here.
           Native GPU validation requires a graphics-capable Mac; this hosted runner exposes no GPU interop.
           Run `dotnet run --project tools/OpenConquerStudio.RenderCheck -c Release` on that hardware.
-          Linux CI separately requires actual client-asset OpenGL framebuffer checks through Mesa.
+          Actual-asset OpenGL checks require local content on Linux as well; this source-only workflow does not run that gate.
           EOF
       - name: Publish Studio
         run: dotnet publish src/OpenConquerStudio --configuration Release --no-restore --output studio-publish

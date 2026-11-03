@@ -13,10 +13,13 @@ internal sealed class ProjectDirectory : IDisposable
             {
                 directory = Path.GetDirectoryName(directory);
             }
-            string client = Path.Combine(directory ?? throw new DirectoryNotFoundException("The Studio source checkout is required for integration tests."),
-                "dependencies", "OpenConquerClient");
-            return File.Exists(Path.Combine(client, "OpenConquer.Client.slnx")) ? client
-                : throw new DirectoryNotFoundException("Initialize the pinned client dependency with git submodule update --init --recursive.");
+            string client = Environment.GetEnvironmentVariable("OPENCONQUER_CLIENT_ROOT")
+                ?? Path.Combine(directory ?? throw new DirectoryNotFoundException("The Studio source checkout is required for integration tests."),
+                    ".fixtures", "client");
+            client = Path.GetFullPath(client);
+            Xunit.Assert.SkipUnless(File.Exists(Path.Combine(client, "src", "OpenConquer.Client", "OpenConquer.Client.csproj")),
+                "Local client content is unavailable. Set OPENCONQUER_CLIENT_ROOT to run this integration test.");
+            return client;
         }
     }
 

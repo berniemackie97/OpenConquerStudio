@@ -4,60 +4,37 @@
 the Client, Launcher or server applications. The `Runtime` assembly is a bounded content
 reader/sampler library, not a general-purpose game engine.
 
-The client repository remains the source owner of Content, Rendering, Imaging and
-ConquerRendering during extraction. `dependencies/OpenConquerClient` is an exact, detached
-Git submodule revision. Studio builds only those library projects; no code is copied into
-a parallel parser or renderer. Change shared implementations in their owning repository,
-then advance this pin with a reviewed integration test. Do not use a branch-following checkout
-or an MSBuild reference into an arbitrary sibling directory.
-Git records a submodule dependency as a specific commit, keeping its history separate;
-see the [Git submodule contract](https://git-scm.com/docs/gitsubmodules).
+Studio includes source snapshots of the client's existing Content and Rendering projects under
+`dependencies/OpenConquerClient`. These are regular tracked files, not a client submodule or a
+reference into a neighboring checkout. `source.json` records the source base commit and SHA-256
+of each included file. The current snapshot includes the local consolidation of the image and
+world-rendering code. Updates are explicit copies reviewed and tested in Studio; fixes do not
+propagate automatically between repositories. No new shared assemblies or package pipeline are
+required for this arrangement.
 
-This is a source dependency, not complete architectural independence from the client repository.
-The pinned snapshot still contains historical Studio files; the solution never builds those
-copies. The paired client extraction removes their maintained ownership there. After that change
-is merged, advance the dependency to the removal commit. Shared libraries may later move to
-versioned packages once publishing, native notices, compatibility and independent CI are ready.
-Do not create an unrelated engine repository just to remove the submodule.
+`Content/Images` owns TGA/DDS decoding and decoded pixels. `Rendering/World` owns map projection,
+puzzle clocks, scenery ordering, texture preparation and world drawing. Rendering references
+Content. Studio Authoring uses Content for image import; the desktop uses Rendering for previews.
+Neither Studio nor those libraries references the game applications, networking or server.
 
-`extraction.json` records the original commit and each moved file's Git blob and SHA-256 before
-standalone adaptations. Client main and the open character-rendering PR remain separate work;
-the extraction branch changes ownership without rewriting their rendering mechanisms.
-
-```mermaid
-flowchart TD
-    Desktop[Studio desktop] --> Authoring
-    CLI[Studio command line] --> Authoring
-    Desktop --> Adapter[Conquer import adapter]
-    CLI --> Adapter
-    Adapter --> Authoring
-    Adapter --> Content[Existing Content]
-    Authoring --> Runtime[Studio Runtime]
-    Authoring --> Imaging[Studio Imaging]
-    Content --> Imaging
-    Desktop --> Compatibility[ConquerRendering]
-    Compatibility --> Content
-    Compatibility --> Rendering[Existing Rendering]
-    Desktop --> Rendering
-    Game[OpenConquerClient] --> Rendering
-    Game --> Content
-```
+The original extraction provenance remains in `extraction.json`. Actual client integration data
+is a separate test fixture, selected through `OPENCONQUER_CLIENT_ROOT` or `.fixtures/client`.
+CI downloads an exact published client revision containing the original content and repository
+markers; those game sources are never built by Studio.
 
 | Component | Owns |
 | --- | --- |
-| Runtime | Validated pixels, atlas regions, sprite clips and sampling, bounded resource codecs, complete build loading and graph validation. No editor/import/game dependencies. |
-| Imaging | Authoritative existing TGA/DDS decoders and decoded-image type, shared with the client. |
-| Authoring | Project identity, immutable edit transactions, history, typed dependencies, source import, revision storage, migration, deterministic compilation. |
-| ConquerImport | Client-repository connections, bounded source inventory, existing artwork catalog, and image/ANI import through authoritative loaders. |
-| ConquerRendering | Shared client map projection, puzzle and scenery clocks, footprint ordering, texture preparation, and drawing. |
+| Runtime | Validated pixels, atlas regions, sprite clips and sampling, bounded resource codecs, build loading and graph validation. No editor/import/game dependencies. |
+| Content | Existing source content readers, image decoding and included artwork. |
+| Rendering | Existing OpenGL resources, sprites, text, presentation and world drawing. |
+| Authoring | Project identity, immutable edit transactions, history, typed dependencies, source import, revision storage, migration and deterministic compilation. |
+| ConquerImport | Client connections, bounded source inventory, artwork catalog and image/ANI import through Content. |
 | Desktop | Project orchestration, dialogs, selection, inspectors, playback controls, bitmap and GPU-host lifecycle. |
 | Tool | Command-line access to authoring and compilation. |
-| RenderCheck | Platform validation executable using generated assets, compiled runtime loading, and actual embedded framebuffer readback. |
+| RenderCheck | Real client image/map import, compilation and embedded OpenGL framebuffer validation. |
 
-These are internal components. No independent engine framework, plugin system, or speculative
-scene hierarchy is introduced. Runtime owns compiled format decoding; the compiler validates
-its output through that same runtime loader. Runtime's internal bounded filesystem/JSON
-utilities are shared with Authoring through explicit assembly access.
+Runtime owns compiled format decoding; the compiler validates its output through that same loader.
+Runtime's bounded filesystem/JSON utilities are shared with Authoring through explicit assembly access.
 
 ## Editing and dependencies
 
@@ -109,19 +86,18 @@ textures, renderer, and device while the context is current. Textures upload laz
 selected preview snapshot, not every animation tick. Resize and display scaling affect the
 host framebuffer; the editor's 512 × 512 logical preview uses the shared presentation rules.
 
-RenderCheck validates generated compiled assets through real framebuffer readback. Headless
+RenderCheck validates actual imported client images and source maps through real framebuffer readback. Headless
 control tests cover authoring interactions and source pixels; they do not prove GPU output.
 Native dialogs, accessibility, display scaling, and driver-specific behavior require platform
 manual validation. Automated GPU coverage is listed separately in the validation record.
 
 ## Compatibility and release boundaries
 
-Shared image algorithms remain unchanged. Their original namespace and `RgbaImage` type
-forwarder preserve client compatibility. The shared renderer extension requires the complete
-client regression suite in addition to Studio checks. Client gameplay, networking, and server contracts stay outside Studio. World rendering now has
-shared ownership through ConquerRendering; main's animated-scenery and footprint ordering fixes
-from PRs #204/#205 were retained during extraction.
-
+Image algorithms and world behavior remain in their existing namespaces. The image type is
+again defined directly in Content; no forwarding assembly is needed. Ownership changes require
+the client regression suite and Studio actual-asset checks. The current snapshot includes the
+completed initial character-body rendering slice, not full multipart or action-driven animation.
+Client gameplay, networking and server contracts remain outside Studio.
 Integrity hashes do not establish publisher authenticity. Existing launcher trust, signed release
 metadata, and Product Tool packaging remain the release path. Client resource bindings,
 multi-game release identity, protected signing, publication, maps, and characters need later

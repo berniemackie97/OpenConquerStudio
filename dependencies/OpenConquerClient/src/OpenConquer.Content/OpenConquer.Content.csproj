@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="SharpCompress" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenConquer.Content.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Resource names mirror the asset path, with forward slashes on every host. WithCulture is off because
+         MSBuild would otherwise read the "pcm" in Name.pcm.br as a culture and move the audio to a satellite assembly. -->
+    <EmbeddedResource Include="Assets/Login/**/*"
+                      WithCulture="false"
+                      LogicalName="Assets/Login/$([System.String]::Copy('%(RecursiveDir)').Replace('\','/'))%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Assets/Role/**/*"
+                      WithCulture="false"
+                      LogicalName="Assets/Role/$([System.String]::Copy('%(RecursiveDir)').Replace('\','/'))%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

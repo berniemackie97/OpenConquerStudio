@@ -87,7 +87,9 @@ public sealed class ArtworkImportTests
     public void Authoring_DoesNotDependOnGameApplicationsOrArtworkAdapter()
     {
         string[] dependencies = typeof(StudioProject).Assembly.GetReferencedAssemblies().Select(a => a.Name!).ToArray();
-        Assert.DoesNotContain("OpenConquer.Content", dependencies);
+        Assert.DoesNotContain("OpenConquer.Client", dependencies);
+        Assert.DoesNotContain("OpenConquer.Launcher", dependencies);
+        Assert.DoesNotContain("OpenConquer.Networking", dependencies);
         Assert.DoesNotContain("OpenConquerStudio.ConquerImport", dependencies);
         Assert.DoesNotContain(dependencies, name => name.StartsWith("Avalonia", StringComparison.Ordinal));
     }

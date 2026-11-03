@@ -11,3 +11,5 @@
 **/.studio/
 **/Builds/
 studio-publish/
+.fixtures/
+/content/

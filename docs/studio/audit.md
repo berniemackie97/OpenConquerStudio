@@ -1,5 +1,9 @@
 # Foundation audit
 
+Historical foundation audit. Current project ownership is in [architecture](architecture.md):
+image readers now remain in Content and world drawing in Rendering. The earlier Imaging and
+ConquerRendering assembly extractions described here have been removed.
+
 Historical foundation record. Current product ownership and extraction are described in
 [architecture](architecture.md); the current map plan is [Map asset contracts](map-content-contract.md).
 Statements below about earlier PR states and the unified-engine direction describe their dated checkpoints.

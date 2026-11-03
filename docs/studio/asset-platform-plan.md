@@ -20,10 +20,10 @@ plugin framework before there is a second implemented target.
 
 The extraction baseline is client commit `78d752c2da39ca8f9f45f64377844efacce42d17`
 and server commit `a16cae6a2942dc2883131645b766b89e73ae145e`. The client now shares puzzle,
-terrain, animated-scenery and footprint-ordering code through ConquerRendering, and has bounded
+terrain, animated-scenery and footprint-ordering code in `OpenConquer.Rendering/World`, and has bounded
 C3 geometry/motion decoding, matrix sampling/skinning and indexed OpenGL mesh submission.
-PR #213 separately adds initial body composition, world depth and geometric shadows. Its
-acceptance remains open; do not treat it as completed multipart character or animation support.
+PR #213 has since merged initial body composition, world depth and geometric shadows. The
+current source snapshot includes it; multipart characters and action-driven animation remain incomplete.
 Studio still previews source maps, not authored maps or compiled `.ocmap` graphs. Scrolling
 puzzle playback and positioned animated overlay coverage remain explicit gaps.
 
@@ -37,7 +37,7 @@ Existing sources to reuse or deliberately extract:
 | Concern | Current owner and evidence |
 | --- | --- |
 | DMap grids, scenery records, puzzle resources, ANI sections, WDF access, terrain scenes | `OpenConquer.Content/Map`, `Ani`, and `Wdf`; the existing content tool's closure/import validation. |
-| Camera, puzzle clocks, scenery/terrain ordering, map texture preparation | The existing `OpenConquerStudio.ConquerRendering` library, retained in the client repository during extraction and consumed through the pinned dependency. |
+| Camera, puzzle clocks, scenery/terrain ordering, map texture preparation | The existing `OpenConquer.Rendering` project, under its `World` folder; Studio records a source snapshot of this project. |
 | OpenGL resources, sprites, masks, text, logical targets | `OpenConquer.Rendering`; extend its host contract and verify context ownership rather than forking it. |
 | Mesh geometry, matrix motion, character composition, resource lookup, world ordering | Dedicated `20_notes/Rendering` and `20_notes/Game_Map` contracts; fresh Binary Ninja verification for any missing or conflicting behavior. |
 | Compiled client maps | PR #196 is merged. `.ocmap` v1 remains a candidate: its compiler rejects exit markers and unsupported records, dependent resources are not fully compiled, and the game has not switched to it. |

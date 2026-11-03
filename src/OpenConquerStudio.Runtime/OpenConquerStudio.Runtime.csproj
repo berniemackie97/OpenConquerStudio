@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <ProjectReference Include="../../dependencies/OpenConquerClient/src/OpenConquer.Content/OpenConquer.Content.csproj" />
     <InternalsVisibleTo Include="OpenConquerStudio.Authoring" />
     <InternalsVisibleTo Include="OpenConquerStudio.ConquerImport" />
   </ItemGroup>

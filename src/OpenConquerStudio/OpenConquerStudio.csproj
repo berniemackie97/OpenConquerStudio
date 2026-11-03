@@ -5,7 +5,6 @@
     <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../dependencies/OpenConquerClient/src/OpenConquerStudio.ConquerRendering/OpenConquerStudio.ConquerRendering.csproj" />
     <ProjectReference Include="../../dependencies/OpenConquerClient/src/OpenConquer.Rendering/OpenConquer.Rendering.csproj" />
     <ProjectReference Include="../OpenConquerStudio.ConquerImport/OpenConquerStudio.ConquerImport.csproj" />
     <InternalsVisibleTo Include="OpenConquerStudio.App.Tests" />

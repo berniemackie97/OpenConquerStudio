@@ -9,7 +9,6 @@ atlases, and sprite animation. Map editing and characters remain in the [asset p
 Install the .NET SDK pinned in `global.json`. From this repository:
 
 ```sh
-git submodule update --init --recursive
 dotnet restore OpenConquerStudio.slnx --locked-mode
 dotnet build OpenConquerStudio.slnx -c Release --no-restore
 dotnet run --project src/OpenConquerStudio -c Release --no-build
@@ -21,7 +20,7 @@ Windows, macOS, and Linux are supported. The preview viewport requires desktop O
 ## Make or open a project
 
 Launching Studio within a game checkout opens that client project automatically. Launching from
-the standalone Studio solution starts the new/open workflow; its pinned dependency is not selected as your game.
+the standalone Studio solution starts the new/open workflow; the codec/rendering sources are not selected as your game.
 A containing `project.ocstudio` takes priority. An explicit project-directory argument overrides discovery;
 standalone installations outside a project retain the new/open workflow.
 
@@ -88,7 +87,7 @@ at the clip's authored tick position. Upload texture pixels once using the exist
 `OpenGLGraphicsDevice`, then draw through `OpenGLRenderer` with the returned rectangle and pivot.
 Runtime loading has no Studio GUI or Conquer importer dependency.
 
-OpenConquerClient already shares image decoding and rendering with Studio. It **does not yet
+Studio uses a recorded copy of the client image decoding and rendering code. It **does not yet
 redirect its game resources to compiled Studio assets**. Importing artwork does not change
 client layouts, states, maps, or installed files. Client adoption needs explicit resource bindings
 and the existing authenticated content-release pipeline. Another game can consume the runtime
@@ -99,9 +98,14 @@ resources directly without any Conquer assets.
 ```sh
 dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- build my-game compiled-content
 dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- verify compiled-content
+# Set OPENCONQUER_CLIENT_ROOT to your actual client checkout before integration checks.
 dotnet test OpenConquerStudio.slnx -c Release --no-build --no-restore
 python3 -m unittest discover -s tests/development -p test_studio_cli.py
 ```
+
+Set `OPENCONQUER_CLIENT_ROOT` to a real client checkout with `content/retail-5517` before integration
+tests. CI downloads an exact client fixture revision into `.fixtures/client`; no client project is built.
+RenderCheck also accepts the client directory as its sole argument.
 
 Run the tool without arguments for all commands. Close the project in Studio before editing
 it from the tool. Build destinations must be new; in-project builds belong under `Builds/`.

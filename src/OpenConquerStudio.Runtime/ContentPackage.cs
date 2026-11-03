@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using OpenConquer.Content.Mesh;
 
 namespace OpenConquerStudio.Runtime;
 
@@ -14,16 +15,22 @@ public sealed class ContentPackage
     public const int MaximumResources = 256;
     public const int MaximumTotalPixelBytes = 64 * 1024 * 1024;
 
-    private ContentPackage(ContentBuild manifest, SpriteLibrary sprites)
+    private ContentPackage(ContentBuild manifest, SpriteLibrary sprites, Dictionary<Guid, C3ModelData> models)
     {
         Manifest = manifest;
         Sprites = sprites;
+        Models = models.AsReadOnly();
     }
 
     public ContentBuild Manifest
     {
         get;
     }
+    public IReadOnlyDictionary<Guid, C3ModelData> Models
+    {
+        get;
+    }
+
     public SpriteLibrary Sprites
     {
         get;
@@ -78,6 +85,8 @@ public sealed class ContentPackage
             textures.Add(id, texture);
         }
 
+        Dictionary<Guid, C3ModelData> models = [];
+        long modelBytes = 0;
         List<SpriteAtlas> atlases = [];
         List<SpriteAnimation> animations = [];
         previous = Guid.Empty;
@@ -95,9 +104,16 @@ public sealed class ContentPackage
             AssetFileIO.ValidateDigest(entry.Sha256);
             string name = ResourceFileName(entry.Id, entry.Kind);
             expected.Add(name);
-            byte[] bytes = AssetFileIO.Read(Path.Combine(directory, name), SpriteAssetCodec.MaximumLength);
-            metadata += bytes.Length;
-            if (bytes.Length != entry.Length || metadata > 8 * 1024 * 1024 || AssetFileIO.Hash(bytes) != entry.Sha256)
+            byte[] bytes = AssetFileIO.Read(Path.Combine(directory, name), entry.Kind == "model" ? C3ModelCodec.MaximumLength : SpriteAssetCodec.MaximumLength);
+            if (entry.Kind == "model")
+            {
+                modelBytes += bytes.Length;
+            }
+            else
+            {
+                metadata += bytes.Length;
+            }
+            if (bytes.Length != entry.Length || metadata > 8 * 1024 * 1024 || modelBytes > 128 * 1024 * 1024 || AssetFileIO.Hash(bytes) != entry.Sha256)
             {
                 throw new InvalidDataException("Compiled sprite resource does not match its manifest or exceeds the metadata budget.");
             }
@@ -105,7 +121,14 @@ public sealed class ContentPackage
             using MemoryStream input = new(bytes, writable: false);
             Guid id;
             Guid[] dependencies;
-            if (entry.Kind == "atlas")
+            if (entry.Kind == "model")
+            {
+                C3ModelData model = C3ModelCodec.Read(bytes);
+                id = model.Definition.Id;
+                models.Add(id, model);
+                dependencies = [];
+            }
+            else if (entry.Kind == "atlas")
             {
                 SpriteAtlas atlas = SpriteAssetCodec.ReadAtlas(input);
                 atlases.Add(atlas);
@@ -147,7 +170,7 @@ public sealed class ContentPackage
             throw new InvalidDataException("The build is missing a declared file.");
         }
 
-        return new ContentPackage(manifest, library);
+        return new ContentPackage(manifest, library, models);
     }
 
 
@@ -155,6 +178,7 @@ public sealed class ContentPackage
 
     private static string ResourceFileName(Guid id, string kind) => id.ToString("N") + (kind switch
     {
+        "model" => ".ocmodel",
         "atlas" => ".ocatlas",
         "animation" => ".ocanim",
         _ => throw new InvalidDataException("Unsupported compiled resource kind."),

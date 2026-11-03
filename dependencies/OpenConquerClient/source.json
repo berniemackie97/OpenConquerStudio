@@ -1,0 +1,3103 @@
+{
+  "schemaVersion": 1,
+  "sourceRepository": "https://github.com/berniemackie97/OpenConquerClient",
+  "sourceCommit": "92cdf2c16c8321780b02490b02864bb7aac52b93",
+  "files": [
+    {
+      "path": ".editorconfig",
+      "sha256": "f8f0e5be0ef9696f8edadeb19a0d4be4e5dfbb481e61b23021a7c261573e461c"
+    },
+    {
+      "path": ".gitattributes",
+      "sha256": "6d19dcaa039dc41d627560b0e297ef24be9380abe1652dced268c58362e25009"
+    },
+    {
+      "path": "Directory.Build.props",
+      "sha256": "e7a57527cd01b2debe7a3078bf22488e6fe6f1853fc692ee0d07d998520b08a3"
+    },
+    {
+      "path": "Directory.Packages.props",
+      "sha256": "866965df3c523987c01c125319d2316f58ccdd64a3de8ea18587df1e441b038d"
+    },
+    {
+      "path": "global.json",
+      "sha256": "67381be18aa807c04218165844967cf58235875477f30495ba98c3648248a9d4"
+    },
+    {
+      "path": "src/OpenConquer.Content/Ani/AniFrameLoader.cs",
+      "sha256": "f7d4b61faf499bdc79272fe101ff6795294ea1041023b1adfdcd1e631d70314f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Ani/AniFrameSet.cs",
+      "sha256": "e8d6ba97e53d91c852f14688ac61eb2f53bf7871d3c6afc4d0f15d7c6efae33c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Ani/AniFrameSetLoader.cs",
+      "sha256": "b243f043314433bf1b1fbbb463d67e449bce1fe4229b5be7583d82da25ba9484"
+    },
+    {
+      "path": "src/OpenConquer.Content/Ani/AniIndexFile.cs",
+      "sha256": "f1fe8448d3813780781f926dd527698972f58fd26b39cdb54e1d6e309d15fc14"
+    },
+    {
+      "path": "src/OpenConquer.Content/Ani/AniIndexSection.cs",
+      "sha256": "b3ba1f8765b3def7e8e44b1783a639e727d74c6e75bdf43faf5d58872c775a4a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Ani/AniSectionResolver.cs",
+      "sha256": "c41eed332d6971cf6e1ff12728b801352c6ac54f7e5bebdcb9d0ac6a141d29a2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Account/CancelDown.rgba.br",
+      "sha256": "f179612dff511b9f332bcb8188ed1681e892d5e055733ac19d8628676e3d0587"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Account/CancelOver.rgba.br",
+      "sha256": "ec41e0c69a40c1645633dd8282c266912b561d0577b7fe075bc0bace7738e087"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Account/ClearDialog.rgba.br",
+      "sha256": "e45bb02e352952fba4d010bbc303fba70827e01ac139a6ad57f0a94cdfcc059e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Account/OkDown.rgba.br",
+      "sha256": "9b31fedb7e8db8e40c02a281157cfad52546dd809ffae712711647bf44ea03e9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Account/OkOver.rgba.br",
+      "sha256": "17644c1e23f7476b1237e5c28216e83349c6ba5d90692c39191127ec1876471b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Account/Row.rgba.br",
+      "sha256": "378255fcc64cab2ad7cb77eb795844df7785a529b8c58592e98e736c7bd49533"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Account/RowHighlighted.rgba.br",
+      "sha256": "658fb9bd014973222da95575f48196412f974b072dc7969aaaecac2a1f1be942"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Account/SaveDialog.rgba.br",
+      "sha256": "9a8f51fd01717405c0172c20963093f574d7b5beb741b32f1355784381a1f6c5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/ButtonClick.pcm.br",
+      "sha256": "8cf58dc554114b89fcb8764a0d076adb9d62d2bfc5c9e1ec73804ccec4a0abc8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/ButtonHover.pcm.br",
+      "sha256": "b4613f34e1522af1f4481f548a485d80463d020a1cea6c2e7b1b5b6ad95b3ee8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/CharacterHover.pcm.br",
+      "sha256": "60993a9f7e0b511fd1371b1e2d1dcb1feb358bc2a413be689d7f17a8ef423ab8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/CharacterSelect.pcm.br",
+      "sha256": "ad2c8b2d3ea78a596ba44afe79985fca6e6c889a1c75c3625bc21b601f6a5dee"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/Confirm.pcm.br",
+      "sha256": "4d081db978395ac5ea95eaeb1839f4bf8710fc787b4c9d2bd0e8b74d91b2a21d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/Dragon.pcm.br",
+      "sha256": "51b9fd71ad6c5fc547820382ef776f7ce50d88a5e2e85526cf406df3847e707f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/Error.pcm.br",
+      "sha256": "fb41acbbd6a72d5886f8ec5850ad7dbd3b2ee12c6c26c676d0229fc51b1acc62"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/Glide.pcm.br",
+      "sha256": "00c7f8d08ba8da7268cf9af8cdc6fbd4cce1738ded6cc527b291925c36cb3818"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/KeyOne.pcm.br",
+      "sha256": "a24ebede79df68ce7b45a060b986d3a4e55937bdb41ebfa03cfe0502b276f084"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/KeyThree.pcm.br",
+      "sha256": "bb01c6bed2ad6ce8fa8cc1de60734835d851fafefc5a17a38d6af60f947d3617"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/KeyTwo.pcm.br",
+      "sha256": "7215a0cdae73bee957751ba8b461c3c5de4b62b8fd887f83f579481c4541a7e6"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/Music.pcm.br",
+      "sha256": "05c131eb8e53ff884b38cbd1f5351eb9606ccaf6bdde2c8ba9fdec2a4e5748e7"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/Page.pcm.br",
+      "sha256": "b0817f8fbc81f9bd627bdff03baa82d8df0f43d2a6b779bce1361bd44e82f0ef"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/ServerSelect.pcm.br",
+      "sha256": "ca647de2a917d341d95f67b6e3348e450a2517172a227b014f4ea81719c3dd46"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Audio/manifest.json",
+      "sha256": "5e2128493b6afbd71b5677b55afb8c807825c6cbb58f4fd12cdcfb466556df60"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/AccountsDown.rgba.br",
+      "sha256": "db7212294a7ce920b945edefed2aa88c7661d470805cac4ebbf8264982bebc59"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/AccountsOver.rgba.br",
+      "sha256": "1b74d7820e12c74fcbcb90881561b482cfc1aad6f9c0ea38b19e3390f98b7607"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/AccountsUp.rgba.br",
+      "sha256": "171ef6809b0c7b5c44acc7d9f80c05a629cd079771993b7962220117773ff551"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/ClearDown.rgba.br",
+      "sha256": "94a5fec0056b2fd83fd9d9998e46c7a7d3fbff0a00b62fa5d4e9d18cd45177b2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/ClearOver.rgba.br",
+      "sha256": "17c33ece66ab969a7b9c1dc88d5b2c7243842732569b9cb3870bed55f97d0ab0"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/ClearUp.rgba.br",
+      "sha256": "0f1defa4c3aaa52701e6220a005b4909ccb604371433e64a650b58eae7bbef52"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/EnterDown.rgba.br",
+      "sha256": "a5c9118f10e52867c1306f766953a7b7b2ea13c8ab3a57b4d5d0f67026267eff"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/EnterOver.rgba.br",
+      "sha256": "9072acc6b327fa2477a87ce4eb19a31243ff109e847b0caab1455a1325b6ced2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/EnterUp.rgba.br",
+      "sha256": "6989942333d0c140de7235ea07f8a64499de5920da6f5c2306477e76dfc8698a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/ExitDown.rgba.br",
+      "sha256": "aeded970aa5f3355b0b5de04927ef3d650d91c57e8c496342b9bc54700675386"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/ExitOver.rgba.br",
+      "sha256": "4f7bf99ceae207181c6e9b751632a36d4ceec905bc1ccd13ff4229ca04407a9d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/ExitUp.rgba.br",
+      "sha256": "9c5abc70a7054c0173f2f016fe2b19fda58e7813a31cab6d1596ac4289cea957"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/HelpDown.rgba.br",
+      "sha256": "7525905439fa67d09a1428311689b53734b946689ecd2aafe6c66bf78edd178c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/HelpOver.rgba.br",
+      "sha256": "06c6c1fd739ef5b25c950f8eb541740ede43e3f4101d0d7324204be52e3e3aa2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/HelpUp.rgba.br",
+      "sha256": "3e0ad6e397fa8a4acac78864bed0c9ac507944847c074e0ad8be3f29e3a3290a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/PageNextDown.rgba.br",
+      "sha256": "383132007d07078dec70c38f58c1ad503facb681f8bc833bc28e4275cdd77ae1"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/PageNextOver.rgba.br",
+      "sha256": "ef180f6eba9e5e4854d21242ec54b8861897326da5291924bb815c94342d7d15"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/PageNextUp.rgba.br",
+      "sha256": "a1a792b9eabb91706601559b34536cdc0f7071041adbfeb79b92a830d6675d3e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/PagePreviousDown.rgba.br",
+      "sha256": "c32da8013f788a0d49bfb936eaee20ec28ea67f9978d3fc3f314d0b5437e71b8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/PagePreviousOver.rgba.br",
+      "sha256": "18e283215ae29f4a67c724be1015ba4a47e8ce3c19548f7007962b6181bfc041"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/PagePreviousUp.rgba.br",
+      "sha256": "11d257990f2a09c2eb876dd533c85bd9179accf12117e9099ea924a46d2303ad"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/PurchaseDown.rgba.br",
+      "sha256": "df4d4fa9dd9519af2d27fe7cf934d5721f30ccbc9b5712840fe294706698f432"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/PurchaseOver.rgba.br",
+      "sha256": "c9ff197720817f0e0ebba78c11bfb075b5ce9449440a80c64f4cfaf2f132e9e0"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/PurchaseUp.rgba.br",
+      "sha256": "22ac26fdb09472d1b84eac7af99b5e65e09c0f526d66473200221667e6d7636a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/RegisterDown.rgba.br",
+      "sha256": "02b95bbfc56eeccc83e0a20cb85e815820d701202238e917b875a4049fe02407"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/RegisterOver.rgba.br",
+      "sha256": "0a83125165906cbc5a6fdc548491e3005248d8bdda94c0c96cab89baf13a071b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/RegisterUp.rgba.br",
+      "sha256": "e340de9383befcc30e7f98189c18ec3ff9fc67b62053a28dd6da7012f01e5831"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/SaveDown.rgba.br",
+      "sha256": "d47ce5f03c6db30a03802e6828a10951f6acb10fd202c8e6ae8b311544bb700f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/SaveOver.rgba.br",
+      "sha256": "c4cbda4a867763d861e2a1e43eb347c43ab94b81f10d98ffe9ab17cc1a7208a6"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Buttons/SaveUp.rgba.br",
+      "sha256": "5cd3b668c814548de4daa6833f2bfbd4be9a8dcea831f44bd87ffad25281cfd3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Cursor/Normal0.rgba.br",
+      "sha256": "703c9f8ce57533fe250f54625eeaf551f53404f5af96893c93841369e6bd0f51"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Cursor/Normal1.rgba.br",
+      "sha256": "d4fe7ca98428cfcfcc1ddf514f9ec1c4988b265a6ef8e9579bf5ab6fc215b836"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Cursor/Normal2.rgba.br",
+      "sha256": "c8025c1ff053b67afae1c4a601e4f0f56af9b2cca5b3cbfdfe785d922a8c3f4a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Cursor/Normal3.rgba.br",
+      "sha256": "095dcafe298320413de94c1700776178c5c5f75d1127c898492a8814a8dd6ca4"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Cursor/Normal4.rgba.br",
+      "sha256": "a58b83bd336592cd0055f9066609a344129bed0e1b560424a5280af6ad72d9e1"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Error/Error.rgba.br",
+      "sha256": "ba11e4ac1c9bd1d7a01727029446158d96c9afe63edd3118edcf166371307fd6"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Error/ErrorOkDown.rgba.br",
+      "sha256": "4b2f9d77f6e451863ba97442e231cfe4acec13e496826146c6972dc23875f1b4"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Error/ErrorOkOver.rgba.br",
+      "sha256": "6e2e02bf11725631b81505e3ddd1aa2180398f53e722ce315e6952d54022487c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Error/Quit.rgba.br",
+      "sha256": "1656984c5c17fd46b917944df54e9a8144817fef6d0ab688e918db9fce32b25f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Error/QuitCancelDown.rgba.br",
+      "sha256": "ad4a0c338228448c58637cd2037dc0bf9fbcb0c667a28ed9529e5b305acdbeb3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Error/QuitCancelOver.rgba.br",
+      "sha256": "af743841ee2e8f64fa787577220c426f4c815b7b185cb1675972b7de7a660131"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Error/QuitOkDown.rgba.br",
+      "sha256": "10cf3ef094e4f78d5c83ae8ed31535c761e0b04391f55990b0b4b2936a90dedc"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Error/QuitOkOver.rgba.br",
+      "sha256": "fa225b7d43f4bcaf7b341495fdcf67eb8f1176b861b444c11ff409e8d073e373"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture00.rgba.br",
+      "sha256": "51e5bc3cb8aa32cf3f04eac2d84009da546e90e323db25107118f3be12d43e39"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture01.rgba.br",
+      "sha256": "38834dd197c42b806454b4ad7e40a432ff8b3a1d0878d2bab364d56502da939c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture02.rgba.br",
+      "sha256": "bb68c1e0c6d586bf26f50b307dc6b09e32380c74b008488ff36630099e3ba9da"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture03.rgba.br",
+      "sha256": "be8735505734c3a590cf9cc4014b8e9005076c95de2cdce1dd365e01a7270e5b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture04.rgba.br",
+      "sha256": "6e3233a6da51b6d04ca51f112dfc307580f45838d8d63ee407f0f5cc0aba7575"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture05.rgba.br",
+      "sha256": "9af0cfd89f6f4343df75b6b8479f7911e7729d24d940ed54654c3a184af942bc"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture06.rgba.br",
+      "sha256": "97b1bcb14bee887679eac02fce4dbb44afac60f245be8dd822ad2b8bbbe3cbc0"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture07.rgba.br",
+      "sha256": "bb0e26b6a917d522a40fddd0e7e9697ba75f41ad8f2c26d7b18af58114c3cd61"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture08.rgba.br",
+      "sha256": "66abccf4591bce893332a825f9c85a8dbfc92f1fe8ff67ecfcdfc218b360e961"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture09.rgba.br",
+      "sha256": "c1d2ad2d3ef29788884a3cf9b53b1ffb36f7c6c09cec50b2f0849019efdee363"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture10.rgba.br",
+      "sha256": "80b74ad0f915ed4703ca5ff9d666067b01f4045da5d19d41acfb268d75e73b08"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture11.rgba.br",
+      "sha256": "69bf55b43ae4ea6e244d2de177b9736427329fb00922d15ea8ee66e62dd414f1"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture12.rgba.br",
+      "sha256": "7a43f1272c8500aed2bc85b12b45f2e016adef375a5c26b73873ebbdd2bef264"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture13.rgba.br",
+      "sha256": "0c2f246f6ebb6d149d6c68d94d5315eb19355ea953a165c4ff61ae0241914ea7"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture14.rgba.br",
+      "sha256": "dcce11fcc40f7d9c0bbf5b9eb02c7a74aefc19d86f01e3209e599d1645538d92"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture15.rgba.br",
+      "sha256": "f5ea438016b56c8bd9ae82e06a85dfe462666e3120299d90bd429154f663a7db"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture16.rgba.br",
+      "sha256": "8b36016ea88bb600706e99f4033c2a2df53dfae9e4aab0436d582d90406bf65e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Logo/Picture17.rgba.br",
+      "sha256": "ec517d14d8119a92c67d4b922149f850e16b63b78c2c21a1cf860ffa30f8d434"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/BirdAtlas.rgba.br",
+      "sha256": "8533c3aeeb4f65e80859e89a4f9a3e5a5ba17215845924d197380843a7529faf"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/BirdFrames.bin",
+      "sha256": "dde10f86e3c27eebef114e31387df835b789438b4a730a9bd72c176f61af596f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame01.rgba.br",
+      "sha256": "a6449884a2431f1223090b3b00f588089c9d2651d88351d7b6b040a3eebf3c7c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame02.rgba.br",
+      "sha256": "adf3fecb8e3dbd1e4e50a60950b2747ca4e1e14566bf8c68e22b0a5a959c3b15"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame03.rgba.br",
+      "sha256": "ca1f5083e221b4af46215ab8eba77ed08a423b2beba80ace9064e8a171a34c39"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame04.rgba.br",
+      "sha256": "55340697059484d9e8997edceb512c9fdf78866ff9d53d8856cffda93367d841"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame05.rgba.br",
+      "sha256": "31a34c0912591893f6f880e608acc336a968610e6c50469bf28c3f9cb565f564"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame06.rgba.br",
+      "sha256": "b82eb0cd8541542226a4473dd16af816f0939d37fcf0e6aee1d3b05ec4e23805"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame07.rgba.br",
+      "sha256": "0c0f0bf20ba4e75c5cd460c9d2ed197565303550f343988dcd61a4c981e25470"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame08.rgba.br",
+      "sha256": "35abd3795b9c85bc214fd447427899d9a79883047dc795f36eb7126b9164ae9f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame09.rgba.br",
+      "sha256": "dcb3cf1726ecfc05b25e2c82d99261862eb30bc476289200d8fd821c777fadce"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame10.rgba.br",
+      "sha256": "5ef47931b52781af7ae6bbbb2c813b84ed9e895e651ea5c2534732ca5749c185"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame11.rgba.br",
+      "sha256": "e9818bd0eb38d5f4bfe50000a8d38c6f369970c7d2efda4fd9eefd0df4991110"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame12.rgba.br",
+      "sha256": "9d8ee53075457e93800d00b154f87238e233e8229508104c622d32593fc63188"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame13.rgba.br",
+      "sha256": "6c2e2137996e70586fd5dfdfea111130e2375faa3332297cda1d33dd5c6be55e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame14.rgba.br",
+      "sha256": "08a98551b0a695a47def872bc2264c38b3235e69ab067d755bb1d29cdd52d0c4"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame15.rgba.br",
+      "sha256": "84510ace386d49c25db5a4b0494aa32d1bbd4aed6b2e66ff3daa640d1e6df2ab"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame16.rgba.br",
+      "sha256": "029c187b1b520c1a4e32c1d4db00301181700d5c7a3d050b6f88d39b11dbc3c2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame17.rgba.br",
+      "sha256": "11746151a82040be1bffa4ae83d0e0983c13df25525bb0cd710b4776c43b978b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame18.rgba.br",
+      "sha256": "7ce1f3255034022f2c4be9fa211a9c67746347cbd9e7e8a8801f25f9d868bfc5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame19.rgba.br",
+      "sha256": "06cafbbec45f7c3b7b5bb4650c759d30d3fb4f3712c37f452d202b2569c65c88"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame20.rgba.br",
+      "sha256": "4f2a1b79ea73e3aa222d15f497b96ed3ee6bd1913cf4d2f3f6dd1340e71fed44"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame21.rgba.br",
+      "sha256": "d1efecf837cde08220b0855f910fd1da12d1ba7f64276dcff18da469ba8bfba1"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame22.rgba.br",
+      "sha256": "42345643bcc6adb6b5806fb891bc015e62437a4990f5ff709b47aa7bf280f519"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame23.rgba.br",
+      "sha256": "396d28104d60fbfd796b88ac1761b85bdc47d4e5d6bcb91e76ac974f056e3cc0"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame24.rgba.br",
+      "sha256": "6bba8c5aba96c540bdd938a2e2ce608858b8d80529e64ecd4c42ab0a39085a30"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame25.rgba.br",
+      "sha256": "38dfac0c347f117fa3b5f18ceca3c5040ed1738722a1bdeed9d58c7911b44e58"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame26.rgba.br",
+      "sha256": "fa51097bc7550e2f99d20f824830e1219a1988b1d0c2cfcc8f6164beb9b39131"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Opening/Frame27.rgba.br",
+      "sha256": "8a00224c234854fe5828980228ba3d8e751109e70317fb0982742e12796ccf78"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Region/Flame.rgba.br",
+      "sha256": "f9f4120c5f05a0d2c9e6bf06a0e274fd828128501c4644290443813e4de858bb"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Region/Hover.rgba.br",
+      "sha256": "b118a88f10f16a11d54371d6ff19b22d77400e3cba8bdfdb5dc40c1e084fc88c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Region/Tile.rgba.br",
+      "sha256": "fb5ec54c54c2553951186f2aa1cdc74819bc66d72c1793a07574227257b45c4d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Region/Unopened.rgba.br",
+      "sha256": "613247c63627eea17b376c48861c8997eb973242bbeec122b28a3dc2445e9a46"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Server/Default.rgba.br",
+      "sha256": "7ebe7ca5e4038724d54deca2c533e0e2a493f268d0122328ec57287e5b801e8b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Server/Highlight.rgba.br",
+      "sha256": "30b690657a69d61aa73a12378efb66997ea345d561f9c1af047735db6950cdcb"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Server/Hover.rgba.br",
+      "sha256": "d7adec9ef1de7de2b189b499974092944551926f02b143325cc2f3f48f6cbefd"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Server/Selected.rgba.br",
+      "sha256": "be68fba5a4cb8245652fd54e0af3785e4df22ab621431d6ceaa571753e6c0f2f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Server/Status.rgba.br",
+      "sha256": "fec27ba3b95e0ce689d4d91e7c12e98acb51733f53b71412862736fe2390bc3d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Server/Unopened.rgba.br",
+      "sha256": "4db8bef01ba3cfc55e06310c69abcca3f90f0829bc44ac29f1c3ab63162eb7be"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g01s01.rgba.br",
+      "sha256": "e3f28365f36cb13dc73c4be321b9b4961cac9a4b9bd7b120efa4985e9c7cd917"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g01s02.rgba.br",
+      "sha256": "a85b6eb6ccd6199ae08ae0f5475569dda7f9dd62f9a286ff4c6e300bc53879e3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g01s03.rgba.br",
+      "sha256": "7f81b9f48de8bae093e2411b71defa118e0f5b941988ad3eeaa86b95f22c2cc3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g01s04.rgba.br",
+      "sha256": "b13e13ba15e48ad50decd3b5616225c73511bcb24e5af8e71b54831a6964cde2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g01s05.rgba.br",
+      "sha256": "3bf8904d5874e4798047e958a223bf5dc5370d2784ba0e1de0b70e00a571adc9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g01s06.rgba.br",
+      "sha256": "3e7e344ec8193500f21de294a568fa8d42b09608477deaec7e7bcf143241d505"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g01s07.rgba.br",
+      "sha256": "1e46c3f9a46ef51b46f1aa8a04692f2ad9c6bb3b039d5fe4a042b19dd22e8933"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g01s08.rgba.br",
+      "sha256": "c410b3959c909f0fe59b3f3cb42add168f634dc9ce663cb40c0e0ca7127af961"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g01s09.rgba.br",
+      "sha256": "35ac0d93f50842256716926fb6e1eb4aa2c98ca447e345223a00b5c692849829"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g01s10.rgba.br",
+      "sha256": "e8787c11f5beaca0782dae898b1acb752e87d31c4bd18c77261f9bb16e9cb802"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g01s11.rgba.br",
+      "sha256": "d00ca5325907de681156dd835480486d52fcc58d15f73f9dbcc5f7879829c2f2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g01s12.rgba.br",
+      "sha256": "758468c9fe20505b454714e3d7b8e150ce4d1d5d79db349523900d92b144f385"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g02s01.rgba.br",
+      "sha256": "dee9b6497c66c6d6ed763e3995bc63457d9ccb708304981fb52ede136f2892e7"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g02s02.rgba.br",
+      "sha256": "42377455c28e531ea808a43ad886ee2db643b0eaf76fecdb76bf3ba90140a70b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g02s03.rgba.br",
+      "sha256": "58787ef7d62d885d33c46b0cb60bd06d56bd330192283b2e44beab9ca0ecf53b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g02s04.rgba.br",
+      "sha256": "ad52a3489b7d45323d5783ab1dadd63acce9971e0aeaf30a914baa646fc43ae8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g02s05.rgba.br",
+      "sha256": "80055e1d1caaca4dd9cb294d2590a65a82ad351611fb8df34c2274dea5321d5c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g02s06.rgba.br",
+      "sha256": "efed4d6bb021ed3945fa4c3cbbb9499359d3117fc21132387111e58da5a843ac"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g02s07.rgba.br",
+      "sha256": "4f11c02d270224961128e076e51e851b7723f89384587007e639118fd4259f7e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g02s08.rgba.br",
+      "sha256": "b0e9a3a085e1100876131bbdf4926cd77b3660ac310a7192820ac28d41811534"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g02s09.rgba.br",
+      "sha256": "62f3e21301eadb1f238fecda1c1e8f98bc168dfe4ed65a8cdacf8681b497a27f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g02s10.rgba.br",
+      "sha256": "63d8ebdd521f98b10f7b0fcdaa53d43c560ae1f2a2024fa0d605558966c4640b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g02s11.rgba.br",
+      "sha256": "fb2f7c6aeaca033cb07440764a7bc75a7ebf93d922dcfd2e5f98883f3567c614"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g02s12.rgba.br",
+      "sha256": "c092f4ecfa6c781f3fc09abab8a8f67593caca8622d83208184a9a5129e5bd70"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g02s13.rgba.br",
+      "sha256": "c3d4b01b08553d66c4bc06a4676473e25169dce01b13295684a7ab5f8a4c6657"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g03s01.rgba.br",
+      "sha256": "0393cf42c0e5fff70d4fdbc7bbb9253d1d84fd283b36e5d2ecba93ad968ecfc8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g03s02.rgba.br",
+      "sha256": "bf876233eceebdd2531858a8964df506d0636d78b12a92304fbc0958d83dce06"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g03s03.rgba.br",
+      "sha256": "754d479ce26c70c732981bfe694329c0d764f1cd7f3beccccf6babac705000a8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g03s04.rgba.br",
+      "sha256": "7753031f72b4470a0dc4868a850315bd1e871c52e5b8e6de14f64bbcc126758e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g03s05.rgba.br",
+      "sha256": "4fcd5314f8688bdad94b3a42def1aa32a86e4ad58af884af16d3b16a3cee5216"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g03s06.rgba.br",
+      "sha256": "e95dd8fb182422259a229d646120abffac7ee14bafbd197db4b85592c9160b72"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g03s07.rgba.br",
+      "sha256": "1aa69b232eed5fb6d582d9c831a890120515bcd76502a24adc8fa6d4f3551355"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g03s08.rgba.br",
+      "sha256": "76666feacf9cdd9c20a692845b442204d0e7be3bd688a17b2979351444ad9a7a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g03s09.rgba.br",
+      "sha256": "f3c42a42899e024b2a6f0c5ecff624e4a156ee0362f6d33ad7fe7f90fc835218"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g03s10.rgba.br",
+      "sha256": "d823b0ebbd588a2a3a54c1668f9e3b86c0745216851545c8a176386c45072e45"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g03s11.rgba.br",
+      "sha256": "cb47f55cbe09174c0130812ad52aa39b013ff101575bfc97e20c95bf69b3c3a8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g03s12.rgba.br",
+      "sha256": "988aedeac0725c52036195f8775f8a55afd68bf15f5efe06909b6b61a4c8ada2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g04s01.rgba.br",
+      "sha256": "8759722b195b2f2b11aeda3a2c985211a6f812a1802e5254a724aa5e40c06156"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g04s02.rgba.br",
+      "sha256": "f99f7af6b0ae8a2055e01c8e50fceb78366166e8fdc77961f812d55dbbe77e9f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g04s03.rgba.br",
+      "sha256": "86f43bd5c5d1a0e0567a788925440acf94ff4bb2669f951a3d933c3c5f32cf27"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g04s04.rgba.br",
+      "sha256": "51e5198730d98d29add75292d0a92029f128aa929b28bbd92f5e559bf18a4b1c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g04s05.rgba.br",
+      "sha256": "b386b585d0b0ae9af4e6e690cc327825c915fc81b228f9506d89d306a515c407"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g04s06.rgba.br",
+      "sha256": "3921b21b7bc04e80a47bed75fe5d8bb33d4e8844cc66b570e674a9bc5473a769"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g04s07.rgba.br",
+      "sha256": "72e1b754ad6d4d97cad08cfe7d765230d5d72f7dfa9001eee5c91bea56352faa"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g04s08.rgba.br",
+      "sha256": "d710a3b7dfa4037d826b3967c90dd8b785b7da02d1aabe572517a4b13817b045"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g04s09.rgba.br",
+      "sha256": "9ac36b6df9c6854ca440a77050b9b9b1990bc9fd554fb03d3d293f9e736f901f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g04s10.rgba.br",
+      "sha256": "b0a8dfa2034df1a29bf9ce6cda80939ebc10067898ad8a94ce06f47443dd4e74"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g04s11.rgba.br",
+      "sha256": "1bebca72cad5563de915c7f54e2c9a8843c54714f67724535f7a7389ac3f2d68"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g04s12.rgba.br",
+      "sha256": "ecc1974a2a7f35917be77c3efb786dd24aeaed841d10142e93235d1122ca037c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g05s01.rgba.br",
+      "sha256": "1be92fd626920c89e49ca66c98a9d23602e68f9630bf60f3e71ebc742fa87cc0"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g05s02.rgba.br",
+      "sha256": "6aae8359fc093fc2b658f7866056dcb9c266e2d0bb45e7cc8c7d83f4e51681e9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g05s03.rgba.br",
+      "sha256": "6acd55badbd7f0a1bf1945848f0f052dab6fe8afc2d513b3a6356d60b56a4fbe"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g05s04.rgba.br",
+      "sha256": "e8d5127ef23764784ef1d7d14dd31d24d49fc57cd407ce1abbb2c535e3f6c68e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g05s05.rgba.br",
+      "sha256": "466c7aa162c5d0f2740855717757c392d64004ddfcee4084b7c76de0c5275071"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g05s06.rgba.br",
+      "sha256": "626cf70ead9b588354b04a24b43bff411bfb32d13e5122eb4e3865b323b6e4bb"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g05s07.rgba.br",
+      "sha256": "a0026f1d6b7cd08a2038ce8a084666514eeefe0e52f3371a648ee2019a936ce3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g05s08.rgba.br",
+      "sha256": "add58b6b43a39abfd6a8a8956db968e8ad4bc92bf508578714e256c4f292c692"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g05s09.rgba.br",
+      "sha256": "11fa7e08b657abb7db9e15a8fbe531d46d9f51b91c5f228c8c0807822af16972"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g05s10.rgba.br",
+      "sha256": "7d191c364ec815bfdd6ec7fdc2b7f117cd99f5c7bb4345fae83d0c69bf692211"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g05s11.rgba.br",
+      "sha256": "9c13a1870644946ca6a23d321ffe2edf680fcd489f22f9ff708a705c02fa1916"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g05s12.rgba.br",
+      "sha256": "9a941aa32116212a92585113b6585e575668b27d3516196067fc3f0fa891d04f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g06s01.rgba.br",
+      "sha256": "9a7b4eb41b4f009b87c69773d8d2892bc4c0687d5d553d23fab5bea5815b9b9f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g06s02.rgba.br",
+      "sha256": "f27160a91b85f76a1391be451a5e9a85dc0829a931bda35c53d7d9ce8e8032d2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g06s03.rgba.br",
+      "sha256": "47b8854512094bb18d1c59488ef5672ea0e8dd68d3d37a183b92d09703a3d49c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g06s04.rgba.br",
+      "sha256": "005a3da9ef9fa694004c62e6aae9a00b3299b25404e6a1c8110ee1e535243d60"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g06s05.rgba.br",
+      "sha256": "b31e63274bdda3856a48b62b6e4cc505ca4e32aaf4c7860d9bbb95fdba08a49f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g06s06.rgba.br",
+      "sha256": "434929ea9a513e9d196655a63f0b4bca78b729298b2b0cc36b82efb26d01fcef"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g06s07.rgba.br",
+      "sha256": "1174bc57d6107404105678ea861829bfaa230ebe33e611731865a14a24b6a2ac"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g06s08.rgba.br",
+      "sha256": "60fb6014eb4c08ad0b88e4969572608b92f0b2f46987608a49b85569309bf447"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g06s09.rgba.br",
+      "sha256": "f2272c395a85a074aefaa31dcb1e7329bcc0e6018d0f75bea75ae7e5928c5efe"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g06s10.rgba.br",
+      "sha256": "ab1e9ce844c7d0542688bb315b01d7d5b8e34a408fb1933d0ff235ee0e9a8188"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g06s11.rgba.br",
+      "sha256": "65475fcc690a04b3cc8ec25818f81c9e7efa637775986a9f97d7015b442d21a6"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g06s12.rgba.br",
+      "sha256": "250c6a7bbee3c4cd6cc08ad3b68147ace0be54cb45270eaec1053f343416e512"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g07s01.rgba.br",
+      "sha256": "961f7249726c2019c00784052139cfd815960f7aaabe71e076da2b4d7a4e36a3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g07s02.rgba.br",
+      "sha256": "bca8542fb48c849a287018ac6206c1678464bf1ca4cd92f6e160fe9d3ac5fa0b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g07s03.rgba.br",
+      "sha256": "0619130604b58f1bde242ea1e071dff69bdb3cbc1cc1c04c6f2c835a507f2d86"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g07s04.rgba.br",
+      "sha256": "aaf506e08519594c90f22f76a5822a5ec6308dd578308c8428a32a403ad06a85"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g07s05.rgba.br",
+      "sha256": "3bd4dc2f943ac3123deb2b05a85a2660c44c774f79ec0d2e83e676bf39c863be"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g07s06.rgba.br",
+      "sha256": "0e182b9283cf34383d49ef0dc98e31cd6ceac234f9171d5fe93218313b064fc5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g07s07.rgba.br",
+      "sha256": "cdb909a9696697d812042b7c10dd4213144c2c3782fc2e322324cc1d1a791e2a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g07s08.rgba.br",
+      "sha256": "fb6ea60af3e85f31e1d0233c35f2ebd5244e925d0fcc806030faa1d44cc46c92"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g07s09.rgba.br",
+      "sha256": "a7c880e4fba329c8550d26f53ae032422a80cf26711af09dceb0f71d85944279"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g07s10.rgba.br",
+      "sha256": "b99f141d282437289e36b8c372a971b476b1d918673cd2a6d8f7274e658ead9d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g07s11.rgba.br",
+      "sha256": "78c4b9bd969400112cf443928f1e4fe0d81f2889abe47d7ed0d619e66ae79d07"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g07s12.rgba.br",
+      "sha256": "1da781f24753daa4ff38f8ebbe7e79cb1ad3c882b20cce91c09c3fb7b8efde0f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g08s01.rgba.br",
+      "sha256": "709b2e20f3a2308abed36cc435407b3e58eec85827b3bf4dd02963914a8b791c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g08s02.rgba.br",
+      "sha256": "fa6784a8db32babf464e9ec63dfc083f165153a1678fd4359be7a2e2bb3f95b2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g08s03.rgba.br",
+      "sha256": "8b5b85201828227e22c8c087483e95c601389238ed8715de7aab32aeae24f35d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g08s04.rgba.br",
+      "sha256": "502af836db74621b35d67ae24d102a41d3f552b8f64657f1250b7b02771d5568"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g08s05.rgba.br",
+      "sha256": "9fe99b1c2d9c01df0db6576af504723c1bb1fa59601f66246e341c2be230e031"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g08s06.rgba.br",
+      "sha256": "96983ff2470386d2ab38aa8f48edaf60b8b9d04c13332387c993fe093b82d85b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g08s07.rgba.br",
+      "sha256": "ed8f8d59046d3bed84145d331cd03808695a527a2a8359a06b4b4eccda434c63"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g08s08.rgba.br",
+      "sha256": "fdc64d81169ec044d86b0850065e7999a2773e48a8e82b434e6e6d4b2182a41b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g08s09.rgba.br",
+      "sha256": "5263e5c9210c492e239c5602fa83fe0db046d5429a6ceb8e6289e324d3ff8aae"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g08s10.rgba.br",
+      "sha256": "afc5d091bbf2580237442d0e34fda64bf1030b6cf599a3c1209b8f0affa550ef"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g08s11.rgba.br",
+      "sha256": "63b1dee0e2705908d8612d9daa1ef9f81218612a400c557abb4d9e2259fd23c2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g08s12.rgba.br",
+      "sha256": "c7928527acbc85cfc2e62f2de649699187b618cd81b5b5383692f951439edf48"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g09s01.rgba.br",
+      "sha256": "6766d25dc60520b239a2e3545327fb09b6352bc2d06dcd053914cef8b7b72c00"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g09s02.rgba.br",
+      "sha256": "cabd68e44a58a617df14b841b6f6836f50f01fcd53bfef5b6a49e670d29a8fb5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g09s03.rgba.br",
+      "sha256": "9a7b4eb41b4f009b87c69773d8d2892bc4c0687d5d553d23fab5bea5815b9b9f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g09s04.rgba.br",
+      "sha256": "ad52a3489b7d45323d5783ab1dadd63acce9971e0aeaf30a914baa646fc43ae8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/ServerIcons/g09s05.rgba.br",
+      "sha256": "cdb909a9696697d812042b7c10dd4213144c2c3782fc2e322324cc1d1a791e2a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Stage/AccountPanel.rgba.br",
+      "sha256": "21ea2ba72113b7f1cea93047c6ecfc4f08926c8a39575b1fc48b3aaed0e56bdf"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Stage/Backdrop.rgba.br",
+      "sha256": "522319a0b8da068311be0505a221b81679e2e8f878b6c3bb032d2f8dde915284"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Stage/Border.rgba.br",
+      "sha256": "e22ea3454a27ccbb65fb8c75a343b12b26441b1a75430933af78e500f58b6626"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Login/Stage/RegionPanel.rgba.br",
+      "sha256": "cdcf1e1a7d2d0cff8e88909eb671e1e36f7c0a2f22070d3f6ae8c90a91284aad"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/characterInAndOut.movie.json.br",
+      "sha256": "48ef4b6353fb7ff9f3c692b5137836fc40ef6aa1187ed01c79776cd2e2649b4f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r0.rgba.br",
+      "sha256": "db4e1ab65fd0c08f487c843620ab9b7d7bef1a0d73743a761035f3a9f6ceeab4"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r1.rgba.br",
+      "sha256": "5124fbb4acb53ccdfc872601e184e906e93b39933d794aa3d09dc07d86258259"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r10.rgba.br",
+      "sha256": "c03774c02104edae06e72c29116e7976c3bee2e7e15b3ac6278f84d12350fd44"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r100.rgba.br",
+      "sha256": "2a0f309de5fb76c352a9d69513cab88b79a6151dc6de9b8ec8c67abd8c3483b8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r11.rgba.br",
+      "sha256": "8dfb4cd092c646e0dddb5dd3829a02bb878d8e3e48e13b7c443db05ae282c681"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r12.rgba.br",
+      "sha256": "1f38f2ee0f6941b116697149cbe16fce5d06f52d79483a3bfb21cd62fba672dd"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r13.rgba.br",
+      "sha256": "5774ad96bb022475b1f650fbe54762540ecadc3030c6cb879fbc79ef03d06851"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r14.rgba.br",
+      "sha256": "9da46d12f308e49f9be9f353932f8fb657610f284eac06faa6ffb58305b05d5f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r15.rgba.br",
+      "sha256": "583b040f77936ba36f7856cdae4fcad07b5ef34c501a8524da3ca09018f14ae3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r16.rgba.br",
+      "sha256": "b461a1ee0cd367832f0221d7ec50e804b6e7eb15716c28d0b7cc318548dd5ad6"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r17.rgba.br",
+      "sha256": "baad5d96f6e34b35acf1fb0858d8fd1eb6a346ad4072389f77adde396bc51d86"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r18.rgba.br",
+      "sha256": "e476664c00c5f939d92a1a97b1b2d15d8019d4da547862f0d8072a814b49bbaf"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r19.rgba.br",
+      "sha256": "a81446869de45c5152935e9f9eb6b74b0a2b5c0f79ff74ad16f21ad19b8a9359"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r2.rgba.br",
+      "sha256": "5015cbc294958b32a738c1f6b0e69e43e36eb1c20e2163dfd932765e99ba5db8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r20.rgba.br",
+      "sha256": "3c628b12e000e6d7094e944f672ab7b9a4c590ffd32147d9db3a04e0c0ef7eca"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r21.rgba.br",
+      "sha256": "f2c819859dfc69f0d681e4001f06d697fe443ca645ac7336f0fcb1887660fd5d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r22.rgba.br",
+      "sha256": "05a2c827a858a122a69f6dc009e22f64161d39c0f0bc04cfdacae2d40b0c51ef"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r23.rgba.br",
+      "sha256": "7513dda26639bcc6b4f9ab0dead5f464db341dc1937769c0993c39c0699216c5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r24.rgba.br",
+      "sha256": "1733bd7c9dd291a72d2b6283092da93172e0fd432b82b17f04364248b391a5cf"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r25.rgba.br",
+      "sha256": "35f46068c55e58e10b8af4b1666f38db7ea7e01ce43d1720df9116a42c220504"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r26.rgba.br",
+      "sha256": "e8b698acdda74215e60774e54ff37a8fe28fdd9979354df63c9b184b3594552d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r27.rgba.br",
+      "sha256": "daf0b840d3618daff88a241e986d055b751ae7454e6a39b9037d383465d0715a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r28.rgba.br",
+      "sha256": "206f39a497c549e1ccee40d44c44a9c88f5b46e6f089ae6a27d75a0cdc69f67b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r29.rgba.br",
+      "sha256": "b52cb71310ac1b038996995a8e9634058c15f639f176233dba1092572e8740e1"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r3.rgba.br",
+      "sha256": "c38c58d2280524d8ee40da8be9a29d7b8232c4fe874835133ce51fbc7c102a47"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r30.rgba.br",
+      "sha256": "4c7248c652b89fda9fecea19aee7558f752792b6484b7b61e33f12d6b1481617"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r31.rgba.br",
+      "sha256": "19ed62df987c785735ec3668a63148a16141b856c0c7ba1c8dd98b89a0ea8ab2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r32.rgba.br",
+      "sha256": "d9cd25587b9f5170877bf4f4c7412978ac05f451e4854ee9f24ab5371d886c5f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r33.rgba.br",
+      "sha256": "c63bb84498913a4fc12ee2e390c23a443494eb057c1d698ce20c8c98a8126237"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r34.rgba.br",
+      "sha256": "aa5b54ce2a97ffd565e838e81047d9618a3a2058d536a78afdf479985e9ecc6c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r35.rgba.br",
+      "sha256": "b55b4724ddb9ecc5ed5f201d0a6fd42041d06549d64575e0336fb421b4d70907"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r36.rgba.br",
+      "sha256": "f34e7a1c879b02421d00d4e3d8810478e98cf293b0796053ab082239f8e20de9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r37.rgba.br",
+      "sha256": "5d5610bf620556eab7e53aac1e07115735ad6cc0c9be36af09b9825f88f902df"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r38.rgba.br",
+      "sha256": "eef3aec859188a711a4e92fe94cb25bb43e4d2e42b965599d15683f5dadcb4c2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r39.rgba.br",
+      "sha256": "d4a6aa2565aa6bdd1e01c4390a49bc96727d1ccacf2f742bf7d0f8f0aff6cdb5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r4.rgba.br",
+      "sha256": "46efed2f1857a113641bd23c5261c44ae713da60251d2647ae8d092aca44fa5a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r40.rgba.br",
+      "sha256": "0798cfbef4a582eb30d0b9d591dcfc07b859e9f98de5156ca975e6d5e8746c45"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r41.rgba.br",
+      "sha256": "28d99ceb02f59e780dad4fdf4254f358e827c6a945eae6133b91d65f43be964c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r42.rgba.br",
+      "sha256": "0fe09d4089b4a4dab2abe9cd89f0b5ed75082c181c720a49aac8b8a62c5629f1"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r43.rgba.br",
+      "sha256": "2c058c260bbf4089f2dae308efb1766ab905937668e6139b9567970c6ddb7676"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r44.rgba.br",
+      "sha256": "98bb98e5709c0948406817252f01810fb5d3f58edf891b7b61352e0ec57177bd"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r45.rgba.br",
+      "sha256": "5482b8061bff2c2ee1c3e40e81364043232f966b4cc6642773f5fdb99bacaab6"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r46.rgba.br",
+      "sha256": "3e5f147690fc3c836477386d003f22a969b52c6bbf2622ad46d13bfdad006ef0"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r47.rgba.br",
+      "sha256": "dce4ad5cd21727e8068c26c167186580277c3923c7118c787396dadbc21dda48"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r48.rgba.br",
+      "sha256": "fe95dd868d1c896829cda9243998194cd146e84e8829b015bbf0297b0b6203e9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r49.rgba.br",
+      "sha256": "ff82758ec59c9ca63ab3666eee20cdadc7f23d90954cabc97fc3c68bcae5f73d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r5.rgba.br",
+      "sha256": "ee1c6dd0c6fabf02d5993bc46e165df8ec5d2447f17e532ac5ad7d9250c527f8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r50.rgba.br",
+      "sha256": "35f926480f584da0179f8190166bf3f3de1e3a1d24520ec165483f868054a353"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r51.rgba.br",
+      "sha256": "024aa5ba325146ffa87eee919e1500f2673b902c66b140a7cb882e8b279adce8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r52.rgba.br",
+      "sha256": "a0f21ff264979ca190aeb20823f6ab3ec99c4a0bb168d8960b97881018c55995"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r53.rgba.br",
+      "sha256": "4aa87c53632beff86cafc07a51b86334b0a71b3fe2b8f5a8ccc75929ab3eba28"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r54.rgba.br",
+      "sha256": "3c59f7926e21438cce7ba718aea37277cb39316c135b0d6492ad4da3adea3a2b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r55.rgba.br",
+      "sha256": "77f36e179a8f61464eacd0e11ee56e3f9801e36b5c8a29bc8efc609cab0f1cf5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r56.rgba.br",
+      "sha256": "37e0c93022c17ba11b88bb693a038193046a82e8630dbd95282cee564073654e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r57.rgba.br",
+      "sha256": "3b4424e7d53ee3d1db238a78916ce915fd28696a4fb5d1be316e9ca91e402af6"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r58.rgba.br",
+      "sha256": "7c2be72b5dc03e30bf6319e2b01b06e8db970d9acd9f7a207a6703d103c0d155"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r59.rgba.br",
+      "sha256": "1aa26bae0ff25b8cff9815c9035e6d78d77211d3b8ea58acc510b76219bf8172"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r6.rgba.br",
+      "sha256": "a45233fc3c411ab0061001568601707e2c01aba049ad6061871f29283dbb6538"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r60.rgba.br",
+      "sha256": "099a2a78e7f32c8a05e3040a0ee58bfef8f6838499cde7b11cc9e09d4eec3efd"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r61.rgba.br",
+      "sha256": "acca6acdc9fd798057d865dc91ff13f2ff8e99e4a4b8fb36325babc8e730b13e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r62.rgba.br",
+      "sha256": "c6ff9d3d76a8a87351804cbdb6f76b952cb4d58e3c315d8b4475f15994f53d85"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r63.rgba.br",
+      "sha256": "9bd3d05ad01554241a440ae5bd26c038030bb0cc9e6b52153ea19f3fc2eef683"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r64.rgba.br",
+      "sha256": "8b00275299e833c31eb1058218ecf28511ca330ebf473eaa49dfbf850f833093"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r65.rgba.br",
+      "sha256": "5858f5afdfa08912b322af52d2b1f295288f034c2695e29aad455998523ac919"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r66.rgba.br",
+      "sha256": "6b4d35916e5037bbee45b713247a239d60f312f0d5112343afa706b6caaf2dc1"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r67.rgba.br",
+      "sha256": "4cd50b0ab8e7b2cf57fa558dccf6d0341ab54a8c25591274f22b9cb6971e9da7"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r68.rgba.br",
+      "sha256": "44a4faeba534958c66d6d5b258cc9315a0ef6286842ebde545847acbd5692ecc"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r69.rgba.br",
+      "sha256": "ed3cf9896c73403a255250c2fb3d3059c39bc503eb9fa6a757ef2b1f6c92098c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r7.rgba.br",
+      "sha256": "f89acbc31cc5a67080ff2bf5b1825706752956cd63e62939c0dd9d5cc48d4697"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r70.rgba.br",
+      "sha256": "6b131643aff13461cabc29db2cc35ae376afeaac98db249c1b7cf2b27af8ccfd"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r71.rgba.br",
+      "sha256": "149a49cf1cc72d074f80fe436c471247523e68fea52b9580ee0540456ce0da85"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r72.rgba.br",
+      "sha256": "c4c7c353188fbf52a8892ebbf5ff26c4ef36f83cd782770aed112a2ff68c7a27"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r73.rgba.br",
+      "sha256": "e55ea1dfb627298ca1e89f194d12a4c53b69c38fc87e94ff811537b50b4b3860"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r74.rgba.br",
+      "sha256": "d5fc56c6e72b6c370b8cbd70e0404ca19ef9a3403e527ad6b72dfa2eb77bdd35"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r75.rgba.br",
+      "sha256": "85395d71e223f5b3a209999802b3a2cef2fd93590ffcb862a8a0f23a1883e7cc"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r76.rgba.br",
+      "sha256": "dd84045f6675bf065e15b8c70ffe7796d3053542cbeada45c3f762b6a857bb64"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r77.rgba.br",
+      "sha256": "03d6aaea7922350773813bb88f485fee955882fd311374ea2a2dd5c7e9c7c542"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r78.rgba.br",
+      "sha256": "9097b097f4685a796056e80124b6352422f23b6be06d23541e9adbd13a071dd3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r79.rgba.br",
+      "sha256": "f40a93b9b684d48f84fc8123944df5b0421ecbf96b99ac8a3102d4c3832ec259"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r8.rgba.br",
+      "sha256": "01316b6b6fd12068173fb20ab9890c46fd5646c10385dfcda06e420054e016b6"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r80.rgba.br",
+      "sha256": "8d96892b7a69f056317aa55163a95203ccc8a4e39216088b1a1a6df0f3ef78ff"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r81.rgba.br",
+      "sha256": "64c8f9ae918f4d3dcc57619185bfc741bcbb3e093bfe84bf2d33d4c59e51dbff"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r82.rgba.br",
+      "sha256": "56d4342c5738ba9fce200d5be3282b5c0a0982b1ed091f527a84beee899b1c6f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r83.rgba.br",
+      "sha256": "586b59b7da7580255e67eea39ebbc11e2ff16f35ca7c4c08c1bf0b519c6304ca"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r84.rgba.br",
+      "sha256": "2b25114d633ee438a9350cd1701508d1a159ffb8e7b3dbdaad64cf71d3972f47"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r85.rgba.br",
+      "sha256": "a321fa913f4215ada3980ee643472adac4af4ac2529531ab50db06935a6b22b3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r86.rgba.br",
+      "sha256": "2a940d6de3af5bd10bd164b8caa9385c429b529e7283ecdf92c183e1ba8e680d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r87.rgba.br",
+      "sha256": "aef38679a4c6b5a5608f2a8928aece12c59c8aecec97592cfd71f04132a3ff6b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r88.rgba.br",
+      "sha256": "bb081ef58af2038d7e34174f55f495a35c390968b4acb3dc393ce3557b1d725c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r89.rgba.br",
+      "sha256": "36eef5b4ea6d984356051c4b007788cfe8d0ee5ec54acdf0c72f418cfe57821f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r9.rgba.br",
+      "sha256": "944a5581716e3298ce9d82707f4ad5cdf91f230ba4b314e1e95fa5a654395eef"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r90.rgba.br",
+      "sha256": "f5d2cfd80b4d840de7217237a2a76227106a6a7f4161b6fd3fabb029af45586a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r91.rgba.br",
+      "sha256": "1a2457f9b96767c9a21c5d2827eaa4c74fd2ceb84747ceb0c3fc9cae43b62e91"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r92.rgba.br",
+      "sha256": "8feca5086f3d9a4e14f4b743d15cf49acf29ecc38396d7393ba137e2c12c0e0c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r93.rgba.br",
+      "sha256": "279103a8ad96ef8a8c6cc28b6d6659d815548cc61109024b85314b08879df3f2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r94.rgba.br",
+      "sha256": "bd231e9271d1e52daafd31d00544d47728165cbf179df8088373ca6c030eefd0"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r95.rgba.br",
+      "sha256": "95f1b9516814b464b972793a9e6accb2576009d45675dc07c7f69eb108e44628"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r96.rgba.br",
+      "sha256": "16d577dbe769f859d6bf812d7ed6ef5193199f284379b1b28b98765a98b063ef"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r97.rgba.br",
+      "sha256": "a7fba161408997cf1d3d3134d32b11a328d82558d52498ee7676db6cde23dfe1"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r98.rgba.br",
+      "sha256": "822cd4bc16b11edea84977d4cc13b2abc69389ea188affaa14109381eb551b89"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/characterInAndOut/r99.rgba.br",
+      "sha256": "2713c5916909dcddb5732412be5e8796af7978a1140dd7b82be20a13dd5fe9b7"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/logo.movie.json.br",
+      "sha256": "022b930f2f0ab59a216a07c835286342d821bdeb85609d21596b452f32e6befc"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r0.rgba.br",
+      "sha256": "7e3f7cce7aa812aeac57fdea5fc2adc4ff051bb460afaca00b403dc4eded8b80"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r1.rgba.br",
+      "sha256": "b1befec1f39c01c6cac5d4f9914af911938a70ffe0ee542279e8c031947c533f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r10.rgba.br",
+      "sha256": "6a1d11f3c2f1a6ee2cc5ce4bdb6eb66f1b7dd86c9fbd3533c7e480932c91e754"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r11.rgba.br",
+      "sha256": "48f987b41f2cc4a3626292d020fac7c43eaeff8a21560e2619484751e6bccc47"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r12.rgba.br",
+      "sha256": "7de1e06cbb36476ed5e48c5379f025f75759983fd282204099e64ff440c5cf51"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r13.rgba.br",
+      "sha256": "a35340d50c64ea8620e01e4a2a5543f028d68ef53a0d64abdd4878269edffcfe"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r14.rgba.br",
+      "sha256": "48455eac6343f792ce51b153fab8ab51ce649e0b0587a5898fdb8f9c1700ce0c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r15.rgba.br",
+      "sha256": "1983cad0973465fa0348726ee7dab7f3e98c79e77f371c9c801243a70734bbb8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r16.rgba.br",
+      "sha256": "cacc3192ea7a8cf1b78913407b667db2d400f78f752a26007c995464ede3617f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r17.rgba.br",
+      "sha256": "a2c6cc1cdc81422dd4aa8a1b6c4b1318ea3dfcb620e17a67f2dc5f4d11b7ac44"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r2.rgba.br",
+      "sha256": "9fc7b10031be174c098dd7495ec2df9a3bc22bfaf6525eb5dbe89b4eb2923b71"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r3.rgba.br",
+      "sha256": "3f7551d9e33de6db04645e34d152ec0acac82942c0bbb716d3196f7fa4925838"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r4.rgba.br",
+      "sha256": "5d8c32e37e70ae54f07f4f5a179a0a57210f736f57c147aa98b3a6b17154eb69"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r5.rgba.br",
+      "sha256": "a9e863bc91cbaf565bc8876aa16c895fa78cf0f670da032fc0c4b04c86826692"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r6.rgba.br",
+      "sha256": "40deb96fdefedc80eec9957d182e0ad58b82679f58fda594a210994e69911cff"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r7.rgba.br",
+      "sha256": "d2b6e061c89fdb54672fdad96e10939bb23fbd0d41a61f40d44416fb816e2c47"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r8.rgba.br",
+      "sha256": "896a4428115bf81ade7536c2c88c25d613f2474ebe7a571941766cb487fe9d83"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/logo/r9.rgba.br",
+      "sha256": "1b8fecab14fa172d7f54b9bc7b3d33827e8530f5298a48db9ae8f664fbb228ee"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r0.rgba.br",
+      "sha256": "67eac338f68bfd995c77fe50b7d1a51b999a1b46cd019d67f9074fe921938c25"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r1.rgba.br",
+      "sha256": "6e87b0b1456b76fce5af0ac3cd9de12fbe42ee2bf16d7bf42bfeeb489920fc59"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r10.rgba.br",
+      "sha256": "f0eedaca7dd11d0c332d4d8822d0376754c1f0f767d2552697215b14631e0ede"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r100.rgba.br",
+      "sha256": "a5c39c47517d310aa7d840cf638f3e8a0edb1a6f2ee10698528ed6034ecd3199"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r101.rgba.br",
+      "sha256": "755c1711eed29e6dd7b8c5a5aae8cbf7e19215be3e7eea3f085b06f5f20c705c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r102.rgba.br",
+      "sha256": "9b0b7348e35c35ff7e5ed38d4c2bc209d6310de114ddbc9767d957eb3c2dc7b3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r103.rgba.br",
+      "sha256": "ccb8ca6a7c96b96949747a3b27c8e0159c02769e53a3fb0d7aa47cb6cd30c26f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r104.rgba.br",
+      "sha256": "bacec1417585a5d3389f3f2b350e70b26d2cf427b135330abba9132bc3be3db6"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r105.rgba.br",
+      "sha256": "7989c09e29dd8662eb7913204e38ecfe814ea5a365796332702b265356d93c57"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r106.rgba.br",
+      "sha256": "d84e916ddf99aa5d95e70963299d644c8ef17b998c890f9582b6b91aa4e7da0e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r107.rgba.br",
+      "sha256": "077d91b7a38c703691cf9442c29d3e0011b0f1a3ae1a5c6e17d739b0c0334412"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r108.rgba.br",
+      "sha256": "17bdc4ad2660fc9343741704c64d77389fe87039a9ce84675fa278443b6ce754"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r109.rgba.br",
+      "sha256": "6337f8f7baabff1380a7712d9b4e625d72d8dc92c08baccc86e7e62863383653"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r11.rgba.br",
+      "sha256": "b3a583bd3910e91a98f6cb97461a012ba919dc2a66b6b71d8a0cb936b007a2ed"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r110.rgba.br",
+      "sha256": "c4123db1de45202f32e7632fed61e87ec85246e0375d5775b70069bd2d05e9fe"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r111.rgba.br",
+      "sha256": "a7c21053692c0924ac6e745d93dad10151f89d9c34de11add7ed05d2aa6b277d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r112.rgba.br",
+      "sha256": "6406c0bb22ac25f03e8bb3522cee93080e4d4543a456647f22ec6f5587c5aea9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r113.rgba.br",
+      "sha256": "2d2a5e846dbcc1354ce7d83d6fdc1e698ac333a43737700a00a1c29bf693ffbb"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r114.rgba.br",
+      "sha256": "b50e8a9540e44df44c5be045f422548e5e2b01514fc819fb587f57bc8453a18c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r115.rgba.br",
+      "sha256": "7aeb9256a94f7a1ecf42d7ade4b0a32934642dca76f1dae48ba9e8ef326d2a7a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r116.rgba.br",
+      "sha256": "b6a6c3e6e1a5f75940ab64988cb8510c3875b86c73265503b89f4988a411d6a8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r117.rgba.br",
+      "sha256": "e702a66d336d80da2a8c46d2d40f0334bb044f4a105a12d3be91316ae8121c86"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r118.rgba.br",
+      "sha256": "3e02567819a9a9bfa1916a9f135a9be588b3089c1aab9f16ea7ba84fc50342bb"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r119.rgba.br",
+      "sha256": "f8a70fc7afc47ca8137fafd3c3ac5cc1e44a0972483d641fed52745b7f6df0df"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r12.rgba.br",
+      "sha256": "2597e768b11ac84f694a37d350bd9f34a3361f2aec96dceffa1067063cbd6cd3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r120.rgba.br",
+      "sha256": "d5752dad2828fb51de383c552fb0c39a3b4b4dc71e79585df54509e202fbf857"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r121.rgba.br",
+      "sha256": "9bad9e87c52b02c6c295965bf51f9d84ff2ebd1ef351aaf174f7b0f3b1b96f59"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r122.rgba.br",
+      "sha256": "c6944ff4b198df50e477ccb21e2ed181d6b3aeb58f5db01fde74103dc8627e2b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r123.rgba.br",
+      "sha256": "07ba4ee0136c98010956fb7f167d0f51889c2d66c5e8c0f597cfd31054261ffe"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r124.rgba.br",
+      "sha256": "bed526a2377f2ec6a48ca2d68da93be60b069fb2f3a0f33973fd5528e452173f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r125.rgba.br",
+      "sha256": "9bbf9692de101f12a5f7c2115750364da19040d18a11b959148c5bf674d8eb1c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r126.rgba.br",
+      "sha256": "557a1060e9105c40d3cf3747a3dee008d42503378e65736206f8e0f299c69a1d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r127.rgba.br",
+      "sha256": "8fd4ba7a3e9def39b321241e8a1242097619cbcc28ba9f14fab085cd61250e20"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r128.rgba.br",
+      "sha256": "976b4489605e7607e27a62e9685055ca018ffdb0b734499bc705534f29ed9d36"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r129.rgba.br",
+      "sha256": "b712aa6142163b509018432c7c994f77448154c72b0a0d19e646161c0101a8bb"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r13.rgba.br",
+      "sha256": "ea3127d9e5dc42f0bb63b712148bb6cad6356aec7c9eecde6127b49e301e8a59"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r130.rgba.br",
+      "sha256": "09b2aa41ca210a58beaf2acb1b1a8019560645bebbb85167a762ab8b5aa5bbe2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r131.rgba.br",
+      "sha256": "b5240b969b3b0e96e0803145279e95d7b32d987e2f7c0a9b3c255636ab903375"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r132.rgba.br",
+      "sha256": "476e54007e305aaf9da6ed014dcac7db5697ca9b5229d27633437a9460e884bf"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r133.rgba.br",
+      "sha256": "17d21b8f1ddd45f125c2d624085c8c77672ae0e46ac6c7c87fda6ea04d04892d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r134.rgba.br",
+      "sha256": "2dc50fd85f7316786c29dd1ea2d99c4adc3f48070c85513444c896966b3f1e59"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r135.rgba.br",
+      "sha256": "7760ccd88758a0c994050ef479ee280cb4d93e1e0f3abb2a00a4f588a6ebe751"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r136.rgba.br",
+      "sha256": "d54a43dd1d715b0966554724724255cfee0e8186ac64577115296c3f06953e25"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r137.rgba.br",
+      "sha256": "fb27ac4b2ff95a346cc4bb5b4e2f3ab1e5dc404787886a13b376172ca9f39d4b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r138.rgba.br",
+      "sha256": "2dc50fd85f7316786c29dd1ea2d99c4adc3f48070c85513444c896966b3f1e59"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r139.rgba.br",
+      "sha256": "0431890f1474e3c579ac98f7ebf90dc4a5d9024b3b4d3d6ae02cd1dd10fd5a6e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r14.rgba.br",
+      "sha256": "5aa7672954ae37be30ecb6cfd3639f9d9af3bf125c74a4822afaf572e4bd8bd5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r140.rgba.br",
+      "sha256": "53a03d2838092dfdaa4e4c577af3dfd20868bd3ca58311095918b78e72c7b30c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r141.rgba.br",
+      "sha256": "704a37c4c79c51f1f12fc7ea8b4d844b214dbee3669fa0e908476035527bc930"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r142.rgba.br",
+      "sha256": "fbe70ee8858c33e542edff8d6cec2a480a4aabba16928248f68ac39d1d2c274e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r143.rgba.br",
+      "sha256": "1ed6c73ed925d92c5bec9bf7750361279d887a551d92cb87e808d2410fea5a9e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r144.rgba.br",
+      "sha256": "29d0b410bbc8fc3e88b919416bbb266e901ab2d415f0f49535226f5d89bde716"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r145.rgba.br",
+      "sha256": "8c720eb6559df746890216d0d22d07568c8d8ccc8bf6cf4918ecb0deffcf7cbc"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r146.rgba.br",
+      "sha256": "08bbbba3697a0774eb863a9645020ae080adcd155a953a4e71601afd1b4c9c96"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r147.rgba.br",
+      "sha256": "10e64e112a9716299871842f478448714bd8ffac7c0742167f7aae3c0a0da96a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r148.rgba.br",
+      "sha256": "7a5e3366afeddbcbfefcb7a7270056286cb3b28cea93b5305a705d49425d99a7"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r149.rgba.br",
+      "sha256": "4f7642e4f4213f309ec8acbde6d37505644add3c29ca60ff4f3954b6695e2b05"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r15.rgba.br",
+      "sha256": "83b5168cdbdc6ed222317d86ac861c28c6672df5bdae4789f21b2d5ed96e48c2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r150.rgba.br",
+      "sha256": "16a4f3b2316e3986e74948c4421c6d1fd40799aa791f62ab9e8193ec90d6d884"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r151.rgba.br",
+      "sha256": "9657b523be434aba1f7805be956acbe46430551e60396c5e19a82d1b58312be6"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r152.rgba.br",
+      "sha256": "dd46c161cd1c76eb0b06ceeb800846157f3b1c9f77533625ec4b79b3c7505fd9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r153.rgba.br",
+      "sha256": "a5ed9d8fb5903c4894daabbbf74c54999ae4515e478f63e299ca23571a085d7d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r154.rgba.br",
+      "sha256": "41c96ca3111ff29ac3c96ce8f0785717008684bd2b27492ae46a9b17a87ebf77"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r155.rgba.br",
+      "sha256": "d85bb2d03c46cc7d7297e9bbc11e4c5d80362e743f46e4ad1d00960f67c205bd"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r156.rgba.br",
+      "sha256": "ac8fdd77ba2d8f790a74add74a57a4774d14d62cae89aed0778400343d832f8c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r157.rgba.br",
+      "sha256": "1a7a6cd076fce996b0cbacdba04ebf717bf8063c658253150b051210fd174413"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r158.rgba.br",
+      "sha256": "ac8fdd77ba2d8f790a74add74a57a4774d14d62cae89aed0778400343d832f8c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r159.rgba.br",
+      "sha256": "d85bb2d03c46cc7d7297e9bbc11e4c5d80362e743f46e4ad1d00960f67c205bd"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r16.rgba.br",
+      "sha256": "32a99532fddc8b5916bb1ea4f1cc48aa5453cc86d590e3c461a44e011a7eaf76"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r160.rgba.br",
+      "sha256": "41c96ca3111ff29ac3c96ce8f0785717008684bd2b27492ae46a9b17a87ebf77"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r161.rgba.br",
+      "sha256": "a5ed9d8fb5903c4894daabbbf74c54999ae4515e478f63e299ca23571a085d7d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r162.rgba.br",
+      "sha256": "dd46c161cd1c76eb0b06ceeb800846157f3b1c9f77533625ec4b79b3c7505fd9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r163.rgba.br",
+      "sha256": "9657b523be434aba1f7805be956acbe46430551e60396c5e19a82d1b58312be6"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r164.rgba.br",
+      "sha256": "16a4f3b2316e3986e74948c4421c6d1fd40799aa791f62ab9e8193ec90d6d884"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r165.rgba.br",
+      "sha256": "4f7642e4f4213f309ec8acbde6d37505644add3c29ca60ff4f3954b6695e2b05"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r166.rgba.br",
+      "sha256": "7a5e3366afeddbcbfefcb7a7270056286cb3b28cea93b5305a705d49425d99a7"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r167.rgba.br",
+      "sha256": "10e64e112a9716299871842f478448714bd8ffac7c0742167f7aae3c0a0da96a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r168.rgba.br",
+      "sha256": "08bbbba3697a0774eb863a9645020ae080adcd155a953a4e71601afd1b4c9c96"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r169.rgba.br",
+      "sha256": "8c720eb6559df746890216d0d22d07568c8d8ccc8bf6cf4918ecb0deffcf7cbc"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r17.rgba.br",
+      "sha256": "945e48a3defa643fa68128ee0297158ccec295d92094acb2bc564f159cb10b58"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r170.rgba.br",
+      "sha256": "f5ee6c726ade93701aaeb9301fa44e74ba943548a6b0dd3bda0fe66b3f2fc6ee"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r171.rgba.br",
+      "sha256": "7b474b8945cc7a579687760470919028210ee69f5d3b099da79fa4d27e493904"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r172.rgba.br",
+      "sha256": "c534537c08af3ddb430a733833b7bfe0e609b7fa9af9f0ff310bbf146404c1ae"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r173.rgba.br",
+      "sha256": "292b17e1f78a65a287b155d019040a87d776c339e10019bf00b3d7d5ab4fa8b7"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r174.rgba.br",
+      "sha256": "f5ee6c726ade93701aaeb9301fa44e74ba943548a6b0dd3bda0fe66b3f2fc6ee"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r175.rgba.br",
+      "sha256": "42600d82bf3377082d55554301fb29f19249498de22d25137b8018cc6efadd6f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r176.rgba.br",
+      "sha256": "7b474b8945cc7a579687760470919028210ee69f5d3b099da79fa4d27e493904"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r177.rgba.br",
+      "sha256": "5475fc3deb4dd3c2ff88d564e9bb062ac35b40cfd4115d20c993f4dd29b46508"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r178.rgba.br",
+      "sha256": "c534537c08af3ddb430a733833b7bfe0e609b7fa9af9f0ff310bbf146404c1ae"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r179.rgba.br",
+      "sha256": "0393485e46496363a6975997b80c0fb869b90eafec00db3937f24492688d5d63"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r18.rgba.br",
+      "sha256": "9980b612af3808776ec055c5cf58197aa35fb58fd419b662c9d01eb5b42468fe"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r180.rgba.br",
+      "sha256": "292b17e1f78a65a287b155d019040a87d776c339e10019bf00b3d7d5ab4fa8b7"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r181.rgba.br",
+      "sha256": "c6582b7a9abcaa8cef8f5f0ceaaa95e72be231eae42aa291e42a1fced260964b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r182.rgba.br",
+      "sha256": "42600d82bf3377082d55554301fb29f19249498de22d25137b8018cc6efadd6f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r183.rgba.br",
+      "sha256": "a49a94f9f3db093506b42809dbbc2edcf2180415873bcea0477ff98b6a336b46"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r184.rgba.br",
+      "sha256": "5475fc3deb4dd3c2ff88d564e9bb062ac35b40cfd4115d20c993f4dd29b46508"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r185.rgba.br",
+      "sha256": "beb19c7dc21b19daf6c79426938d2b21083434f9adb4917cef17f718e1702f9c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r186.rgba.br",
+      "sha256": "0393485e46496363a6975997b80c0fb869b90eafec00db3937f24492688d5d63"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r187.rgba.br",
+      "sha256": "d8058a4f30e8e69f75be5881bbb70faa8bd7793e54a11ed470566923a5f26085"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r188.rgba.br",
+      "sha256": "c6582b7a9abcaa8cef8f5f0ceaaa95e72be231eae42aa291e42a1fced260964b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r189.rgba.br",
+      "sha256": "d01dc729e9b09ba0cc1082c3734bca1dc58222a6c0152ad52dab9114146020e4"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r19.rgba.br",
+      "sha256": "9bee26f6cb37bab1d552883c41cc899ff3067bfa22021e9dad54150bed5c7252"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r190.rgba.br",
+      "sha256": "a49a94f9f3db093506b42809dbbc2edcf2180415873bcea0477ff98b6a336b46"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r191.rgba.br",
+      "sha256": "faf05ed8f12a3935bf3a1ba6354ca89f975f4c4e108868a9e1fc29cd3773b692"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r192.rgba.br",
+      "sha256": "beb19c7dc21b19daf6c79426938d2b21083434f9adb4917cef17f718e1702f9c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r193.rgba.br",
+      "sha256": "4fb08b79b406d91a24757fd34d29b6c5c656ffcd40c5428a3297381d706c29e8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r194.rgba.br",
+      "sha256": "d8058a4f30e8e69f75be5881bbb70faa8bd7793e54a11ed470566923a5f26085"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r195.rgba.br",
+      "sha256": "ac31638b54aa3f15a099d6de92cf8d2ca70eb70e6a547d7889ef163ae5e11d71"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r196.rgba.br",
+      "sha256": "d01dc729e9b09ba0cc1082c3734bca1dc58222a6c0152ad52dab9114146020e4"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r197.rgba.br",
+      "sha256": "a9b1bb12afd2a4eb679423411ce61e3b955074ca4c3208c68fdaed09f316a17a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r198.rgba.br",
+      "sha256": "b1a6bf71bc4ab4466ca75ca5078c9cf3bb268ff73549a1c3fcf896102db3693e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r199.rgba.br",
+      "sha256": "ad2a6a06ee938c847b75f6ff20faebeaf94e4c8af0910445147a704a1744ec8e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r2.rgba.br",
+      "sha256": "a13b432366c9c11fb31c189210b7276f20bc01e8de5f4763e110bb68495181ba"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r20.rgba.br",
+      "sha256": "ba8c023a6a3c30946b94ba64094cc2ce353c97bc9997a21e2f03f0e82bc4aac7"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r200.rgba.br",
+      "sha256": "9d5bf8fae6b13ca4fd5d5b5705bb9b93e6dff582b988119ddf97000b4984eaa4"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r201.rgba.br",
+      "sha256": "9c63e60356d57ebd82b12a80d1b01a098584af8c8e90a9fdc0c169acbcb3fa9e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r21.rgba.br",
+      "sha256": "7664b505a72f54bb94970d72cea9de73538d06a5d444b0c4d4db52f6d691491b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r22.rgba.br",
+      "sha256": "087aa00949a100aab6ce8d18c7a6bc6960f1f26e711d7d74eeb7b102c65f7fc1"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r23.rgba.br",
+      "sha256": "0581cff9e98c8bc5561ae83722f779a6b4629b81c3763c3550a004648476a811"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r24.rgba.br",
+      "sha256": "7fb572ed67026b648422b946f9c63eebbe08f8f08295c7f8eb35abdd5e2cc16c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r25.rgba.br",
+      "sha256": "8704356cb4ed2c73c78ccecc39e8ad7293edc756186660043f8b16ba8796cfca"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r26.rgba.br",
+      "sha256": "22092dcf7c817de91db9722e0ae412e0a1737fd984ee6d716fd4084b87dc4914"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r27.rgba.br",
+      "sha256": "b0e7558d3d14748992d914f705e9e1d282c5e8779ec83753be0fa5d0dd2247ab"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r28.rgba.br",
+      "sha256": "a94a924610802886d9c691cfb66aff99446d2dca58c18b52c519cb3d5e2fecd1"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r29.rgba.br",
+      "sha256": "abd7cbc670feb9288ef67ad5fb058f878b67f4cd72102d42d3ebda84e73283ff"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r3.rgba.br",
+      "sha256": "44b4af0f0a795ceea947ed13937184c996f696d81216f0a41472244e30d23537"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r30.rgba.br",
+      "sha256": "38eda4de0df2eb20e42f3a8bd947f4ef2b7855b332a220aa7304cc0123097d82"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r31.rgba.br",
+      "sha256": "e9c13e690ca1480861bc11bdd59047914fe9f55efce6a79b4e30308618eaa9df"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r32.rgba.br",
+      "sha256": "4dab5fe51387dc16d6125e47b85533ced01403584dcfdad9686bceeec2cadd27"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r33.rgba.br",
+      "sha256": "ab365d5821770e4c55e9eec083e2c5af820801c1318527ed1cf43c29666fd0b8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r34.rgba.br",
+      "sha256": "4210277710b232387909a715b733fcc9f04eeccb15ecd6afc5818c747b0135b7"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r35.rgba.br",
+      "sha256": "f841251a84d2533d499931642d8ad19fa62980298c91d7b988cb261bfe0f1cdc"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r36.rgba.br",
+      "sha256": "2e0130cf34f3b9440643d8a06475aea4b403a1104dd5a402f09ad37ebb886f38"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r37.rgba.br",
+      "sha256": "d174088deb2ccb7fec5f65d6b558b52089c3fd85a8167483544cf68489f87398"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r38.rgba.br",
+      "sha256": "d3dd65557d098b6b988d3ea6193c5591434a48b22162edba0d3d3687dc352d17"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r39.rgba.br",
+      "sha256": "3543e9d7f435ac521edc3282736526e4606145956ddd1e4dfc29b1013b5644ab"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r4.rgba.br",
+      "sha256": "0e8e2b134b5e68763b2d76786ee2425045760157763bc1157cb6de4add2840fd"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r40.rgba.br",
+      "sha256": "6c2d5f8c4a288940b2872ca871a19808793a8c5a7503a361751cd041ed3b6aaa"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r41.rgba.br",
+      "sha256": "e9d120e48924d38d360c4e2db5c646303fe6b94fe6e8ed935854dfb0f79542e9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r42.rgba.br",
+      "sha256": "1f087178ceeabf69769e86f06124c9378fa2c2b95591a794862118a75f536794"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r43.rgba.br",
+      "sha256": "a23a2abd8a7c15a85f6943a32804218cd3537ac3f4588f2ecb4b17678bf07605"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r44.rgba.br",
+      "sha256": "a0917ae7f9255457324ad0569f99d2df72bc2b45fd1dde2b0f902647e94064dc"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r45.rgba.br",
+      "sha256": "e795eb9c50098ecb7b090b8bd5815e6aa0c8a7df801edc897d6d0c554afefafa"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r46.rgba.br",
+      "sha256": "af02e0651f9fc5399e2cd283f93d88d33bbdc53f1820d1650e48cf4f8c545db4"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r47.rgba.br",
+      "sha256": "815fc95584cd44a519c7829d2549e980c2d3a18e8879d24b45c761661df01838"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r48.rgba.br",
+      "sha256": "bd441638aa33b098d8b7f97f905e4a5380b52f5f71b0e4c82517f2ecc6185b2d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r49.rgba.br",
+      "sha256": "ed807953a0b7fcbef3e0f46ed5bff43ec85bc07052056ba6451ab803b18fc499"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r5.rgba.br",
+      "sha256": "1d0777298f85993711b1504064091ce1af34d1819245f9eb2fec8517da81e3f9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r50.rgba.br",
+      "sha256": "c2a15f7c969bf786f55e43524e41f78c4e70e90a34be0bcd719418fb26534e8e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r51.rgba.br",
+      "sha256": "2f5493662a9039e8cbfea83f451fad00c702c6d5c598429b5ea2a6b1dd48b700"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r52.rgba.br",
+      "sha256": "d4f84cbe922cc8ec736caf8123c976f0ecfc01a4152c764256e7a1904af10d95"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r53.rgba.br",
+      "sha256": "7c0a8a170caf7d42e03157645cf7bd48b705761c056c9283196a3c3427eb0c44"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r54.rgba.br",
+      "sha256": "c4d3a4439a5bd7f662a5757d35d67f9f24b9aa0daf52b845b87838940e89f737"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r55.rgba.br",
+      "sha256": "91ceb99593f75747a9d5a18a35c28a044ae8c65143734a86178cb40b9b84fdad"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r56.rgba.br",
+      "sha256": "d5831b1fb5738d4e43ca99769a9e0c0eb9813244433409f6204e0cd8ae433113"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r57.rgba.br",
+      "sha256": "f37e910f94fb7e897ab24681f26adebc16b120b011628b2d11e58e5bc00a3d3f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r58.rgba.br",
+      "sha256": "d45dc8dc4eac0bcf1ae6e8cbfc139824ae15e0577c904dd004a28019bf28a39b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r59.rgba.br",
+      "sha256": "2c25043baff06b5349e8e6d63b2719dd8a78167176c9b18686b1ad7959f66c68"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r6.rgba.br",
+      "sha256": "73eaed38b6cd76b9f3015c44ae78dc1e707183f7c8daa126bfeaa122cbbfcd8d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r60.rgba.br",
+      "sha256": "5ab8b8af5e7de67b05ec72f9b7ab5ac955f47a79c1b62710b9d0450e82680097"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r61.rgba.br",
+      "sha256": "6e0dc519714c60f12ecca9062c83b79834a5df7a93c40ec7d16c7af196d4df45"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r62.rgba.br",
+      "sha256": "2aec12ee4ff4f381684be829740a8bdc10590e62ebce74da962546c3d1a5150d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r63.rgba.br",
+      "sha256": "ced9d655373454d04b2d052b13b4af9361287969c89f15e8219d9bc65739b334"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r64.rgba.br",
+      "sha256": "ac1e97009023582de11b60992552b2105746da09312f25653321c666dd1f23ce"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r65.rgba.br",
+      "sha256": "90909d2a968fb56d6bfe71025eea507851663074204100f7c11fde5c9a13fd71"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r66.rgba.br",
+      "sha256": "b8eef2091e4b6deb3956adaf945199de70da612554d21dcae572da28eb5e2505"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r67.rgba.br",
+      "sha256": "972ab3ff058a2eea1501897decf0caf9947cf9d1010f21a726a5f5fe8d80334c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r68.rgba.br",
+      "sha256": "e4faf8f877bda9edec417358d81b4e028a80b363ba056ec77b284be6ffb11a8f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r69.rgba.br",
+      "sha256": "b54d5c8d277c6baaee09fca297d3869d47b58b15ad9c98a6552f1c4fdab75ec1"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r7.rgba.br",
+      "sha256": "748cf2aa7e64a5e3e57ba6232c6326f14a47f2c53781c4e1e2fda629a4fbc8c5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r70.rgba.br",
+      "sha256": "bcbc413490215eec991b7444e7826a87c4abb9b53cdd9ab4580d5da753d99136"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r71.rgba.br",
+      "sha256": "aadbbe8edccc2600cf235d2e240fafeeba1503656d51a41495e6c95b655939e5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r72.rgba.br",
+      "sha256": "1a7a6cd076fce996b0cbacdba04ebf717bf8063c658253150b051210fd174413"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r73.rgba.br",
+      "sha256": "15ae611e80a03efaf2ec05d30950bd079c2d22ce1690d58f4749f91195aad209"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r74.rgba.br",
+      "sha256": "aadbbe8edccc2600cf235d2e240fafeeba1503656d51a41495e6c95b655939e5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r75.rgba.br",
+      "sha256": "bcbc413490215eec991b7444e7826a87c4abb9b53cdd9ab4580d5da753d99136"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r76.rgba.br",
+      "sha256": "b54d5c8d277c6baaee09fca297d3869d47b58b15ad9c98a6552f1c4fdab75ec1"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r77.rgba.br",
+      "sha256": "e4faf8f877bda9edec417358d81b4e028a80b363ba056ec77b284be6ffb11a8f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r78.rgba.br",
+      "sha256": "972ab3ff058a2eea1501897decf0caf9947cf9d1010f21a726a5f5fe8d80334c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r79.rgba.br",
+      "sha256": "b8eef2091e4b6deb3956adaf945199de70da612554d21dcae572da28eb5e2505"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r8.rgba.br",
+      "sha256": "300281b5af35a5de2b2a0b45bc3a8f8f3c291e0666bf5a5f1065decaf263af03"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r80.rgba.br",
+      "sha256": "90909d2a968fb56d6bfe71025eea507851663074204100f7c11fde5c9a13fd71"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r81.rgba.br",
+      "sha256": "ac1e97009023582de11b60992552b2105746da09312f25653321c666dd1f23ce"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r82.rgba.br",
+      "sha256": "ced9d655373454d04b2d052b13b4af9361287969c89f15e8219d9bc65739b334"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r83.rgba.br",
+      "sha256": "2aec12ee4ff4f381684be829740a8bdc10590e62ebce74da962546c3d1a5150d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r84.rgba.br",
+      "sha256": "6e0dc519714c60f12ecca9062c83b79834a5df7a93c40ec7d16c7af196d4df45"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r85.rgba.br",
+      "sha256": "5ab8b8af5e7de67b05ec72f9b7ab5ac955f47a79c1b62710b9d0450e82680097"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r86.rgba.br",
+      "sha256": "29d0b410bbc8fc3e88b919416bbb266e901ab2d415f0f49535226f5d89bde716"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r87.rgba.br",
+      "sha256": "29d0b410bbc8fc3e88b919416bbb266e901ab2d415f0f49535226f5d89bde716"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r88.rgba.br",
+      "sha256": "4b85b723e25677f15f2ca75c65be578d59c8d7fc3f0f34562c51f046b81e278d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r89.rgba.br",
+      "sha256": "26ba38b87011906d56e75382f04cbe703b2c967abd6bdba87cd3ac9c42dfc289"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r9.rgba.br",
+      "sha256": "dbe828eea428e90c1c7c2f174374b2f41562da067d3d022d9a6882bb5a311168"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r90.rgba.br",
+      "sha256": "59d99d26a43c9f759863d1dfd46eeeba2b18e1b35836a5bb00f209d40856caa9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r91.rgba.br",
+      "sha256": "c2a944680b548f4e59b40f107b4f2e7d1884efd8d5281648d91bc31c2e53e1b3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r92.rgba.br",
+      "sha256": "9413589dde0efc1377051993f35a47e2f6053b780da9272ea677297da4eb5ba7"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r93.rgba.br",
+      "sha256": "cec9f03086133bc58a0a00fc8a5a0814bec375147bd2dbbb7a0fc6ea46a808d8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r94.rgba.br",
+      "sha256": "b5c75fba15b2c03c3b7081fb1adbc31ef2ecbbdaf6553d7044263d6cd421e6db"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r95.rgba.br",
+      "sha256": "751faa3c109b70d5e4bf1243350a51fbdc5f2ffd08a5b64a323b0d863210e83a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r96.rgba.br",
+      "sha256": "ecf1b1e8b0240046a4cce18b5f662883e3d439856139757ad1da271b806b11b5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r97.rgba.br",
+      "sha256": "8bed58de396b1c62b195c874c6c7affb92e65e1c02686c7dfecc40de40b23425"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r98.rgba.br",
+      "sha256": "8df1a2f25d1b842124233509376b11df5d1062e0a8c14c91d69221a556fe4fdd"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/r99.rgba.br",
+      "sha256": "e667edacc74ee80f3c4cd7001ef16e8c5979ca49f324f538f5d95b7b961ac087"
+    },
+    {
+      "path": "src/OpenConquer.Content/Assets/Role/role/role.movie.json.br",
+      "sha256": "ebb6dac700b2bd4031f105f4b8bd12d48a54504fb5d552f94eda8940e513067c"
+    },
+    {
+      "path": "src/OpenConquer.Content/ClientContentClosure.cs",
+      "sha256": "fa385a28de2c77634ba7c566b753702f72f37b0f7f0714f0cf463224b5608202"
+    },
+    {
+      "path": "src/OpenConquer.Content/ClientContentPath.cs",
+      "sha256": "e0e92921890fa75ab250b884768dc79e78680f4cbe6391c838ee9e0d4aa26601"
+    },
+    {
+      "path": "src/OpenConquer.Content/ClientContentRequirement.cs",
+      "sha256": "871e8f0b0d96b22e30e868002f517675d4b9afb991d8aea7696f23c717d9cd67"
+    },
+    {
+      "path": "src/OpenConquer.Content/ClientContentRoot.cs",
+      "sha256": "b6f9fa9884a628a750833e4588b848b56fbd009fff997408457b4ea948abbf58"
+    },
+    {
+      "path": "src/OpenConquer.Content/ClientWorldContentRequirements.cs",
+      "sha256": "9cc61d3dc9291c2f1dc7780d1a733d870e9fcb04397c5650d5c864f86067c6f3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Configuration/ClientCodePageConfiguration.cs",
+      "sha256": "8f94047fac08649887445dbedb705083e4e2f579291a34ad4fd074cc5c07481f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Configuration/ClientFontSettingsConfiguration.cs",
+      "sha256": "1d0c50a66dd0148d9cf2f54e1b55dc4720eb7eb1519da5f5041a9bb00eb9a62b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Configuration/ClientFontSizeConfiguration.cs",
+      "sha256": "3c8eb8e86498834df41cf34086d74f995096c309d8ce429ca4938fc097fcfb53"
+    },
+    {
+      "path": "src/OpenConquer.Content/Configuration/GameFontConfiguration.cs",
+      "sha256": "81f200ae52d68d6a203bf1b162ad6cb0f973db7dd3aaa070eb0bff12b8252b75"
+    },
+    {
+      "path": "src/OpenConquer.Content/Configuration/GameSetupConfiguration.cs",
+      "sha256": "7463ab59b2f8c27bcd03ffc933b7e077fa6944484c3999c5e2df8d623dade855"
+    },
+    {
+      "path": "src/OpenConquer.Content/Configuration/IniDocument.cs",
+      "sha256": "a4aaa7d6cb52c8cdda399564b6eb4a84bdb8851e8671f71f47a40e198f13d492"
+    },
+    {
+      "path": "src/OpenConquer.Content/Configuration/PuzzleFrameIntervalConfiguration.cs",
+      "sha256": "0429371e11ab7856672a1b8f3133ed1c24a49ddce98bba5dfecb986fd89d2b8a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Configuration/SelectedMagicCooldownTextConfiguration.cs",
+      "sha256": "afb58448f3e94d39c51b0037b843bb6b9e3f4f46200b8726a2e9347bc2baf3d9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Configuration/StartupLogoConfiguration.cs",
+      "sha256": "e07e236cc1f62e890600c70b9f233c69f40897118069c0e7f99b1a9e316b3069"
+    },
+    {
+      "path": "src/OpenConquer.Content/Configuration/TryWrapTipConfiguration.cs",
+      "sha256": "accf84e87e14eca52ba85dc352d33bb6328d166fa896e349f08e31524c0291ea"
+    },
+    {
+      "path": "src/OpenConquer.Content/ContentLookupMode.cs",
+      "sha256": "f5f2358af3ed9ac0bb6fb45280e7ca75a1dbdd15be75476860d424dfd0e7a905"
+    },
+    {
+      "path": "src/OpenConquer.Content/ContentReader.cs",
+      "sha256": "e187c6a7a43a0fe9d25d4b348f4c303b94a50de9be495abe118ca6345dba7981"
+    },
+    {
+      "path": "src/OpenConquer.Content/Flash/FlashCharacter.cs",
+      "sha256": "0847f57fbbcef66756548bed2e0413793c8befb31cbe56c87f348136d0c9b406"
+    },
+    {
+      "path": "src/OpenConquer.Content/Flash/FlashGeometry.cs",
+      "sha256": "78e51debe9d4069e5f15dbccf1ec673f8027b02185aad4b0aae389f12b9cc98a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Flash/FlashMovie.cs",
+      "sha256": "d67387b00a17cf5eadc4fe3b55c9ce825d5f9bb6fd0ffbd5e08ae9f0a965b70d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Flash/FlashMovieReader.cs",
+      "sha256": "798682fbe7490c3d13988ff10f3dc8155b18e7e9f4a78c92145ed4a307ade8ed"
+    },
+    {
+      "path": "src/OpenConquer.Content/Flash/FlashTimeline.cs",
+      "sha256": "5ff107381aa5dd9451fec594e6fd215426256b099846ca7e200afb73226d3237"
+    },
+    {
+      "path": "src/OpenConquer.Content/Flash/RoleMovies.cs",
+      "sha256": "3a4ce3aac1285557d2b9b907fb669e9cd8aaf4274260ddc4d6e3e1486e21cb07"
+    },
+    {
+      "path": "src/OpenConquer.Content/IClientContentSource.cs",
+      "sha256": "8f26a562698adde5ee6f64c5555a1ffffaa2ab1379bc4b6d6ffc24588a56b113"
+    },
+    {
+      "path": "src/OpenConquer.Content/Images/DdsImageLoader.cs",
+      "sha256": "24db15dac919ac2ff6ac73042cf8f56e9320026a1240cd1f5439a70f015ded77"
+    },
+    {
+      "path": "src/OpenConquer.Content/Images/DdsImageReader.cs",
+      "sha256": "f8e49a260896acf146f5b0e010c04ecde4202ae903f8a0216eefa146e9e7b807"
+    },
+    {
+      "path": "src/OpenConquer.Content/Images/RgbaImage.cs",
+      "sha256": "67700df02b4944461c9ba5a8462e5c425e41f565a28a9e532530ed7876579b4e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Images/TargaImageLoader.cs",
+      "sha256": "644cccb8d0925263fa8569392413c0000b054524c5089e016a03b6b0064ab77e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Images/TargaImageReader.cs",
+      "sha256": "543892e81e21f2bf98debcaa15e2862e4f2150cbfcb5ca2a39380141a0077b1e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Images/WindowsBitmapReader.cs",
+      "sha256": "108dc47fc7046187fb77ec4e01b1dc06365a92ba4770169ba4c3022664339f98"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/ClientVersionLabel.cs",
+      "sha256": "4371ab4ac4eec0df264ac30e456ea0791c3fa6c5156f63d88bd6452822609d86"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginAccountArtwork.cs",
+      "sha256": "e6f95e9cb79cbe19012db8ad0cc816f7aa49ba603820fb6d10a9f4c3c75a3de5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginArtworkSheet.cs",
+      "sha256": "f6583e05acb9cf89e0f18890cabd8671c52eeca82078e96c05b4231dc4615f01"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginAudioAssets.cs",
+      "sha256": "2c7036d3d1b3ca3d56e7ee3e7d610981e82be1f6e06dc3d1b83b06d2a0306670"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginBirdArtwork.cs",
+      "sha256": "856234fc421e03da0cd1222eba5261f3b79c49ab5dfcd5105911c915fc75fc84"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginButtonArtwork.cs",
+      "sha256": "08ecfb3f90c69bf89b3f8b9fb75aab2ec88ee7d872b828973d120bd47867e26c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginCursorArtwork.cs",
+      "sha256": "010181377a046ef07d6d7c7de20542814a6b5230b85d767960239d8b8ae6bb9e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginErrorArtwork.cs",
+      "sha256": "b3c2d52948b7cbd35a0f9e91aa18231072a76c02fdba71390e69f1718f364ae9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginLoadingContentPaths.cs",
+      "sha256": "13ade9994c39e307372b79eded34d978ee9ff8be43cef0929ba8447b2e4b164f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginLoadingTimeline.cs",
+      "sha256": "4f035be7d4fe8c9916fa4ff6e63b1fbdcc9e522e07ba8a2d326bdf18cb0c4bb5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginLogoArtwork.cs",
+      "sha256": "05a0bbb7132ca9847dc31f4d0d8a4ce0d345471cbb18f46d2f199b110db214ca"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginOpeningArtwork.cs",
+      "sha256": "6257bb023f80feabb66c2236e743f48a260f1ec28e59c093dcac894a44a27651"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginRegionArtwork.cs",
+      "sha256": "3372c87235c95810444451eb03441ccd2c980d2ac7ac37cf560588401bc5cca2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginRegistrationArtwork.cs",
+      "sha256": "1d70dbd14c7a75b3f2d56ffba7e477b7fe23871c0ee1ac65e6bb534a4a18684c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginServerArtwork.cs",
+      "sha256": "99396325d25840c184bbbce8c8904f536f12e08510660d5a78c7bec5772d17a4"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginServerIconArtwork.cs",
+      "sha256": "02898885a7bb2f605dfc1f1e1b916cfd923388860a1a39fe9395658bb08ec9e5"
+    },
+    {
+      "path": "src/OpenConquer.Content/Login/LoginStageArtwork.cs",
+      "sha256": "f48691c060396937651801a1300bfd548b8eb52963b46398fba2b2bceec029c1"
+    },
+    {
+      "path": "src/OpenConquer.Content/Magic/MagicEffectFile.cs",
+      "sha256": "138960dcae7cd461aa59737627a138fb2e069ebd619270961ed14539af5d9a6e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Magic/MagicTypeFile.cs",
+      "sha256": "b3539a045d5b400b25c8521bc3d566ebe3a33b50cbc39ae71986c997bcba3f3c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Magic/MagicTypeRecord.cs",
+      "sha256": "64e00420e7b9c2ed4948f60f8882050b559d54b1be6dba053678bfb4248e887c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Magic/SubProfessionInfoFile.cs",
+      "sha256": "140abb26a789bfa0829a99cd86fa313385121e11d30606947f5710ce9bd4f0ee"
+    },
+    {
+      "path": "src/OpenConquer.Content/MainHudQuickbarContentRequirements.cs",
+      "sha256": "0b8621d6f8d03fc9cf17f443a623bb897727cc17339aaf1ddf58fb0239e4e443"
+    },
+    {
+      "path": "src/OpenConquer.Content/MainHudSelectedSkillContentRequirements.cs",
+      "sha256": "16f615d99efcf8f07ddae24ba5b838ccc5aab637cf8f33d845120f133296e92c"
+    },
+    {
+      "path": "src/OpenConquer.Content/MainHudStatusHintContentRequirements.cs",
+      "sha256": "23cb28535c1a2723aa7ed479d3bd2092afc5a5fb1cd0a0e61e68cbcd748372d9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/GameMapArchive.cs",
+      "sha256": "94e2e3ac5c7ef30cad7749d318016d0256d1562bd3a3140587e064ee9734cf0e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/GameMapCatalog.cs",
+      "sha256": "5c626fa3b3ad60528b01844ba7f7b5fdb6bbb303894bff63b801e8894359b71e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/GameMapCellGrid.cs",
+      "sha256": "93d624c4511e7df7c632876f5302ad0e1c491fb18ef3d0fa277815277ab90136"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/GameMapContent.cs",
+      "sha256": "49be5068caa70254b5d2aff8297d6f0a93299eda5d07a1b7e264b4cd8fc2f32c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/GameMapPuzzleBitmap.cs",
+      "sha256": "5a27d1b7002885bba2d326d6eea776398c32e7105d8bf4b569994a68cece74a8"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/GameMapPuzzleResources.cs",
+      "sha256": "168bd52b240e230a6836e677531988b0eb72b1441422c67260c17ff5006f87c3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/GameMapSceneSections.cs",
+      "sha256": "62b29891970d4e291b38d4b459c555f524c76f8431a923a4ea09a96b3e601ffd"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/GameMapSceneryAniBindings.cs",
+      "sha256": "c1bacda0e1fe739181a413814178f3ec3c93b11cc0e1172126c89e5f157da41b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/GameMapTerrainSceneFile.cs",
+      "sha256": "deb24913f206489435c036de28fcdedc2c6ef53d59c19c6554ed75b8e61b9acf"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/GameMapTerrainSceneResources.cs",
+      "sha256": "8094826452e12e3542523363c029a65dc6a3f77ed3148466b9f0e1628a89ddfa"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/MapAsset.cs",
+      "sha256": "17d269b7eada9a524546a5f059acc2d3e006b6f2397672b315332b070fb89fea"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/MapAssetCodec.cs",
+      "sha256": "d72be9b2a0ceefb205c20e3b919f5776210031f6cb3e09e73a8f9c96d4c6e7f3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/MapAssetFormat.cs",
+      "sha256": "204d19ee0f36cfab8ae07abf207ff6f497065b341a4d39e73be91e4e57db927e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/MapAssetId.cs",
+      "sha256": "b47782eb47e41e2a44c017d7a17614b72e75790886c75a69c99d19b45ba298ba"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/MapAssetReader.cs",
+      "sha256": "7a3693d47e436770a8d36436852d2adc70e547c29c9f2344c9479626e085c2b7"
+    },
+    {
+      "path": "src/OpenConquer.Content/Map/MapAssetWriter.cs",
+      "sha256": "e9b52b5c71e8a486d215a5cbaf5a83dea65eabcde9de109640860111d405fa7a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Media/EmbeddedMedia.cs",
+      "sha256": "a90f3fd1d851da86d552e947634509a7bdeee34fdf9a06ae1eea7c16512e2a4d"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3DatabaseArchive.cs",
+      "sha256": "2ffd17b229720dda423335604c7c1623e9972f12ec7cf7a7a6e1410be4b99d82"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3MatrixBlend.cs",
+      "sha256": "5abfc0cb21c9c5292d6f402b1eeffed917dbd37c9305e6e59b505733a63d6a7c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3MeshFile.cs",
+      "sha256": "ed66739721e5c0307c56061c9cb7cfe403faff359667ef735c8193d999ec7f4f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3ModelCodec.cs",
+      "sha256": "bc1332601deb34bfcb27a6aec1b33f3292ba1ac8a7e10c3565fc9e30f1aa3bdd"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3ModelData.cs",
+      "sha256": "acdb11673d262f69804f9a426a98bf397efc9df576307a2c69026ac1a30fe679"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3ModelImporter.cs",
+      "sha256": "e906bed168268bbfe7a213076dcf22091466bf51fed44cc8b7f9d86b8133c027"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3ModelPreview.cs",
+      "sha256": "0163221b5f0abb9cc989d83eaf8b6b6e277fa38465da1be19f4fef6447acaab3"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3Motion.cs",
+      "sha256": "8ca77220739f9cbc0b608972a8389b5fe0e14176e968252a8bde5436fbae11b0"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3MotionReader.cs",
+      "sha256": "0bf9c9c40781b5563956d99a6bbfee351bfa36279f6e8370a84a32faba9d766e"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3MotionSampler.cs",
+      "sha256": "4dd1c377165d37aca68aa93310041da67cd79d70ab68b5b9d799541baef3e1a4"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3PhyMesh.cs",
+      "sha256": "7414a5239d12912919a14e02ceca7025e1c10f5dc9b4a77a5b2733e85e5f2a26"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3PhyMeshReader.cs",
+      "sha256": "76e98a5bdcb33518dcf6238a85cb8f52499f6a3220896ae30738c683fa9032c0"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3PhyNormals.cs",
+      "sha256": "fa53bbc758ce91a0dfa1139f325e576aee3e70e72bb2be0b0b06890b9b37369f"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3PhyOutputVertex.cs",
+      "sha256": "7f72867cb1137ea03dfea2745f72fdf2c2ef781daecfabae09a0cd826b95d946"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3PhySkinner.cs",
+      "sha256": "5de3898489a7a328563f6090301f39fb5cf7e73647030d816534bc14265ae931"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3ResourcePathTable.cs",
+      "sha256": "42f197c2b9a705ad4358f669d7021fcbba73a961f1dc8037e26411235807c48a"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3RoleCatalog.cs",
+      "sha256": "b1cda74a9e0aab08c82c9ccc636887d062d7687b21621c508e5afd71fc737465"
+    },
+    {
+      "path": "src/OpenConquer.Content/Mesh/C3RolePartTables.cs",
+      "sha256": "478b5441d555262cc261264c60dfdcdae5765d69e8f78fb2430eb73b5bde8a07"
+    },
+    {
+      "path": "src/OpenConquer.Content/OpenConquer.Content.csproj",
+      "sha256": "48fbf8122f1018840c024b6f7bae2b9f941afa126d6db6b03322ae9734206ff0"
+    },
+    {
+      "path": "src/OpenConquer.Content/PackagedClientContentSource.cs",
+      "sha256": "5b373eecd28b2e43f7a2e9fee3df487a32df88929492bfeb07ab997eeaa0dcbb"
+    },
+    {
+      "path": "src/OpenConquer.Content/Regions/ClientRegionFile.cs",
+      "sha256": "b22bb9766f8abf54cd27eaedfe4184670166ad897b7a80803fb378d50211f36b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Role/SelectCharacterIni.cs",
+      "sha256": "7408d4005696948222a055c41795f0e3cb470aca8835eae16eb60387fb23361c"
+    },
+    {
+      "path": "src/OpenConquer.Content/Startup/StartupLogo.cs",
+      "sha256": "36539959f1dd18743bf6e126d9003b9720b4b821b783a10273f5f97b18d1d3c9"
+    },
+    {
+      "path": "src/OpenConquer.Content/Text/ClientKeyedStringResources.cs",
+      "sha256": "001ce0875e55f2b905b3b34487b23795f5d9c1be04b7248fc1ca9824cfb688ca"
+    },
+    {
+      "path": "src/OpenConquer.Content/Text/ClientStringResources.cs",
+      "sha256": "708e8eff1029fbf192b370091f4394287e2537e67a10d642242a49c97803efdc"
+    },
+    {
+      "path": "src/OpenConquer.Content/Wdf/WdfArchive.cs",
+      "sha256": "ad99c227dc1fc3520cfcff3cc9b0339164d6fdcedb733df9697e3f94573176da"
+    },
+    {
+      "path": "src/OpenConquer.Content/Wdf/WdfEntry.cs",
+      "sha256": "02acb3e014a8fda6ade4aed822eef1d0ee6b073b5d66a779f615dfebc9ae4046"
+    },
+    {
+      "path": "src/OpenConquer.Content/Wdf/WdfEntryStream.cs",
+      "sha256": "08e058c8d6aefc50a2c8a038a7fc926dc330727f0723e44f8374213d039ae15b"
+    },
+    {
+      "path": "src/OpenConquer.Content/Wdf/WdfPackagePrefix.cs",
+      "sha256": "0f281b8d671ba024594ead56d6c5fef807587213a5035067a829a305a98684c2"
+    },
+    {
+      "path": "src/OpenConquer.Content/Wdf/WdfPackageRegistration.cs",
+      "sha256": "78a9d5c246b83596eef958a50a0a4d18d9d675f9023ea1418b9eb007ef710250"
+    },
+    {
+      "path": "src/OpenConquer.Content/Wdf/WdfPathHash.cs",
+      "sha256": "a760dcc5b259da50acc7a20e916ba8386682cdd87251ac21a1a0d2c17cfe2a8c"
+    },
+    {
+      "path": "src/OpenConquer.Content/packages.lock.json",
+      "sha256": "725b1f57136d0f02353b04be21091b0b0944e7836efb5b6a704c4cbca54b58ae"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenConquer.Rendering.csproj",
+      "sha256": "142e1974e0afbd8b5eb989e169c88581e40e21a0bbd0d04d482fa74980b86f6e"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Meshes/MeshCullMode.cs",
+      "sha256": "4cc26abd4dcca3f4ffec0fcf683a2615309fb0d7b1371b68bda092b9fb3f524f"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Meshes/OpenGLIndexedMesh.cs",
+      "sha256": "2d8ce8e8070cfef5114e3ffda182958241fe4f2188dd179bfdafb8501368fe97"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Meshes/OpenGLMeshRenderer.cs",
+      "sha256": "fc7b2838bc8c0f57d27e660aa10a78f3580474ba33b0b0fcea8071f959d635d3"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/OpenGLDrawStateCleanup.cs",
+      "sha256": "90165b112a13b45fb30a0c13233db1e4c31521601e95041cd18d0c121e1da205"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/OpenGLGraphicsDevice.cs",
+      "sha256": "d6d3b357606c15a351a41be57c570345ba4e4412fdf9948462402fdbf81a901c"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/OpenGLProcAddressResolver.cs",
+      "sha256": "149a2d4904ad2ea9cc9654296c3e898256bc3adf71e2c3d552ab1665e87e9518"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/OpenGLRenderer.cs",
+      "sha256": "f5f9283fa1b9e864c5199b025e2486ff31d778ec41f06009a3343ebf808b9fd7"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Primitives/OpenGLLineRectangleRenderer.cs",
+      "sha256": "d2024f51ab91b2c2aa21a4e9597814e6813f7f75c25b3e17d57f85b88093d501"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Primitives/OpenGLSolidRectangleRenderer.cs",
+      "sha256": "c827dc6844d735a9ce78a8e2fe14460b16f78ab92c49295f42bd807b49922ebd"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/RenderColorFormat.cs",
+      "sha256": "a82e9330c54d8a5fce45866b404e8d57e78def650066554d00bea507677055dc"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Resources/OpenGLMaskStack.cs",
+      "sha256": "a1736967464801670425a160e8fb8b472ef7bf94dafb5fb8acf7ac6f9e9fc319"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Resources/OpenGLMaskTarget.cs",
+      "sha256": "94184b9db561558790e0b24097f2adc0d433ae88e3096cb9f63c5b08ce875360"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Resources/OpenGLProgram.cs",
+      "sha256": "4b3877f948679218c89d4225689fc6055ab8dd77e6227c77410985dedc4dcf3d"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Resources/OpenGLRenderTarget.cs",
+      "sha256": "3bba73e0cd3cd232394d7787cd99b398d227deca50d15cebb57cd233fc522c70"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Resources/OpenGLTexture2D.cs",
+      "sha256": "1f4f4d7af76250d5c88b4ae9269c478feeaa78077fd9df692ae41a3e471f0632"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Sprites/OpenGLSpriteRenderer.cs",
+      "sha256": "f2562097e2e0b2e9a591a14b9199abee1b9f716185ecc5aa64143d34e5faa986"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Sprites/OpenGLTransformedSpriteRenderer.cs",
+      "sha256": "927086b9359646dcce1116b29c965e994ac803c5aed63df8e7ed0e8da38b6a7e"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Startup/OpenGLStartupImage.cs",
+      "sha256": "7cfdb1d80f02e372259fadc8b509590cd76aec1895a8e658b210da6c8c45072a"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Startup/OpenGLStartupSurfaceRenderer.cs",
+      "sha256": "1b2102416dee3e21228ba7c9a4d8df6a3663417608abdf49a1b739cd7f78d202"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Text/Atlas/OpenGLGlyphAtlas.cs",
+      "sha256": "61acee37affa316ed70ee4a82ce346903119cfa1770f98bc1d4ddd51b6d7c12b"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Text/Atlas/OpenGLGlyphAtlasPageTexture.cs",
+      "sha256": "35280ac95a37fdf85d41c8bb2aab175f6da3350dd5743e527239d9f4adff4336"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Text/OpenGLTextContext.cs",
+      "sha256": "5abeb9fb411a3deb71444961a3c5852433c9f83afcf00fb817eb12019c81e981"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Text/OpenGLTextLayout.cs",
+      "sha256": "bdb2057f35c7a360b2a39a782459345870e19cadca6d1aeacec4645aa3b7083c"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Text/OpenGLTextPipeline.cs",
+      "sha256": "c665eb14bbf8df531c13080a3375d545d16f2985bf1dd632fc568137f08d0768"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Text/OpenGLTextRenderer.cs",
+      "sha256": "84e972a0ac7b9cecca4145d46c41cdc57d5c950144b4780612a5586c60c75f5f"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Text/OpenGLTextResource.cs",
+      "sha256": "00654b9eecd5a4f842f588a41e48142bb3f16cfa84aba090a8f15b6388cd8b43"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Text/OpenGLTextVertex.cs",
+      "sha256": "cbe6600281bcd1cf3344cb05a1a97ecf7777d6526e8f5910d5206081e276b945"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Text/OpenGLTextVertexBuffer.cs",
+      "sha256": "592eaf557396e674c9b4da04c24b755041a5ae6ce586b9e2ad3b15feaab70277"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/OpenGL/Text/OpenGLTextVertexStagingBuffer.cs",
+      "sha256": "3f15dcfabf3b817416016cbc278aa7fc2476601ada968ce0bb5585baf702d703"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Presentation/LogicalRenderSize.cs",
+      "sha256": "f14830106b08c13b6ef270836494830353dbe8b10f3c6cbf31c38bfb0b5d7cc5"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Presentation/PresentationFilter.cs",
+      "sha256": "ad2dd6e071001c23420033c78b428605d39596168dc1f2ce33a2e2f41e0a73ab"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Presentation/PresentationPolicy.cs",
+      "sha256": "688a73f3770f35b6dca9fe66647176fb6805fe087f62291ec898d02a7a89604c"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Presentation/PresentationViewport.cs",
+      "sha256": "8775bb08b80c3686d6c52ff6cf8f32e78eb1ad216b4fe82be35bf030e49d8cf4"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Presentation/StartupSurfacePlacement.cs",
+      "sha256": "365dd7ec811cf7db60ecb1a605c6fe611916cfce3ff2a09742b61fb644465b51"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Sprites/SpriteBlendMode.cs",
+      "sha256": "b4fe828ce580ba50bd71c54a313b4182dfe8e93cbdd6da19131aed7e4eb84b35"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Sprites/SpriteColor.cs",
+      "sha256": "0026013357296ffbfe22ed7a6f063070267254c23bf64e4bffa2fe97d89aa7c5"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Sprites/SpriteColorTransform.cs",
+      "sha256": "1f36bc5e5e07acf5788f7947d03256dee4c1e50247c60385e0d46e8d9754bfa5"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Sprites/SpriteSourceBounds.cs",
+      "sha256": "fc34450a7f719fe6666b365e1bc35653a0cf7bddf5eb74814c39bd1d1458b989"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Sprites/SpriteSourceRectangle.cs",
+      "sha256": "9b459db2667992a5a855f592de8b63b2b2ae47fe3d732e300451dba7fa03b599"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Atlas/GlyphAtlas.cs",
+      "sha256": "8cb0e3b4a4e7bc168c8dcc2ae1cd67ec98901223e18c8a71e57b48899dfbc766"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Atlas/GlyphAtlasPage.cs",
+      "sha256": "e8be6a13879cc7af3f9d29b53f9679642eafa70e44cf7e90268c25bbbd41f68a"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Atlas/GlyphAtlasRegion.cs",
+      "sha256": "185fec9032f4989734c7b50c063af563e389ef339faa5aeadee5edd548f8f307"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Codec/DbcsLeadByteClassifier.cs",
+      "sha256": "0555e44777bccd4a44274927f220c53c2240c863dee6219615871479780b8c09"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Codec/EncodedGlyphDecoder.cs",
+      "sha256": "c2bb6ae9544f82af1ae5613eedd15ad32b17849b8df07ba16313ff699bc3a978"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Codec/EncodedTextReader.cs",
+      "sha256": "752c425a7566d4ebf77cbb30bf376d4fcbb026e571127484749f3b5ede5c89b0"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Codec/EncodedTextToken.cs",
+      "sha256": "7051bd617fbad3096e12640a048017935e31d7c59c69dfe21e6a316e385b5668"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/Discovery/HostFontCatalog.cs",
+      "sha256": "8cdb11f1ba2ef2cfcc849f185ff8e730f06658b86e4a5acabbb325eeef990e3e"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/Discovery/HostFontDiscovery.cs",
+      "sha256": "fde7050558cf995dce52b883f75d24b5de6c0a142fbe5b24f831f4d57c4a7d35"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/Discovery/HostFontReference.cs",
+      "sha256": "9db4d23bc853a2a121606fef7b8555d389e9560c3515dc5209733c99556b7398"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/Discovery/IHostFontSource.cs",
+      "sha256": "037a005f802fc061f1e9ed0e9d944e289d7cca2bee7689e5dac0f9564fc1f805"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/Discovery/LinuxHostFontSource.cs",
+      "sha256": "de80fc5b02198dba19088202d52a3fd2d463bf625d759c13f545c525f935b2bc"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/Discovery/MacOSHostFontSource.cs",
+      "sha256": "7326ec77b403d3ebd4b8a58a8002242393a95de646ab1fdfdaecdaabf7b80a89"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/Discovery/SystemHostFontSource.cs",
+      "sha256": "122151d8405a55508fce3add6b43f94aba3c62fc0494a4638e8ea08458908309"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/Discovery/WindowsHostFontSource.cs",
+      "sha256": "a32e09cbb1aa695ed713816e84fdb580c04cf3da82cc680664747073218f4f8f"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/FontGlyphInk.cs",
+      "sha256": "f4db2bd0230a8cf8e25b5fc48ff26ae2fe21e60fcf06924bd007aaa8da9c6da1"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/FreeType/FreeTypeBitmapNormalizer.cs",
+      "sha256": "1c2a40419754e071c75d0ad822caf609dc37fdd49fcdc18085548890115a4686"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/FreeType/FreeTypeFace.cs",
+      "sha256": "aadbbe1bd51f8d492805f5943b0fdb62948a2572364bb1fc928c4f9bc699f733"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/FreeType/FreeTypeFaceCreationException.cs",
+      "sha256": "d0b992f192db0d0cab12ead349fbdec1773a1d26d7c3a2500f23413022a0e6d6"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/FreeType/FreeTypeFontFile.cs",
+      "sha256": "ee006b0a11e309b0a7e1cc66f8a326313823d18e05d72676daceafdd637396e7"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/FreeType/FreeTypeFontInspector.cs",
+      "sha256": "0edd4ad5185a9a7b9846399f5119fe14e473279f936afd6cece3bdd7e8daccf4"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/FreeType/FreeTypeGlyphRasterizer.cs",
+      "sha256": "50fcb9637df2c6531372a6be524da2cc7a22fbb6f676057f1b4c833e10c6a63b"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/FreeType/FreeTypeGlyphRasterizerFactory.cs",
+      "sha256": "35801a8deccee145791cdac51c943b629e5dea34f7f4d8c42482e71776c105b1"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/FreeType/FreeTypeLibrary.cs",
+      "sha256": "7b3f6f81be1bd2d86ed4900d1e4644e80bef12a43e6da45050e6874a9b34659f"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/GlyphHinting.cs",
+      "sha256": "5b2b1e3765c9e5323f940974d000c1a3d164912d557cb39c7cf5fc0df4897c67"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/IFontResolver.cs",
+      "sha256": "ad4bfb0ec8bd3ce4f995fe4348095aacac492eca9e8c6b186159147a8fd2a43a"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/ResolvedFont.cs",
+      "sha256": "03469a0af9babbf0ebb7e6934e39864f5243e1b2b1613fb03e0519fc18ffa502"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Fonts/SystemFontResolver.cs",
+      "sha256": "8f70eb2177dca183d40d5d866ab3b39ca309de8f122e15aad360b469c85aa14f"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Glyphs/CachedGlyph.cs",
+      "sha256": "7d777d0110c0f36d0fb5e3f50b4ca8ad44acc5c63442500c4ca4f515137dabe2"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Glyphs/IGlyphRasterizer.cs",
+      "sha256": "4c765638f11d7b92982bf8b3b9e55a3e424f2267d6832c47c5ce850ebd1a9ae6"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Glyphs/NativeGlyphCache.cs",
+      "sha256": "363e845cb40060386ad55bb4c72a69e74585c51d30d029647d086ff0c2fb425f"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Glyphs/RasterizedGlyph.cs",
+      "sha256": "890f207eb2f869e71d86906523b97997acf58eb8c2a206a42ae9adcbc6777b1b"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Layout/IDataIconWidthProvider.cs",
+      "sha256": "d8165c79a52f7017e045723ae934ee941f4836abbc51f5fcf78ae15b7ffbc4de"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Layout/NativeTextFontRecord.cs",
+      "sha256": "556c8bc7c54178449bf568635df15551228eabcd43b66d0ca5cf498c23e4205b"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Layout/NativeTextLayout.cs",
+      "sha256": "0a4c85d3ae7150e353680deb4f3f569bb687535fccacc3f17e7909fa3c55aa85"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Layout/NativeTextLayoutEngine.cs",
+      "sha256": "b04547826a33b85d53ec311373bf7a6beb7a71af64c3af0464de9bcf9d2ad445"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Layout/NativeTextLayoutItem.cs",
+      "sha256": "7b82ad8180d507adef9a052b17ffb9b2948170a0e759c0c737bbf6c30c36dcb6"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Layout/NativeTextLayoutSource.cs",
+      "sha256": "2c3efc9d32ea0511e49ed7a310112f68dd59153d416a65cddab59a1e128e5138"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Native/CoreFoundationNative.cs",
+      "sha256": "cd082d4c36d112190b4f04e9df2b3cfb4c19961321ba900061589bcbd867febf"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Native/CoreTextNative.cs",
+      "sha256": "60671e308ec89a186d6c73623904e023e4152994490f6d0bcf2e3ef046d79d1c"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Native/DirectWriteNative.cs",
+      "sha256": "0d678009942b138219db8c31801e60092af43ec2f905c57ffa9bd66c0e1dc61d"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Native/FontConfigNative.cs",
+      "sha256": "9195bd9b823ff9606caea739b22528f0b9d5f85e757cc85d371c2bda762d33a3"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Native/FreeTypeNative.cs",
+      "sha256": "dd2cdc44835486ad587b174b37dbafe6e405b234e256fae168b7790720441ebe"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Native/FreeTypeNativeTypes.cs",
+      "sha256": "16aefebb7573658306cbda2438829a862f1fd71f25610f2a0acfb4bdbfc27ef4"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Native/GdiNative.cs",
+      "sha256": "e84aab7384228d6051e56a931ac4863e86b52aa998cd3f8bf873aa3c99f5b2ea"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Rendering/NativeGlyphPixelCheck.cs",
+      "sha256": "1ec07dcb6c3180ddeaec75738ff35c1a79b8b63456b55c983edf1cbbb5285c20"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Rendering/NativeTextBatchPlan.cs",
+      "sha256": "9dff607c7b6f9a3415a55546747d3ddf43fbff9940ad1a6d94ed27e96d0af15c"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Rendering/NativeTextGeometryBuilder.cs",
+      "sha256": "1c02827257ce11eff527acc168867af69cdb44c5e4d34e8f431c24b14b3d4367"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Rendering/NativeTextRenderOptions.cs",
+      "sha256": "bfc68d9b119b49716e471315572c9bdddf4fca82ce0c31b86af5736ab88bfbd4"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Rendering/NativeTextRenderPass.cs",
+      "sha256": "7cf0f7f7fa46aa9fe12202bf47c286df3ce9e0482dc9410aecf7dd46bf3c7685"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Rendering/NativeTextRenderPassSequence.cs",
+      "sha256": "b01dbee596eab1411a4472c26d1b43aa03b669b24595a831f893aaef614d3415"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Rendering/NativeTextRenderStyle.cs",
+      "sha256": "9522fd86b89d9175b50516e7aa3a483d5a8793a000d6e8a27f15d9e0f8e1c285"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Rendering/NativeTextVertex.cs",
+      "sha256": "6c7f46cb1664f1841edefefe719a954d5cf3aad516652812da791caf62c6f6db"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/Text/Rendering/NativeTextVertexColors.cs",
+      "sha256": "5f0539d364d8d83553025f46f4d7ef66d27fdb2c674634bcd9b67545380a91c8"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/World/C3ModelPreviewRenderer.cs",
+      "sha256": "d984b1f2549325f8522dc9b034002536dc8a71cc2e1676a93fb7a1c57d450a45"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/World/WorldCameraProjection.cs",
+      "sha256": "a5df755fe16277cc01af7bc190c8eead9bf0b68c8151f0fda87d0c0156a33574"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/World/WorldMapScene.cs",
+      "sha256": "9084fff0022d51a76a5ed3e7b16eb255433a7b0b8b883fc45c49fd5a26e2bb25"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/World/WorldMapTextureRenderer.cs",
+      "sha256": "cf8d3b8743a1c7f2e8d3c46c4c8d404e6455638e87d012d71af8876b546a93c2"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/World/WorldPuzzleAnimationClock.cs",
+      "sha256": "06a707be9f99e3d1d6e010698314a63158d070565d093ded88a8881849304b60"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/World/WorldPuzzleDrawList.cs",
+      "sha256": "835c0a64d2dcd600aac6d180eb809a0b0ac7cae0c870f9d8fe950368e9ac8e6e"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/World/WorldRoleCameraMatrices.cs",
+      "sha256": "66b75fa780cbdff3f42dd105a3c7f58856185ade3592a708ed31bc78d819252f"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/World/WorldRoleMesh.cs",
+      "sha256": "8c9a0605eb7ebf2ba7375bdbdf0c15a4e69f33766721519384e2b4df8ab40750"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/World/WorldSceneryDepthOrder.cs",
+      "sha256": "cc196c5345b08ddc5f15bc8e9f17ad95c443c4158c9c2d8b8a987bc6673eba03"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/World/WorldSceneryDrawList.cs",
+      "sha256": "0e369928b985b5604a335dfe74c45cc60445bc7aa517c8b4ca1423a30a1626d6"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/World/WorldSceneryIndex.cs",
+      "sha256": "f250389e961d98fe7bcd4409d3accee160c8ae75b29e19ff5b25914d64e70263"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/World/WorldScenerySprite.cs",
+      "sha256": "928001cc3368c2ca2b1dd7dbfedb73930cd90d80d5443ab93308c7a70ce6fa1f"
+    },
+    {
+      "path": "src/OpenConquer.Rendering/packages.lock.json",
+      "sha256": "70c7ce0868b424329d5d7ba95c69e445845d28dd9e4b8d210e8b2a87533c5b4c"
+    }
+  ]
+}

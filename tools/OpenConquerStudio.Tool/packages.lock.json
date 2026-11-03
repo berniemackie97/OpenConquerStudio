@@ -5,14 +5,13 @@
       "openconquer.content": {
         "type": "Project",
         "dependencies": {
-          "OpenConquerStudio.Imaging": "[1.0.0, )",
           "SharpCompress": "[0.50.7, )"
         }
       },
       "openconquerstudio.authoring": {
         "type": "Project",
         "dependencies": {
-          "OpenConquerStudio.Imaging": "[1.0.0, )",
+          "OpenConquer.Content": "[1.0.0, )",
           "OpenConquerStudio.Runtime": "[1.0.0, )"
         }
       },
@@ -23,11 +22,11 @@
           "OpenConquerStudio.Authoring": "[1.0.0, )"
         }
       },
-      "openconquerstudio.imaging": {
-        "type": "Project"
-      },
       "openconquerstudio.runtime": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "OpenConquer.Content": "[1.0.0, )"
+        }
       },
       "SharpCompress": {
         "type": "CentralTransitive",
