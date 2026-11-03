@@ -174,6 +174,7 @@ internal sealed class ClientContentPanel : Grid
 
     public void Load(ImmutableArray<ClientAssetEntry> inventory, string root)
     {
+        bool hadSelection = _sources.SelectedItem is not null;
         _loading = true;
         try
         {
@@ -190,7 +191,10 @@ internal sealed class ClientContentPanel : Grid
 
         Filter();
         _details.Text = root + "\n" + inventory.Length + " source entries. Source files remain unchanged.";
-        _selectionCleared();
+        if (hadSelection)
+        {
+            _selectionCleared();
+        }
     }
 
     public string? SetSections(ImmutableArray<string> sections)
