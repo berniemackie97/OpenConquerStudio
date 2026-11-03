@@ -22,6 +22,7 @@ public static class TerrainSourceExporter
         }
 
         token.ThrowIfCancellationRequested();
+        ReadOnlySpan<byte> cells = project.ReadTerrainPayload(id);
         using MemoryStream buffer = new();
         using (Utf8JsonWriter writer = new(buffer))
         {
@@ -36,7 +37,7 @@ public static class TerrainSourceExporter
                 token.ThrowIfCancellationRequested();
                 for (int x = 0; x < terrain.Width; x++)
                 {
-                    TerrainCell cell = project.ReadTerrainCell(id, x, y);
+                    TerrainCell cell = TerrainGrid.GetCell(cells, terrain.Width, terrain.Height, x, y);
                     writer.WriteStartObject();
                     writer.WriteNumber("surfaceId", cell.SurfaceId);
                     writer.WriteNumber("passabilityFlag", cell.PassabilityFlag);
