@@ -486,4 +486,40 @@ public sealed partial class StudioWindowTests
         finally { window.Close(); }
     }, TestContext.Current.CancellationToken);
 
+    [Fact]
+    public Task TerrainCreationDialogRejectsOversizedGridAndCreatesEditableResource() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        using (StudioProject project = StudioProject.Create(directory.Project, "World")) { }
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            window.GetLogicalDescendants().OfType<MenuItem>().Single(m => Equals(m.Header, "New terrain"))
+                .RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { });
+            Window dialog = Assert.Single(window.OwnedWindows);
+            Assert.Equal("New terrain", dialog.Title);
+            Find<NumericUpDown>(dialog, "NewTerrainMapDataId").Value = 8300;
+            Find<NumericUpDown>(dialog, "NewTerrainWidth").Value = 1024;
+            Find<NumericUpDown>(dialog, "NewTerrainHeight").Value = 1024;
+            Button create = dialog.GetLogicalDescendants().OfType<Button>().Single(b => Equals(b.Content, "Create terrain"));
+            create.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Assert.Contains("cell budget", dialog.GetLogicalDescendants().OfType<TextBlock>()
+                .Select(b => b.Text).FirstOrDefault(t => t?.Contains("cell budget", StringComparison.Ordinal) == true));
+            Find<NumericUpDown>(dialog, "NewTerrainWidth").Value = 2;
+            Find<NumericUpDown>(dialog, "NewTerrainHeight").Value = 2;
+            create.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            TerrainAsset terrain = Assert.Single(window.Project.Document.Terrains);
+            Assert.Equal(8300u, terrain.MapDataId);
+            Assert.Equal((2, 2), (terrain.Width, terrain.Height));
+            Assert.Equal(new TerrainCell(0, 0, 0), window.Project.ReadTerrainCell(terrain.Id, 1, 1));
+            await window.ExecuteAsync(token => Task.Run(() => window.Project.Save(token), token));
+        }
+        finally { window.Close(); }
+    }, TestContext.Current.CancellationToken);
+
+
 }
