@@ -48,6 +48,9 @@ Original import files stay unchanged. Apply/Rename buttons provide an explicit p
 Save and navigation also commit visible fields. Invalid fields block the action and remain available
 to correct. Undo first reverts pending fields, then restores project transactions. Closing or
 switching projects offers Save, Discard and Cancel, including when a field is invalid.
+When opening or creating a project, choose its destination before deciding what to do with
+unsaved changes; canceling the picker leaves current edits untouched. Reconnecting client sources
+clears the previous source selection and map context.
 Only one Studio window or command-line operation can edit a project at a time.
 
 To open a project at startup:

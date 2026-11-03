@@ -23,46 +23,51 @@ public sealed partial class StudioWindow
 
     private async Task NewProject(CancellationToken token)
     {
-        if (!await CanReplaceProject(token))
-        {
-            return;
-        }
-
         string? name = await StudioDialogs.ProjectName(this);
         if (name is null)
         {
             return;
         }
-        string? parent = await StudioDialogs.PickFolder(this, "Choose where to create the new project folder");
-        string? root = parent is null ? null : Path.Combine(parent, name);
-        if (root is not null)
-        {
-            StudioProject candidate = await Task.Run(() => StudioProject.Create(root, name), token);
-            ReplaceProject(candidate);
-        }
-    }
 
-    private async Task OpenProject(CancellationToken token)
-    {
-        if (!await CanReplaceProject(token))
+        string? parent = await StudioDialogs.PickFolder(this, "Choose where to create the new project folder");
+        if (parent is null || !await CanReplaceProject(token))
         {
             return;
         }
 
-        string? root = await StudioDialogs.PickProject(this);
-        if (root is not null && root != _project?.Root)
+        string root = Path.Combine(parent, name);
+        StudioProject candidate = await Task.Run(() => StudioProject.Create(root, name), token);
+        ReplaceProject(candidate);
+    }
+
+    private async Task OpenProject(CancellationToken token)
+    {
+        string? path = await StudioDialogs.PickProject(this);
+        if (path is not null)
         {
-            await LoadProject(root, token);
+            await OpenSelectedProject(path, token);
         }
     }
+
+    private async Task OpenSelectedProject(string path, CancellationToken token)
+    {
+        ProjectLocation location = StudioProjectOpening.Resolve(path);
+        if (IsCurrentProject(location) || await CanReplaceProject(token))
+        {
+            await LoadProject(path, token);
+        }
+    }
+
+    private bool IsCurrentProject(ProjectLocation location) =>
+        _project is not null && string.Equals(Path.GetFullPath(location.Workspace).TrimEnd(Path.DirectorySeparatorChar),
+            _project.Root.TrimEnd(Path.DirectorySeparatorChar), OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 
     internal async Task LoadProject(string root, CancellationToken token)
     {
         ProjectLocation location = StudioProjectOpening.Resolve(root);
-        if (_project is not null && string.Equals(Path.GetFullPath(location.Workspace).TrimEnd(Path.DirectorySeparatorChar),
-            _project.Root.TrimEnd(Path.DirectorySeparatorChar), OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+        if (IsCurrentProject(location))
         {
-            _output.Text = "Already open: " + _project.Document.Name;
+            _output.Text = "Already open: " + Project.Document.Name;
             return;
         }
         OpenedProject opened = await Task.Run(() => StudioProjectOpening.Open(location, token), token);
@@ -101,15 +106,10 @@ public sealed partial class StudioWindow
 
     private async Task OpenClientProject(CancellationToken token)
     {
-        if (!await CanReplaceProject(token))
-        {
-            return;
-        }
-
         string? repository = await StudioDialogs.PickFolder(this, "Open the OpenConquerClient repository");
         if (repository is not null)
         {
-            await LoadProject(repository, token);
+            await OpenSelectedProject(repository, token);
         }
     }
 

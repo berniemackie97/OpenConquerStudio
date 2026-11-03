@@ -218,4 +218,65 @@ public sealed partial class StudioWindowTests
         finally { window.Close(); }
     }, TestContext.Current.CancellationToken);
 
+    [Fact]
+    public Task CancelingNewProjectBeforeChoosingLocationLeavesDraftUnchanged() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        directory.CreateSavedTexture();
+        byte[] saved = File.ReadAllBytes(directory.Manifest);
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            Find<TextBox>(window, "AssetName").Text = "Still editing";
+            MenuItem create = window.GetLogicalDescendants().OfType<MenuItem>().Single(m => Equals(m.Header, "New project"));
+            create.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { });
+
+            Window dialog = Assert.Single(window.OwnedWindows);
+            Assert.Equal("New project", dialog.Title);
+            dialog.GetLogicalDescendants().OfType<Button>().Single(b => Equals(b.Content, "Cancel"))
+                .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+
+            Assert.Equal("Still editing", Find<TextBox>(window, "AssetName").Text);
+            Assert.False(window.Project.IsModified);
+            Assert.Equal(saved, File.ReadAllBytes(directory.Manifest));
+        }
+        finally
+        {
+            Find<TextBox>(window, "AssetName").Text = "Color";
+            window.Close();
+        }
+    }, TestContext.Current.CancellationToken);
+
+    [Fact]
+    public Task ReconnectingSourceInventoryClearsPreviousSelection() => s_session.Value.Dispatch(async () =>
+    {
+        int cleared = 0;
+        ClientContentPanel panel = new((_, _) => Task.CompletedTask, (_, _, _) => Task.CompletedTask,
+            (_, _) => { }, () => cleared++);
+        Window window = new()
+        {
+            Content = new StackPanel { Children = { panel, panel.Inspector } }
+        };
+        window.Show();
+        try
+        {
+            ClientAssetEntry entry = new("map", "game/map.dmap", 1010);
+            panel.Load([entry], "first source");
+            ListBox browser = Find<ListBox>(window, "ClientContentBrowser");
+            browser.SelectedIndex = 0;
+            Assert.True(panel.Inspector.IsVisible);
+            int previous = cleared;
+
+            panel.Load([entry], "second source");
+            Assert.Null(browser.SelectedItem);
+            Assert.False(panel.Inspector.IsVisible);
+            Assert.Equal(previous + 1, cleared);
+        }
+        finally { window.Close(); }
+    }, TestContext.Current.CancellationToken);
+
 }

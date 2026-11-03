@@ -174,12 +174,27 @@ internal sealed class ClientContentPanel : Grid
 
     public void Load(ImmutableArray<ClientAssetEntry> inventory, string root)
     {
-        _inventory = inventory;
-        IsVisible = true;
-        _details.Text = root + "\n" + inventory.Length + " source entries. Source files remain unchanged.";
+        bool hadSelection = _sources.SelectedItem is not null;
+        _loading = true;
+        try
+        {
+            _sources.SelectedIndex = -1;
+            _sections.ItemsSource = Array.Empty<string>();
+            _sections.SelectedIndex = -1;
+            Inspector.IsVisible = false;
+            _import.IsVisible = _replace.IsVisible = false;
+            _clipControls.IsVisible = _mapControls.IsVisible = _characterControls.IsVisible = false;
+            _inventory = inventory;
+            IsVisible = true;
+        }
+        finally { _loading = false; }
+
         Filter();
-        _import.IsVisible = false;
-        _replace.IsVisible = false;
+        _details.Text = root + "\n" + inventory.Length + " source entries. Source files remain unchanged.";
+        if (hadSelection)
+        {
+            _selectionCleared();
+        }
     }
 
     public string? SetSections(ImmutableArray<string> sections)
