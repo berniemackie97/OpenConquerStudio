@@ -258,7 +258,10 @@ internal static class StudioDialogs
             FormatString = "0",
             ParsingNumberStyle = NumberStyles.Integer
         };
-        TextBlock error = new() { TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+        TextBlock error = new()
+        {
+            TextWrapping = Avalonia.Media.TextWrapping.Wrap
+        };
         Button create = new()
         {
             Content = "Create terrain",
