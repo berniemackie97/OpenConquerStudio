@@ -14,8 +14,8 @@ internal sealed class ClientContentPanel : Grid
     private readonly ListBox _sources = new() { Name = "ClientContentBrowser" };
     private readonly ComboBox _sections = new() { Name = "ClientAnimationSection" };
     private readonly NumericUpDown _duration = new() { Value = 100, Minimum = 1, Maximum = 60000, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer };
-    private readonly NumericUpDown _x = new() { Minimum = 0, Maximum = 65535, Value = 0, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer };
-    private readonly NumericUpDown _y = new() { Minimum = 0, Maximum = 65535, Value = 0, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer };
+    private readonly NumericUpDown _x = new() { Minimum = 0, Maximum = 65535, Value = 0, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer, Name = "MapCameraTileX" };
+    private readonly NumericUpDown _y = new() { Minimum = 0, Maximum = 65535, Value = 0, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer, Name = "MapCameraTileY" };
     private readonly TextBlock _details = new() { TextWrapping = Avalonia.Media.TextWrapping.Wrap };
     private readonly StackPanel _clipControls;
     private readonly StackPanel _mapControls;
@@ -28,11 +28,13 @@ internal sealed class ClientContentPanel : Grid
     private ImmutableArray<ClientAssetEntry> _inventory = [];
     private bool _loading;
     private readonly Func<ClientAssetEntry, Func<ClientAssetOptions>, Task> _preview;
+    private readonly Action _selectionCleared;
 
     public ClientContentPanel(Func<ClientAssetEntry, Func<ClientAssetOptions>, Task> preview,
-        Func<ClientAssetEntry, Func<ClientAssetOptions>, bool, Task> import, Action<int, int> moveCamera)
+        Func<ClientAssetEntry, Func<ClientAssetOptions>, bool, Task> import, Action<int, int> moveCamera, Action selectionCleared)
     {
         _preview = preview;
+        _selectionCleared = selectionCleared;
         RowDefinitions = new RowDefinitions("Auto,Auto,*");
         RowSpacing = 6;
         Children.Add(_filter);
@@ -45,7 +47,17 @@ internal sealed class ClientContentPanel : Grid
             Content = "Go to map tile",
             Name = "GoToMapTile"
         };
-        camera.Click += (_, _) => moveCamera((int)(_x.Value ?? 0), (int)(_y.Value ?? 0));
+        camera.Click += (_, _) =>
+        {
+            try
+            {
+                moveCamera(EditorInput.Integer(_x, "camera tile X"), EditorInput.Integer(_y, "camera tile Y"));
+            }
+            catch (InvalidDataException error)
+            {
+                _details.Text = error.Message;
+            }
+        };
         _mapControls = new StackPanel { Spacing = 4, Children = { new TextBlock { Text = "Camera tile X / Y" }, _x, _y, camera }, IsVisible = false };
         _clipControls = new StackPanel { Spacing = 4, Children = { new TextBlock { Text = "ANI section" }, _sections, new TextBlock { Text = "Authored frame duration (milliseconds)" }, _duration }, IsVisible = false };
         _characterControls = new StackPanel
@@ -91,6 +103,10 @@ internal sealed class ClientContentPanel : Grid
                 {
                     Section = null
                 });
+            }
+            else if (!_loading && _sources.SelectedItem is null)
+            {
+                _selectionCleared();
             }
         };
         _sections.SelectionChanged += async (_, _) =>
@@ -203,6 +219,10 @@ internal sealed class ClientContentPanel : Grid
             ClientAssetEntry[] rows = _inventory.Where(a => (kind is null or "All" || a.Kind == kind) && a.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase)).ToArray();
             _sources.ItemsSource = rows;
             _sources.SelectedItem = rows.FirstOrDefault(a => a == selected);
+            if (selected is not null && _sources.SelectedItem is null)
+            {
+                _selectionCleared();
+            }
             if (_sources.SelectedItem is null)
             {
                 _import.IsVisible = _replace.IsVisible = false;

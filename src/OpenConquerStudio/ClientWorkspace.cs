@@ -20,7 +20,7 @@ internal sealed class ClientWorkspace
     {
         _owner = owner;
         _preview = preview;
-        _clientContent = new ClientContentPanel(PreviewAsset, ImportAsset, MoveCamera);
+        _clientContent = new ClientContentPanel(PreviewAsset, ImportAsset, MoveCamera, _owner.ClearSourcePreview);
     }
 
     private void MoveCamera(int x, int y)

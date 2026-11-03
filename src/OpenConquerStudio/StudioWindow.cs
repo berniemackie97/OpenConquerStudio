@@ -398,6 +398,18 @@ public sealed partial class StudioWindow : Window
         ClientContent.Inspector.IsVisible = true;
     }
 
+    internal void ClearSourcePreview()
+    {
+        if (_activeWorkspaceTab != 1)
+        {
+            return;
+        }
+        _preview.Clear();
+        _emptyPreview.Text = "Select client content to preview.";
+        _emptyPreview.IsVisible = true;
+        _preview.IsVisible = false;
+    }
+
     internal Task PendingOperation => _operation ?? Task.CompletedTask;
 
     internal Task ExecuteAsync(Func<CancellationToken, Task> action, bool commitEdits = true)

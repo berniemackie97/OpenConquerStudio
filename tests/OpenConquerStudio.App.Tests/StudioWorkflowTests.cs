@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using OpenConquerStudio.Authoring;
+using OpenConquerStudio.ConquerImport;
 using OpenConquerStudio.Runtime;
 using OpenConquerStudio.Tests;
 
@@ -9,6 +10,31 @@ namespace OpenConquerStudio.App.Tests;
 
 public sealed partial class StudioWindowTests
 {
+    [Fact]
+    public Task FilteringClientSourcesClearsPreviewAndRejectsInvalidCameraInput() => s_session.Value.Dispatch(() =>
+    {
+        int cleared = 0;
+        int cameraMoves = 0;
+        ClientContentPanel panel = new((_, _) => Task.CompletedTask, (_, _, _) => Task.CompletedTask,
+            (_, _) => cameraMoves++, () => cleared++);
+        Window window = new() { Content = new StackPanel { Children = { panel, panel.Inspector } } };
+        window.Show();
+        try
+        {
+            panel.Load([new ClientAssetEntry("map", "game/map.dmap", 1010)], "sources");
+            Find<ListBox>(window, "ClientContentBrowser").SelectedIndex = 0;
+            Find<NumericUpDown>(window, "MapCameraTileX").Text = "invalid";
+            Find<Button>(window, "GoToMapTile").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Assert.Equal(0, cameraMoves);
+
+            Find<TextBox>(window, "ClientContentFilter").Text = "not present";
+            Assert.Null(Find<ListBox>(window, "ClientContentBrowser").SelectedItem);
+            Assert.Equal(1, cleared);
+        }
+        finally { window.Close(); }
+        return Task.CompletedTask;
+    }, TestContext.Current.CancellationToken);
+
     [Fact]
     public Task InvalidDraftCanBeUndoneWithoutChangingSavedContent() => s_session.Value.Dispatch(async () =>
     {
