@@ -14,6 +14,10 @@ public static class StudioCompiler
         {
             throw new InvalidOperationException("Save the project before compiling its content.");
         }
+        if (!project.Document.Terrains.IsEmpty)
+        {
+            throw new InvalidOperationException("Authored terrain cannot be built until the server terrain and collision output contract is integrated.");
+        }
 
         destination = ProjectFiles.RequireSafePath(destination);
         string relative = Path.GetRelativePath(project.Root, destination).Replace('\\', '/');
