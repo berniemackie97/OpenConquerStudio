@@ -376,4 +376,38 @@ public sealed partial class StudioWindowTests
     }, TestContext.Current.CancellationToken);
 
 
+
+    [Fact]
+    public Task RefreshAnimationActionPreservesChosenAniSection() => s_session.Value.Dispatch(async () =>
+    {
+        string? section = null;
+        bool replacement = false;
+        ClientContentPanel panel = new((_, _) => Task.CompletedTask, (_, read, replace) =>
+        {
+            section = read().Section;
+            replacement = replace;
+            return Task.CompletedTask;
+        }, (_, _) => { }, () => { });
+        Window window = new()
+        {
+            Content = new StackPanel { Children = { panel, panel.Inspector } }
+        };
+        window.Show();
+        try
+        {
+            panel.Load([new ClientAssetEntry("animation", "ani/idle.ani")], "sources");
+            Find<ListBox>(window, "ClientContentBrowser").SelectedIndex = 0;
+            panel.SetSections(["Idle"]);
+            Button refresh = Find<Button>(window, "ReimportClientAsset");
+            Assert.True(refresh.IsVisible);
+            Assert.Equal("Refresh selected authored animation", refresh.Content);
+            refresh.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { });
+            Assert.True(replacement);
+            Assert.Equal("Idle", section);
+        }
+        finally { window.Close(); }
+    }, TestContext.Current.CancellationToken);
+
+
 }
