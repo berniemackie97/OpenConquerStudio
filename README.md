@@ -1,7 +1,12 @@
 # OpenConquerStudio
 
-Content authoring, asset inspection, previews and deterministic builds for our games.
-Studio is a separate application and repository. It is not a general-purpose game engine.
+OpenConquer Studio/Engine is one integrated game-development product: asset
+authoring, validated content builds, shared rendering/runtime contracts and game
+integration. OpenConquer is its first production target.
+
+The current application implements the asset-authoring foundation, not the full
+planned engine/runtime workflow. Game simulation, networking and server authority
+remain in their respective game projects.
 
 ## Build and run
 
@@ -39,7 +44,7 @@ character composition remain in development. Compiled assets do not yet replace 
 **Assets → Import C3** accepts a mesh file. Catalog character import supplies actual textures;
 raw files without texture bindings show untextured geometry. Original files remain unchanged.
 
-[Usage](docs/studio/README.md) · [Asset and map plan](docs/studio/asset-platform-plan.md) ·
+[Roadmap](docs/product/roadmap.md) · [Acceptance](docs/product/acceptance.md) · [Usage](docs/studio/README.md) · [Asset and map plan](docs/studio/asset-platform-plan.md) ·
 [Ownership and extraction](docs/studio/architecture.md)
 
 ## Verify

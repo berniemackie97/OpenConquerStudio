@@ -1,10 +1,16 @@
 # Asset platform target and delivery plan
 
-The November 3, 2026 product decision is a separate content-authoring platform and repository,
-not a general-purpose game engine. Studio creates, imports, edits, previews, validates and builds
-assets for our games. Client simulation, networking, game execution and server authority remain
-in their respective projects. Shared codecs and preview mechanisms are dependencies, not a
-second engine product or a reason to make either game depend on the desktop application.
+OpenConquer Studio/Engine is one integrated game-development product with a separate
+repository and desktop application. Its target workflow spans asset/scene
+authoring, deterministic compilation, reusable runtime consumption and deployment.
+OpenConquer is the first complete game target; broader support is not yet
+implemented. The current application provides a content-authoring foundation,
+not a complete standalone game runtime.
+
+Game execution loops, gameplay, networking and server authority remain in their
+respective projects. Shared codecs and rendering mechanisms belong to their
+current owners; the desktop is not a runtime dependency. See the
+[product roadmap](../product/roadmap.md) for acceptance gates.
 
 The executable foundation
 currently implements texture, atlas, and sprite-animation projects. The asset families, editors, and production gates
