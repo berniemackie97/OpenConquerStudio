@@ -1,0 +1,166 @@
+using System.Collections.Immutable;
+using OpenConquerStudio.Runtime;
+
+namespace OpenConquerStudio.Authoring;
+
+public sealed record TextureAsset(Guid Id, string Name, int Width, int Height, string PixelDigest,
+    string SourceFormat, string SourceDigest, bool FlipHorizontal, int ClockwiseQuarterTurns, string? SourceKey = null);
+
+public sealed record AtlasAsset(Guid Id, string Name, Guid TextureId, ImmutableArray<SpriteRegion> Sprites);
+public sealed record AnimationAsset(Guid Id, string Name, int TicksPerSecond, bool Repeat, ImmutableArray<AnimationFrame> Frames);
+public sealed record ResourceInfo(Guid Id, string Name, string Kind)
+{
+    public override string ToString() => $"{Name} ({Kind})";
+}
+
+public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, ImmutableArray<TextureAsset> Assets,
+    ImmutableArray<AtlasAsset> Atlases, ImmutableArray<AnimationAsset> Animations)
+{
+    public const int CurrentVersion = 2;
+    public const int MaximumAssets = 64;
+    public const int MaximumResources = 256;
+    public const int MaximumTotalPixelBytes = 64 * 1024 * 1024;
+
+    public IEnumerable<ResourceInfo> Resources => Assets.Select(a => new ResourceInfo(a.Id, a.Name, "texture"))
+        .Concat(Atlases.Select(a => new ResourceInfo(a.Id, a.Name, "atlas")))
+        .Concat(Animations.Select(a => new ResourceInfo(a.Id, a.Name, "animation"))).OrderBy(a => a.Id);
+
+    public void Validate()
+    {
+        if (SchemaVersion != CurrentVersion)
+        {
+            throw new InvalidDataException($"Project version {SchemaVersion} is unsupported; expected {CurrentVersion}. Use migration to copy version 1 projects.");
+        }
+
+        ValidateName(Name);
+        if (Id == Guid.Empty || Assets.IsDefault || Atlases.IsDefault || Animations.IsDefault || Assets.Length > MaximumAssets ||
+            Assets.Length + Atlases.Length + Animations.Length > MaximumResources)
+        {
+            throw new InvalidDataException("Project identity or asset count is invalid.");
+        }
+
+        HashSet<Guid> ids = [];
+        long total = 0;
+        foreach (TextureAsset asset in Assets)
+        {
+            if (asset is null || asset.Id == Guid.Empty || !ids.Add(asset.Id))
+            {
+                throw new InvalidDataException("Asset identities must be nonempty and unique.");
+            }
+
+            ValidateName(asset.Name);
+            ValidateDigest(asset.PixelDigest);
+            ValidateDigest(asset.SourceDigest);
+            if (asset.SourceKey is not null && (asset.SourceKey.Length is < 1 or > 256 ||
+                asset.SourceKey.Any(c => !(char.IsAsciiLetterOrDigit(c) || c is '/' or '-' or '_'))))
+            {
+                throw new InvalidDataException("The image source key is invalid.");
+            }
+            total += TextureData.GetByteLength(asset.Width, asset.Height);
+            if (asset.ClockwiseQuarterTurns is < 0 or > 3 || asset.SourceFormat is not ("tga" or "dds" or "rgba" or "created"))
+            {
+                throw new InvalidDataException($"Asset '{asset.Name}' has unsupported import or edit settings.");
+            }
+        }
+
+        if (total > MaximumTotalPixelBytes)
+        {
+            throw new InvalidDataException("The project exceeds its 64 MiB aggregate pixel budget.");
+        }
+
+        Dictionary<Guid, TextureAsset> textures = Assets.ToDictionary(a => a.Id);
+        Dictionary<Guid, SpriteAtlas> atlases = [];
+        int spriteCount = 0;
+        foreach (AtlasAsset asset in Atlases)
+        {
+            if (asset is null || !ids.Add(asset.Id))
+            {
+                throw new InvalidDataException("Resource identities must be unique across all types.");
+            }
+
+            ValidateName(asset.Name);
+            SpriteAtlas atlas = new(asset.Id, asset.TextureId, asset.Sprites);
+            if (!textures.TryGetValue(atlas.TextureId, out TextureAsset? texture))
+            {
+                throw new InvalidDataException($"Atlas '{asset.Name}' references a missing texture.");
+            }
+
+            bool rotated = texture.ClockwiseQuarterTurns % 2 != 0;
+            atlas.ValidateTexture(rotated ? texture.Height : texture.Width, rotated ? texture.Width : texture.Height);
+            atlases.Add(asset.Id, atlas);
+            spriteCount += atlas.Sprites.Length;
+        }
+
+        int frameCount = 0;
+        foreach (AnimationAsset asset in Animations)
+        {
+            if (asset is null || !ids.Add(asset.Id))
+            {
+                throw new InvalidDataException("Resource identities must be unique across all types.");
+            }
+
+            ValidateName(asset.Name);
+            SpriteAnimation animation = new(asset.Id, asset.TicksPerSecond, asset.Repeat, asset.Frames);
+            foreach (AnimationFrame frame in animation.Frames)
+            {
+                if (!atlases.TryGetValue(frame.AtlasId, out SpriteAtlas? atlas))
+                {
+                    throw new InvalidDataException($"Animation '{asset.Name}' references a missing atlas.");
+                }
+
+                atlas.Find(frame.SpriteId);
+            }
+
+            frameCount += animation.Frames.Length;
+        }
+
+        if (spriteCount > 4096 || frameCount > 8192)
+        {
+            throw new InvalidDataException("The project exceeds its 4096-sprite or 8192-frame metadata budget.");
+        }
+    }
+
+    public ImmutableArray<Guid> Dependencies(Guid id)
+    {
+        if (Atlases.FirstOrDefault(a => a.Id == id) is { } atlas)
+        {
+            return [atlas.TextureId];
+        }
+
+        if (Animations.FirstOrDefault(a => a.Id == id) is { } animation)
+        {
+            return [.. animation.Frames.Select(f => f.AtlasId).Distinct().Order()];
+        }
+
+        if (Assets.Any(a => a.Id == id))
+        {
+            return [];
+        }
+
+        throw new InvalidDataException($"Resource '{id}' does not exist.");
+    }
+
+    public ImmutableArray<ResourceInfo> Dependents(Guid id)
+    {
+        _ = Dependencies(id);
+        HashSet<Guid> affected = [id];
+        ResourceInfo[] resources = Resources.ToArray();
+        bool changed;
+        do
+        {
+            changed = false;
+            foreach (ResourceInfo resource in resources)
+            {
+                if (!affected.Contains(resource.Id) && Dependencies(resource.Id).Any(affected.Contains))
+                {
+                    changed |= affected.Add(resource.Id);
+                }
+            }
+        } while (changed);
+
+        return [.. resources.Where(a => a.Id != id && affected.Contains(a.Id))];
+    }
+
+    public static void ValidateName(string name) => ProjectFiles.ValidateName(name);
+    internal static void ValidateDigest(string digest) => ProjectFiles.ValidateDigest(digest);
+}

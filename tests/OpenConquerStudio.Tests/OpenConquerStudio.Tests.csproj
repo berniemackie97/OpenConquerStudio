@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenConquerStudio.ConquerImport/OpenConquerStudio.ConquerImport.csproj" />
+    <Compile Include="../Fixtures/StudioProjectDirectory.cs" Link="StudioProjectDirectory.cs" />
+    <ProjectReference Include="../../src/OpenConquerStudio.Authoring/OpenConquerStudio.Authoring.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,3 @@
+[submodule "dependencies/OpenConquerClient"]
+	path = dependencies/OpenConquerClient
+	url = https://github.com/berniemackie97/OpenConquerClient.git

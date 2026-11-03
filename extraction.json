@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "sourceRepository": "https://github.com/berniemackie97/OpenConquerClient",
+  "sourceCommit": "78d752c2da39ca8f9f45f64377844efacce42d17",
+  "movedFiles": [
+    {
+      "path": ".github/workflows/studio.yml",
+      "sha256": "04cd69d845b354bf8afcd76adbef40ebcbc6e3c4a7018d1d2683647197836981",
+      "gitBlob": "196755542dd11b061ac2efa7acef3c8cbfda4abd"
+    },
+    {
+      "path": "OpenConquerStudio.slnx",
+      "sha256": "a2438d369d1a0039759a1459be304062ef74855ed527e50c25aee15c18c2a098",
+      "gitBlob": "2ef8972af0c46ad4d14afb98340ab406f7e60ce8"
+    },
+    {
+      "path": "docs/studio/README.md",
+      "sha256": "aba8baa84a186c22647c83cd228cdec6240579e29f4a9a6529976475f1ceff05",
+      "gitBlob": "afba864970db3571780d516c003c1a07a09ae476"
+    },
+    {
+      "path": "docs/studio/architecture.md",
+      "sha256": "6cdbf889e6459a953b8b41ac384e5e683d1ee3c61cef7b824e008eac316c7760",
+      "gitBlob": "08ed1d65747804847249a30ba46c441e7f8b105d"
+    },
+    {
+      "path": "docs/studio/asset-platform-plan.md",
+      "sha256": "033aee4c604ad807791750602ac3b0e187ae827cf6423382de34d358e17e046e",
+      "gitBlob": "8c01b464e3eed98eaea39c0550e9e13fa14c4797"
+    },
+    {
+      "path": "docs/studio/audit.md",
+      "sha256": "718ee9c5e9fab934f8b7829a4cce0e59826e73b50ab2ae3fc8dad16cec456131",
+      "gitBlob": "d45b77e0da289cf81d8ab34c59b1231a5b08b65d"
+    },
+    {
+      "path": "docs/studio/formats.md",
+      "sha256": "91bf18dc99bd79fd2699a13063dfa6213403b648b94aad582d0f9198982303bd",
+      "gitBlob": "a8a55ab59b79110c334e20803546cd95bf1b4469"
+    },
+    {
+      "path": "src/OpenConquerStudio.Authoring/GlobalUsings.cs",
+      "sha256": "8a494e0fda8a3b4684f4a272cd99fab532e0e11b85a4da5da0fb3c2990d29e0a",
+      "gitBlob": "812583f8c18f70ea6523a771ead9ed00c8a51718"
+    },
+    {
+      "path": "src/OpenConquerStudio.Authoring/OpenConquerStudio.Authoring.csproj",
+      "sha256": "38fb2c3cb5cfcc52b575278e92adf7c7cc1f4d75f57a646f459f3a9cb0c7fa5d",
+      "gitBlob": "fea16d45bd8026e1912a38f7ba8512aeba94ff04"
+    },
+    {
+      "path": "src/OpenConquerStudio.Authoring/ProjectDocument.cs",
+      "sha256": "e5d2d932bc6b34bd0d43e2199f47190662477e5f2a301f2f743751923c65b16d",
+      "gitBlob": "db73f9102c37f8f784a10917c49c3ac8072b55fd"
+    },
+    {
+      "path": "src/OpenConquerStudio.Authoring/ProjectStorage.cs",
+      "sha256": "37e925dcf770b9f546bf310d6eaba3adcdd547e20b622f568a388890b2859b3c",
+      "gitBlob": "5a878114100d4813a95a516f6547cdf628454b50"
+    },
+    {
+      "path": "src/OpenConquerStudio.Authoring/StudioCompiler.cs",
+      "sha256": "f5a27e13feefd38d509d3e8fa064a912833d03dffe7d79bd4f6515725651d255",
+      "gitBlob": "0fcfff5bc2fdc470813a589f7712465c414160c9"
+    },
+    {
+      "path": "src/OpenConquerStudio.Authoring/StudioProject.Sprites.cs",
+      "sha256": "717d18c534fe354490d3239873dbe72c4a568edcd56b6e25074aba27b1b6e2db",
+      "gitBlob": "ee70aacf2b87a841f0c7ff1b89d5448b4885e0f4"
+    },
+    {
+      "path": "src/OpenConquerStudio.Authoring/StudioProject.cs",
+      "sha256": "5320e7bb46322ca7b18726e3adeff93ecc8c4c7d589e4a8e07ee9956b7d357fa",
+      "gitBlob": "61ac86a5e51f148462997b5d0c23bbebfae834bc"
+    },
+    {
+      "path": "src/OpenConquerStudio.Authoring/TextureImporter.cs",
+      "sha256": "013e8a02187cf3593dc83f660945913dd7634bb9a956425687fabd4812025d19",
+      "gitBlob": "8ad64a4a9365f7e0e2f67db58dc27399b0f1013a"
+    },
+    {
+      "path": "src/OpenConquerStudio.Authoring/packages.lock.json",
+      "sha256": "ec96bbcd0c9926f93e49e50461d84b9ab71dfbf4a3f74d99689dee02e3e260c5",
+      "gitBlob": "2a7866a428d431f1c66aafdc2e5add485c640e19"
+    },
+    {
+      "path": "src/OpenConquerStudio.ConquerImport/ClientProjectConnection.cs",
+      "sha256": "e67991d9ba41e6e313057c3fa5dee26e52fdcbb72f2c53c33fa60d4df4a41231",
+      "gitBlob": "479c6e972ebb3e4e104c08425eb56b0e5ff94550"
+    },
+    {
+      "path": "src/OpenConquerStudio.ConquerImport/ConquerArtworkImporter.cs",
+      "sha256": "583416bcab76e9cd15776bc090ff92619a4e1c865a90b16ca80b9b19667a1e2b",
+      "gitBlob": "58dcc1910d7c5fd076f682dd0e70b01d60c7a99b"
+    },
+    {
+      "path": "src/OpenConquerStudio.ConquerImport/OpenConquerStudio.ConquerImport.csproj",
+      "sha256": "84e1b4ef64caf47fc05eb53c5623e9ab849eec67743f92e5f82ec9008f8f71a4",
+      "gitBlob": "341ff30e7504a1bd80635a194e8a5d80957dad4c"
+    },
+    {
+      "path": "src/OpenConquerStudio.ConquerImport/packages.lock.json",
+      "sha256": "ee9cee0d846de72480bc841bd3b9608964d635ec5a217948a67687dd6f8823e2",
+      "gitBlob": "6ef84f555fb4034b6d01b6425dd38abe4060ff03"
+    },
+    {
+      "path": "src/OpenConquerStudio.Runtime/AssetFileIO.cs",
+      "sha256": "246bfaaa4d7820776ebb09e27623e8d7a1485732b1919b64b06ed073ca934f36",
+      "gitBlob": "72d61d8f84f3ee8b5c1ead3788c80b42cc0e9666"
+    },
+    {
+      "path": "src/OpenConquerStudio.Runtime/ContentPackage.cs",
+      "sha256": "c640f42a715abe0ca2c55af102490108f46f34f1d58ebf88584f0e473c393021",
+      "gitBlob": "8bad6f6dd030e1c94092a756f6c95d84c3e7790f"
+    },
+    {
+      "path": "src/OpenConquerStudio.Runtime/OpenConquerStudio.Runtime.csproj",
+      "sha256": "3e14c41e8ada3ed3fa2582e18faecb5d6c8a9037938fced705f62b8eeee84b26",
+      "gitBlob": "d586720c198c023edb0188482a1e94c76ab9a461"
+    },
+    {
+      "path": "src/OpenConquerStudio.Runtime/SpriteAnimation.cs",
+      "sha256": "fe356d5fcac544719c516bf588815b03bcea6d8f9b0523569cda17c627d2dd2e",
+      "gitBlob": "8ad17d75bc4ec094733c31c996fae0acb06789d1"
+    },
+    {
+      "path": "src/OpenConquerStudio.Runtime/SpriteAssetCodec.cs",
+      "sha256": "de1d20051c1b37843b9e4219a68c186059101bd2b457b58ee05c7d1437296bdd",
+      "gitBlob": "1e3b0517a1d0ac39724b3dd250ae9121e2a42158"
+    },
+    {
+      "path": "src/OpenConquerStudio.Runtime/SpriteAtlas.cs",
+      "sha256": "0d6341238e4257bf0abef1306662101b585ff08ef3c4f7327e958ea7a949499e",
+      "gitBlob": "89ad35380005a527f9d09483b62acba266a53611"
+    },
+    {
+      "path": "src/OpenConquerStudio.Runtime/SpriteLibrary.cs",
+      "sha256": "adbbb27f8cea4be8430eec730f12fa9242718e4b2fb7652153f264082e440717",
+      "gitBlob": "b3882d12ec6548108d2c81ba1fe388b50bf7ba4d"
+    },
+    {
+      "path": "src/OpenConquerStudio.Runtime/TextureCodec.cs",
+      "sha256": "d3a2b16e0da99915606fec82a9c0f6d0a24230fe3c932d442e77d3a17f3cb5c5",
+      "gitBlob": "38467e3d9b9bb4d1c8dfbe640b3f9c61d1f069ec"
+    },
+    {
+      "path": "src/OpenConquerStudio.Runtime/TextureData.cs",
+      "sha256": "3e160376e022c9171c84e14d7d350b59a824b66db4144f31e667bbeed8e560ae",
+      "gitBlob": "93b7c20cc10d412b15bf17437bcde2dbcda8f64f"
+    },
+    {
+      "path": "src/OpenConquerStudio.Runtime/packages.lock.json",
+      "sha256": "03eeadc5ef377c17f787ab65f41fb4c8a9c936bb7f7f4171111fdeec8a81cb46",
+      "gitBlob": "6afd6786b95a8c85febce85cf6219643ee860872"
+    },
+    {
+      "path": "src/OpenConquerStudio/AnimationTransport.cs",
+      "sha256": "8341e9c34bf1c0b0e0b799a25b0db15a2e798f00b68872eabb61394ee3677d41",
+      "gitBlob": "bfc40c0781def397850555da2a4f20801b69cd6e"
+    },
+    {
+      "path": "src/OpenConquerStudio/AssetPreview.cs",
+      "sha256": "5f1ea4eb6845f80186a308176fe39b3905b61565549f7e596abf04b81dd390b9",
+      "gitBlob": "a21c43da84a838a970622b4be01cfd7faadcdf44"
+    },
+    {
+      "path": "src/OpenConquerStudio/ClientContentPanel.cs",
+      "sha256": "2f60dc23014073c86145b30bd7c6101169ac632b443237bb9ad88dfbec40005d",
+      "gitBlob": "4ed95b22bd073c405ef6afa11b0a7e144c03b402"
+    },
+    {
+      "path": "src/OpenConquerStudio/ClientWorkspace.cs",
+      "sha256": "9250bf215e80f784e4ea5698469fcb264ddbb5c63d7c708b801c7f53997a31c3",
+      "gitBlob": "4c0f1b5fe5c6f96dc47c514024c4753fa47bad44"
+    },
+    {
+      "path": "src/OpenConquerStudio/OpenConquerStudio.csproj",
+      "sha256": "22559318978caac473adef4532614907c51ec7e0e16d155ffaf67f8d2574ad65",
+      "gitBlob": "40c8f275d5d3f0b4c0b1721e8357cbf30f185ea9"
+    },
+    {
+      "path": "src/OpenConquerStudio/Program.cs",
+      "sha256": "3147e2d117d42758701cb8b604a5a9b72174616898283f3273138ee5b4e988b7",
+      "gitBlob": "c3ec691ae6d21a2179788fbac0f38d32de833e4c"
+    },
+    {
+      "path": "src/OpenConquerStudio/SpriteEditors.cs",
+      "sha256": "d5656be83ed53786e2a2a634b8be6e3affe19b52316a5e706a55fb01916c5f08",
+      "gitBlob": "6fb14dc4d3dda0bcbc8421a15e1587c214686c70"
+    },
+    {
+      "path": "src/OpenConquerStudio/StudioApp.cs",
+      "sha256": "968e12fce5c18a049efa3750bb9e24dc308f00a403729a15ad04c10b1a91b1b8",
+      "gitBlob": "9fcdc1dfe82f9489c036d0fd2f893357f59415a3"
+    },
+    {
+      "path": "src/OpenConquerStudio/StudioDialogs.cs",
+      "sha256": "e65ffd2a203f8d8ad4da1153e9ba4863e5a3fdfe78ee6afd7f0209f086f09201",
+      "gitBlob": "3e7269fe2859309aa6cbe2267a0bf58415f41927"
+    },
+    {
+      "path": "src/OpenConquerStudio/StudioStartupProject.cs",
+      "sha256": "7a87a67b4f9d353bdee5641ab293d4ea3ba6ba6be7d7c807b6dbb68704129033",
+      "gitBlob": "9378a40570a71044ece53bb95a6a470e9f80aea6"
+    },
+    {
+      "path": "src/OpenConquerStudio/StudioViewport.cs",
+      "sha256": "8d2946d7955ff7a9348588d995442121d30c48bc257da9a381d4f105833b9cfe",
+      "gitBlob": "7a009d6fd5d25d191dc08c3b3095c6aa8c1a2542"
+    },
+    {
+      "path": "src/OpenConquerStudio/StudioWindow.cs",
+      "sha256": "42c47a00d861bdb7ff7c6a20dfc4c6906b29790dbd53532386eef15f4f42ad84",
+      "gitBlob": "9e1bccd1c91d02245352e1ff691e9a093ff591ec"
+    },
+    {
+      "path": "src/OpenConquerStudio/packages.lock.json",
+      "sha256": "15ad3ca6b80aa3d344c59a259ea2a7358036556601949856891c68e643469221",
+      "gitBlob": "89e6db4dfee63e98ed862fde22b13c8f6afb5fd3"
+    },
+    {
+      "path": "tests/Fixtures/StudioProjectDirectory.cs",
+      "sha256": "7b110cc13d9bbc184b912baa363f0ee1afe3e83aa27c2f2bfe464baafba76a3b",
+      "gitBlob": "81df3041afa51e35149de50e660d05e25ccbc2e0"
+    },
+    {
+      "path": "tests/OpenConquerStudio.App.Tests/OpenConquerStudio.App.Tests.csproj",
+      "sha256": "3de1b6034f0ff26a81a0122872dcb7870f5949a41c80ee8dd769020e8583d8b9",
+      "gitBlob": "066ae199a41fc1821475db03f7f67cbd77c6df18"
+    },
+    {
+      "path": "tests/OpenConquerStudio.App.Tests/StudioStartupProjectTests.cs",
+      "sha256": "eca0d8ce5ef756149e459e46b5815794ad2fa487b4ffaf4f942c26179475bd47",
+      "gitBlob": "dc5cf3e46d349d8117212cc0b75d7a60b73a25a6"
+    },
+    {
+      "path": "tests/OpenConquerStudio.App.Tests/StudioWindowTests.cs",
+      "sha256": "347a5cb41a91ed8137d03bcda2b18b057ea839188606e763808495679c647217",
+      "gitBlob": "3a9ce53d24224f17ac7e53068e419a722d2c8f75"
+    },
+    {
+      "path": "tests/OpenConquerStudio.App.Tests/packages.lock.json",
+      "sha256": "47d1038199446c606b3231e40b7f2ccdfed73b9be61b30042e4167896750021c",
+      "gitBlob": "4993a85de37d405fdb47aa10c6cddc01adb918a0"
+    },
+    {
+      "path": "tests/OpenConquerStudio.Tests/ArtworkImportTests.cs",
+      "sha256": "fc16310ffc494a8af803b5cb75b0c1d9a8cb8805f940286eeee94934ea0d142a",
+      "gitBlob": "0c508be5d400bcb4c24f4fd73dcd08eb0edc79f5"
+    },
+    {
+      "path": "tests/OpenConquerStudio.Tests/ClientProjectTests.cs",
+      "sha256": "d8a4805947c34a82ff2fd119646d85583eeffb559026546afe39d62dfeea69ea",
+      "gitBlob": "faafd1f88e4cefa9e225bddc7a2c6a298938c9a1"
+    },
+    {
+      "path": "tests/OpenConquerStudio.Tests/OpenConquerStudio.Tests.csproj",
+      "sha256": "82a0b8bffd5158a5b3a3cd0dbd1688d0cfbc285f37ce6b6d513d3f208455c18f",
+      "gitBlob": "632bc44bf78e519d2af1202c33e94dcc3f30ff77"
+    },
+    {
+      "path": "tests/OpenConquerStudio.Tests/ProjectWorkflowTests.cs",
+      "sha256": "854eb1f432593e991e23645eec3726d2b3e102da0a859e4c08aa4b195fc60964",
+      "gitBlob": "c81e8f9b8962e6a04006b8667d59646a327de074"
+    },
+    {
+      "path": "tests/OpenConquerStudio.Tests/SpriteWorkflowTests.cs",
+      "sha256": "f1796e9a0d6711d1d094474d8c7be0a374438d8c026bd099e7a8551eb2d6a83a",
+      "gitBlob": "390039c9594baeafcede0cf359c07e5e4c8f4a61"
+    },
+    {
+      "path": "tests/OpenConquerStudio.Tests/TextureCodecTests.cs",
+      "sha256": "e4026fa060fbfe67a6e32dc7116a887ed13dfbdc096256e9d14072278262b05c",
+      "gitBlob": "331e7de690ea2c35d94094cee1cce2d2c64f5ca7"
+    },
+    {
+      "path": "tests/OpenConquerStudio.Tests/packages.lock.json",
+      "sha256": "99c43445cc5604ef04e64f80165dfe9abbbff8a520aa26b7e87be26ca2d77572",
+      "gitBlob": "1278016a51c6ee77e936a16991cb376f8918a9dd"
+    },
+    {
+      "path": "tests/development/test_studio_cli.py",
+      "sha256": "ca8e8586e4c9e96c44ad0428e225addb3f18fa5b9fa1a31613dc3203a632f5f3",
+      "gitBlob": "cd42e7af2f232554ffd2a91f1bba71adeba55a4d"
+    },
+    {
+      "path": "tools/OpenConquerStudio.RenderCheck/OpenConquerStudio.RenderCheck.csproj",
+      "sha256": "9d7c5c4037e01cc5966816f50ed596a492bc8ae752c9a066945e7c7975b57c80",
+      "gitBlob": "a51f534117ffb207515871bcf0ed013dd63d84f5"
+    },
+    {
+      "path": "tools/OpenConquerStudio.RenderCheck/Program.cs",
+      "sha256": "994bca02af1fde4ce51643539e0aaf38c82e6cdb551c6e16887b298bf691db02",
+      "gitBlob": "e59c12b303d932f7385c0ed419dff14acf5020b6"
+    },
+    {
+      "path": "tools/OpenConquerStudio.RenderCheck/packages.lock.json",
+      "sha256": "3403265427bde74f8060cb5c45611de3bef0400d983a5887adb41b74983e7120",
+      "gitBlob": "6c78a76b5828d7c14b29a95c889c750e610e2375"
+    },
+    {
+      "path": "tools/OpenConquerStudio.Tool/OpenConquerStudio.Tool.csproj",
+      "sha256": "9cd5d77781cbd092154124e778ce6eb79bcb32febc7fa9399c502192730cbd4a",
+      "gitBlob": "ce8522e8c84cd27bef23ea9e3f77a253617d2dc3"
+    },
+    {
+      "path": "tools/OpenConquerStudio.Tool/Program.cs",
+      "sha256": "2b546ded292093859471f243a779adf56f14bf66faff7d2c51f71028423d2221",
+      "gitBlob": "b093a7af279c32a8670094586592e4a5835e3e2a"
+    },
+    {
+      "path": "tools/OpenConquerStudio.Tool/packages.lock.json",
+      "sha256": "4d9165147c145b67ed03c85f38943346a12b16e27ab13b19005b7d69759390bf",
+      "gitBlob": "822d7c6adc531a0fafe23aadd7b29bb7bc0085c1"
+    }
+  ]
+}

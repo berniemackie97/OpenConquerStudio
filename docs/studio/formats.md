@@ -1,0 +1,128 @@
+# Project and runtime formats
+
+## Saved project
+
+```text
+project.ocstudio                         schema 2 project index
+.studio.lock                             editing lease
+Assets/<asset-guid-N>/<sha256>.ocasset.json
+Inputs/<sha256>.rgba                     immutable source pixels
+Builds/                                  optional local build destinations
+```
+
+The index contains `schemaVersion`, project `id`, `name`, and sorted `resources` entries
+(`id`, `kind`, `sha256`). Paths derive from validated GUIDs and lowercase hashes. Each resource
+revision contains `schemaVersion: 1` and `asset`; the index's kind selects its strict schema.
+Resource IDs remain stable when names change. Sprite and frame IDs are stable within their
+own parent assets. Resource revisions are immutable; edits publish a new revision.
+
+| Kind | Asset fields |
+| --- | --- |
+| `texture` | `id`, `name`, `width`, `height`, `pixelDigest`, `sourceFormat`, `sourceDigest`, `flipHorizontal`, `clockwiseQuarterTurns`, optional `sourceKey` |
+| `atlas` | `id`, `name`, `textureId`, ordered `sprites`: `id`, `name`, `x`, `y`, `width`, `height`, `pivotX`, `pivotY` |
+| `animation` | `id`, `name`, `ticksPerSecond`, `repeat`, ordered `frames`: `id`, `atlasId`, `spriteId`, `durationTicks` |
+
+Coordinates use the transformed texture's top-left pixel origin. Pivots are signed pixel
+offsets from a sprite's top-left corner. Flip precedes clockwise rotation. Changing texture
+transforms must leave every referenced rectangle valid; region coordinates are not silently remapped.
+Animation durations are positive integer ticks. Frames cover half-open intervals; a boundary
+selects the following frame. Repeating clips wrap by total duration; once clips retain the
+last frame. Timing is authored independently of rendering frequency. It does not claim ANI
+files contain a universal playback rate.
+
+Sources are never overwritten. `Inputs` contains top-left row-major straight-alpha RGBA8.
+Source formats are `tga`, `dds`, `rgba`, or `created`. File imports hash encoded source bytes;
+decoded adapters/generated images hash source pixels. Source keys are import associations,
+not game resource bindings. Filesystem source paths are not persisted.
+
+TGA import uses the existing 32-bit RLE subset: no color map/image ID, zero origin, bottom-left
+orientation, descriptor `0x08`. DDS supports the existing DXT1/DXT3 subset. Unsupported mipmaps,
+volume textures, compression formats, and other semantics are rejected.
+
+### Budgets and validation
+
+- 256 resources, including at most 64 textures; 64 MiB aggregate source pixels.
+- 4096 pixels per axis and 16 MiB pixels/encoded input per texture.
+- 1024 sprites per atlas, 4096 sprites per project; 4096 frames per clip, 8192 per project.
+- Clip timebase: 1–1,000,000 ticks/second; each duration: 1–2,147,483,647 ticks.
+- Pivots: −4096 to 4096 pixels. Rectangles must fit their referenced texture.
+- 1 MiB project index; 2 MiB per asset revision; 8 MiB aggregate active revision JSON.
+- Names: 1–128 characters, no control characters or surrounding whitespace.
+
+These are bounded foundation limits, not measured optimal limits for large productions.
+Decoding, transforms, history, bitmaps, runtime validation, and GPU uploads consume additional
+bounded memory. They are not a claim about total process residency.
+
+Readers reject duplicate/unknown/missing JSON fields, malformed identities, unsupported versions,
+invalid digests, missing/wrong-type references, inconsistent dimensions, and exceeded budgets.
+Serialization uses fixed property order and GUID ordering; sprite/frame order remains authored.
+No timestamps, machine paths, or random build values enter compiled output.
+
+### Saves, recovery, and migration
+
+An exclusive lease prevents simultaneous Studio/CLI sessions. Saves verify the last index digest,
+write and flush immutable pixel/revision files, then atomically replace the flushed root index.
+The index is the commit point. Failed/canceled publication leaves the previous committed graph
+readable and retains modified session state. Unreferenced revisions are safe to retain; automatic
+revision collection is deferred. Existing immutable revisions are verified before reuse.
+
+Version 1 texture projects must be explicitly copied with `migrate <source> <empty-destination>`.
+IDs, metadata, edit settings, and pixels survive. Source bytes are unchanged. No automatic or
+in-place migration occurs. A failed migration can leave unreferenced files in its destination;
+use a new empty destination for retry. Version 1 content builds should be regenerated from the
+migrated project; the version 2 package loader rejects old manifests.
+
+Existing symbolic links/reparse points in paths or ancestors are rejected. Use real local paths;
+macOS temporary paths may need `/private` spelling. Storage must be user-controlled and provide
+local locking/rename semantics. Checks do not defend against a hostile process with equal
+filesystem privileges racing path replacement or deleting leases. Flush/rename provides atomic
+visibility, not a universal power-loss recovery guarantee.
+
+## Compiled content
+
+Compilation requires a saved session. Output stages beside its new destination, validates through
+`ContentPackage.Load`, then publishes by non-overwriting directory rename. Failure/cancellation
+removes staging. Validation checks the exact file set, bytes, identities, dimensions, dependency
+coverage, and the decoded runtime graph. Existing output directories are never replaced.
+
+`content.json` schema 2 contains `projectId`, ordered `textures`, and ordered sprite `resources`.
+Texture entries carry `id`, `name`, `width`, `height`, `length`, `sha256`. Sprite entries carry
+`id`, `name`, `kind`, `length`, `sha256`, and sorted direct `dependencies`. Compiled paths derive
+only from GUID and kind: `.octex`, `.ocatlas`, `.ocanim`. The manifest cannot inject paths.
+
+### Texture transport
+
+| Offset | Bytes | Meaning |
+| --- | --- | --- |
+| 0 | 4 | ASCII `OCTX` |
+| 4 | 4 | Version 1, little-endian int32 |
+| 8 | 16 | Asset GUID, big-endian GUID byte order |
+| 24 | 4 | Width, little-endian int32 |
+| 28 | 4 | Height, little-endian int32 |
+| 32 | 4 | Pixel byte count, little-endian int32 |
+| 36 | 32 | SHA-256 of pixels |
+| 68 | width × height × 4 | Top-left RGBA8, straight alpha |
+
+### Atlas and animation transport
+
+| Offset | Bytes | Meaning |
+| --- | --- | --- |
+| 0 | 4 | ASCII `OCAS` |
+| 4 | 4 | Version 1, little-endian int32 |
+| 8 | 4 | Kind: 1 atlas, 2 animation, little-endian int32 |
+| 12 | 16 | Asset GUID, big-endian GUID byte order |
+| 28 | 4 | Payload byte count, little-endian int32 |
+| 32 | 32 | SHA-256 of payload |
+| 64 | declared count | Payload; total file limit 2 MiB |
+
+Atlas payload: texture GUID, int32 sprite count, then ordered entries of sprite GUID,
+uint16 UTF-8 name byte count, strict UTF-8 name, and six int32 values (x, y, width, height,
+pivotX, pivotY). Animation payload: int32 timebase, int32 repeat (0/1), int32 frame count,
+then ordered entries of frame/atlas/sprite GUIDs and int32 duration. All integers are
+little-endian; all GUIDs use big-endian GUID byte order.
+
+Decoders bound counts before allocating, require exact byte coverage, validate semantic data,
+and leave caller streams open. The manifest digest binds entire files, including headers.
+Hashes detect corruption; they do not authenticate publishers. These uncompressed transports
+are not frozen universal game formats. Compression, color-space policy, streaming, GPU formats,
+and large-world layouts need actual consumers, measurements, and compatibility review.

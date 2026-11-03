@@ -1,0 +1,22 @@
+<Solution>
+  <Project Path="dependencies/OpenConquerClient/src/OpenConquerStudio.ConquerRendering/OpenConquerStudio.ConquerRendering.csproj" />
+  <Folder Name="/shared/">
+    <Project Path="dependencies/OpenConquerClient/src/OpenConquer.Rendering/OpenConquer.Rendering.csproj" />
+    <Project Path="dependencies/OpenConquerClient/src/OpenConquer.Content/OpenConquer.Content.csproj" />
+    <Project Path="dependencies/OpenConquerClient/src/OpenConquerStudio.Imaging/OpenConquerStudio.Imaging.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/OpenConquerStudio.ConquerImport/OpenConquerStudio.ConquerImport.csproj" />
+    <Project Path="src/OpenConquerStudio.Runtime/OpenConquerStudio.Runtime.csproj" />
+    <Project Path="src/OpenConquerStudio.Authoring/OpenConquerStudio.Authoring.csproj" />
+    <Project Path="src/OpenConquerStudio/OpenConquerStudio.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/OpenConquerStudio.RenderCheck/OpenConquerStudio.RenderCheck.csproj" />
+    <Project Path="tools/OpenConquerStudio.Tool/OpenConquerStudio.Tool.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OpenConquerStudio.Tests/OpenConquerStudio.Tests.csproj" />
+    <Project Path="tests/OpenConquerStudio.App.Tests/OpenConquerStudio.App.Tests.csproj" />
+  </Folder>
+</Solution>

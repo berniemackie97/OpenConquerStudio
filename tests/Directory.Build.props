@@ -1,0 +1,23 @@
+<Project>
+
+  <!--
+    Test projects share one host shape. Importing the repository props first keeps every
+    setting in one place and leaves each test csproj holding only its own references.
+  -->
+  <Import Project="../Directory.Build.props" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3.mtp-v2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

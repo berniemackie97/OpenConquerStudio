@@ -1,0 +1,23 @@
+version: 2
+
+updates:
+  - package-ecosystem: nuget
+    directory: '/'
+    schedule:
+      interval: weekly
+    groups:
+      silk-net:
+        patterns:
+          - 'Silk.NET.*'
+
+  # global.json pins the SDK with rollForward disabled, so the pin only moves when
+  # Dependabot proposes it and CI has proven the new SDK on every target.
+  - package-ecosystem: dotnet-sdk
+    directory: '/'
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: weekly

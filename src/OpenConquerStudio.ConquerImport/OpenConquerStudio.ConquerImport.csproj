@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../../dependencies/OpenConquerClient/src/OpenConquer.Content/OpenConquer.Content.csproj" />
+    <ProjectReference Include="../OpenConquerStudio.Authoring/OpenConquerStudio.Authoring.csproj" />
+  </ItemGroup>
+</Project>

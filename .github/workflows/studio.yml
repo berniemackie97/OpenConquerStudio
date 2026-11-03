@@ -1,0 +1,76 @@
+name: Studio
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: studio-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+  DOTNET_NOLOGO: 'true'
+
+jobs:
+  studio:
+    name: Studio (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, windows-2025, macos-15]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          submodules: recursive
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
+        with:
+          global-json-file: global.json
+      - name: Restore locked dependencies
+        run: dotnet restore OpenConquerStudio.slnx --locked-mode
+      - name: Verify formatting and analyzers
+        run: dotnet format OpenConquerStudio.slnx --verify-no-changes --no-restore
+      - name: Build
+        run: dotnet build OpenConquerStudio.slnx --configuration Release --no-restore
+      - name: Test authoring, runtime, and desktop interactions
+        run: dotnet test OpenConquerStudio.slnx --configuration Release --no-build --no-restore
+      - name: Verify command-line workflow and reproducible content
+        run: python3 -m unittest discover -s tests/development -p test_studio_cli.py
+      - name: Install Linux rendering prerequisites
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y xvfb dbus-x11 libgl1-mesa-dri libglx-mesa0 libglfw3
+      - name: Validate embedded viewport on Linux
+        if: runner.os == 'Linux'
+        env:
+          LIBGL_ALWAYS_SOFTWARE: 'true'
+        run: dbus-run-session -- xvfb-run -a dotnet run --project tools/OpenConquerStudio.RenderCheck -c Release --no-build --no-restore
+      - name: Record macOS GPU validation boundary
+        if: runner.os == 'macOS'
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          macOS build, authoring, runtime, headless desktop, CLI, and publish checks run here.
+          Native GPU validation requires a graphics-capable Mac; this hosted runner exposes no GPU interop.
+          Run `dotnet run --project tools/OpenConquerStudio.RenderCheck -c Release` on that hardware.
+          Linux CI separately requires actual client-asset OpenGL framebuffer checks through Mesa.
+          EOF
+      - name: Publish Studio
+        run: dotnet publish src/OpenConquerStudio --configuration Release --no-restore --output studio-publish
+      - name: Verify Studio publish boundaries
+        shell: python
+        run: |
+          from pathlib import Path
+          root = Path('studio-publish')
+          forbidden = {'OpenConquer.Client.dll', 'OpenConquer.Networking.dll'}
+          found = [p for p in root.rglob('*') if p.name in forbidden or p.suffix.lower() in {'.wdf', '.dmap', '.tga', '.dds', '.bndb'}]
+          if found:
+              raise SystemExit(f'Unexpected application or archive content: {found}')

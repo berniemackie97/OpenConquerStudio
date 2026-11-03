@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenConquerStudio.ConquerImport/OpenConquerStudio.ConquerImport.csproj" /><ProjectReference Include="../../src/OpenConquerStudio.Authoring/OpenConquerStudio.Authoring.csproj" /></ItemGroup>
+</Project>
