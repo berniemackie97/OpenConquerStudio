@@ -44,7 +44,7 @@ jobs:
       - name: Test authoring, runtime, and desktop interactions
         run: dotnet test OpenConquerStudio.slnx --configuration Release --no-build --no-restore
       - name: Verify command-line workflow and reproducible content
-        run: python3 -m unittest discover -s tests/development -p test_studio_cli.py
+        run: python3 -m unittest discover -s tests/development -p 'test_studio_*.py'
       - name: Record asset validation boundary
         shell: python
         run: |

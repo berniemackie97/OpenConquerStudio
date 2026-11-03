@@ -16,6 +16,14 @@ internal sealed class AnimationTransport : StackPanel
     private SpriteAnimation? _animation;
     private long _startTicks;
     private bool _updating;
+    private int _modelFrameCount;
+    private int _modelFrameMilliseconds;
+    private bool _modelRepeat;
+    private long DurationTicks => _animation?.DurationTicks ?? (long)_modelFrameCount * _modelFrameMilliseconds;
+    private int TicksPerSecond => _animation?.TicksPerSecond ?? 1000;
+    private int FrameCount => _animation?.Frames.Length ?? _modelFrameCount;
+    private bool Repeat => _animation?.Repeat ?? _modelRepeat;
+    private int Sample(long position) => _animation?.SampleTicks(position) ?? (int)(position / _modelFrameMilliseconds);
 
     public AnimationTransport(Action<int> select)
     {
@@ -37,7 +45,7 @@ internal sealed class AnimationTransport : StackPanel
         Children.Add(_position);
         _play.Click += (_, _) =>
         {
-            if (_animation is null)
+            if (DurationTicks == 0)
             {
                 return;
             }
@@ -57,7 +65,7 @@ internal sealed class AnimationTransport : StackPanel
         stop.Click += (_, _) => { Pause(); _position.Value = 0; };
         _position.PropertyChanged += (_, e) =>
         {
-            if (e.Property == Slider.ValueProperty && _animation is not null)
+            if (e.Property == Slider.ValueProperty && DurationTicks > 0)
             {
                 long position = (long)_position.Value;
                 if (!_updating)
@@ -66,24 +74,24 @@ internal sealed class AnimationTransport : StackPanel
                     _clock.Restart();
                 }
 
-                int frame = _animation.SampleTicks(position);
-                _label.Text = $"Frame {frame + 1}/{_animation.Frames.Length} · {position}/{_animation.DurationTicks} ticks";
+                int frame = Sample(position);
+                _label.Text = $"Frame {frame + 1}/{FrameCount} · {position}/{DurationTicks} ticks";
                 select(frame);
             }
         };
         _timer.Tick += (_, _) =>
         {
-            if (_animation is null)
+            if (DurationTicks == 0)
             {
                 return;
             }
 
-            long elapsed = _startTicks + (long)((Int128)_clock.Elapsed.Ticks * _animation.TicksPerSecond / TimeSpan.TicksPerSecond);
+            long elapsed = _startTicks + (long)((Int128)_clock.Elapsed.Ticks * TicksPerSecond / TimeSpan.TicksPerSecond);
             _updating = true;
             try
             {
-                _position.Value = _animation.Repeat ? elapsed % _animation.DurationTicks : Math.Min(elapsed, _animation.DurationTicks - 1);
-                if (!_animation.Repeat && elapsed >= _animation.DurationTicks)
+                _position.Value = Repeat ? elapsed % DurationTicks : Math.Min(elapsed, DurationTicks - 1);
+                if (!Repeat && elapsed >= DurationTicks)
                 {
                     Pause();
                 }
@@ -101,10 +109,26 @@ internal sealed class AnimationTransport : StackPanel
     {
         Pause();
         _animation = animation;
+        _modelFrameCount = 0;
         IsVisible = animation is not null;
         _position.Maximum = Math.Max(1, (animation?.DurationTicks ?? 1) - 1);
         _position.Value = 0;
         _label.Text = animation is null ? "" : $"Frame 1/{animation.Frames.Length} · 0/{animation.DurationTicks} ticks";
+    }
+
+    public void LoadModel(int frameCount, int frameMilliseconds, bool repeat)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameCount);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameMilliseconds);
+        Pause();
+        _animation = null;
+        _modelFrameCount = frameCount;
+        _modelFrameMilliseconds = frameMilliseconds;
+        _modelRepeat = repeat;
+        IsVisible = true;
+        _position.Maximum = DurationTicks - 1;
+        _position.Value = 0;
+        _label.Text = $"Frame 1/{FrameCount} · 0/{DurationTicks} milliseconds";
     }
 
     public void SelectFrame(int index)

@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
+using OpenConquer.Content.Mesh;
 using OpenConquerStudio.Authoring;
 using OpenConquerStudio.ConquerImport;
 using OpenConquerStudio.Runtime;
@@ -34,6 +35,7 @@ public sealed class StudioWindow : Window
     private readonly StackPanel _textureInspector = new() { Spacing = 10 };
     private readonly AtlasEditor _atlasEditor;
     private readonly AnimationEditor _animationEditor;
+    private readonly ModelEditor _modelEditor;
     private readonly Button _undo = new() { Content = "Undo", Name = "Undo" };
     private readonly Button _redo = new() { Content = "Redo", Name = "Redo" };
     private readonly TabControl _assetTabs;
@@ -65,6 +67,36 @@ public sealed class StudioWindow : Window
             _project!.EditAnimation(asset);
             await UpdatePreview(asset.Id, token);
         }), _preview.SelectFrame);
+        _modelEditor = new ModelEditor((name, clip, milliseconds, repeat) => ExecuteAsync(async token =>
+        {
+            if (SelectedAsset is not { Kind: "model" } selected)
+            {
+                return;
+            }
+            await Task.Run(() => Project.EditModel(selected.Id, name, clip, milliseconds, repeat), token);
+            await UpdatePreview(selected.Id, token, clip);
+        }), clip => ExecuteAsync(async token =>
+        {
+            if (SelectedAsset is { Kind: "model" } selected)
+            {
+                await UpdatePreview(selected.Id, token, clip);
+            }
+        }), () => ExecuteAsync(async token =>
+        {
+            if (SelectedAsset is not { Kind: "model" } selected)
+            {
+                return;
+            }
+            string? path = await StudioDialogs.PickC3(this, "Add a compatible C3 motion file");
+            if (path is null)
+            {
+                return;
+            }
+            await Task.Run(() => Project.AddModelMotion(selected.Id, Path.GetFileNameWithoutExtension(path), path, token), token);
+            int lastClip = await Task.Run(() => Project.PreviewModel(selected.Id).Definition.Clips.Length - 1, token);
+            await UpdatePreview(selected.Id, token, lastClip);
+        }), _preview.ModelView, PreviewModelOnMap);
+        _preview.ModelFrameChanged += _modelEditor.UpdateFrame;
         _undo.Click += async (_, _) => await RestoreHistory(undo: true);
         _redo.Click += async (_, _) => await RestoreHistory(undo: false);
         KeyModifiers modifier = OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
@@ -75,6 +107,7 @@ public sealed class StudioWindow : Window
         AddCommand("Open client project", OpenClientProject);
         AddCommand("Client content folder", _clientWorkspace.ChangeContentFolder, requiresProject: true);
         AddCommand("Import texture", ImportTexture, requiresProject: true);
+        AddCommand("Import C3", ImportModel, requiresProject: true);
         AddCommand("Client artwork", ImportArtwork, requiresProject: true);
         AddCommand("New texture", CreateTexture, requiresProject: true);
         AddCommand("New atlas", CreateAtlas, requiresProject: true);
@@ -178,7 +211,7 @@ public sealed class StudioWindow : Window
             Spacing = 10,
             Margin = new Thickness(12, 0, 0, 0),
             [Grid.ColumnProperty] = 4,
-            Children = { _textureInspector, _atlasEditor, _animationEditor, ClientContent.Inspector, Heading("Dependencies"), _dependencies }
+            Children = { _textureInspector, _atlasEditor, _animationEditor, _modelEditor, ClientContent.Inspector, Heading("Dependencies"), _dependencies }
         };
         body.Children.Add(new ScrollViewer { Content = inspector, [Grid.ColumnProperty] = 4, HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled });
         Grid root = new()
@@ -244,6 +277,7 @@ public sealed class StudioWindow : Window
         _textureInspector.IsVisible = false;
         _atlasEditor.IsVisible = false;
         _animationEditor.IsVisible = false;
+        _modelEditor.IsVisible = false;
         ClientContent.Inspector.IsVisible = true;
     }
 
@@ -447,7 +481,33 @@ public sealed class StudioWindow : Window
         await UpdatePreview(id, token);
     }
 
-    private async Task UpdatePreview(Guid id, CancellationToken token)
+    private Task PreviewModelOnMap() => ExecuteAsync(async token =>
+    {
+        if (SelectedAsset is not { Kind: "model" } selected)
+        {
+            return;
+        }
+        C3ModelPreview model = await Task.Run(() =>
+        {
+            C3ModelData data = Project.PreviewModel(selected.Id);
+            return C3ModelPreview.Create(data, data.Definition.Clips.IsEmpty ? -1 : 0);
+        }, token);
+        _modelEditor.Load(Project.Document.Models.Single(m => m.Id == selected.Id).Name, model);
+        _clientWorkspace.PreviewOnMap(model);
+    });
+
+    private async Task ImportModel(CancellationToken token)
+    {
+        string? path = await StudioDialogs.PickC3(this, "Import a C3 mesh file");
+        if (path is null)
+        {
+            return;
+        }
+        Guid id = await Task.Run(() => Project.ImportModelFile(path, Path.GetFileNameWithoutExtension(path), token), token);
+        await SelectAsset(id, token);
+    }
+
+    private async Task UpdatePreview(Guid id, CancellationToken token, int? modelClipIndex = null)
     {
         ProjectDocument document = _project!.Document;
         ClientContent.Inspector.IsVisible = false;
@@ -456,6 +516,7 @@ public sealed class StudioWindow : Window
         _textureInspector.IsVisible = info.Kind == "texture";
         _atlasEditor.IsVisible = info.Kind == "atlas";
         _animationEditor.IsVisible = info.Kind == "animation";
+        _modelEditor.IsVisible = info.Kind == "model";
         _dependencies.Text = "Uses: " + string.Join(", ", document.Dependencies(id).Select(dependency => document.Resources.Single(a => a.Id == dependency).Name)) +
             "\nUsed by: " + string.Join(", ", document.Dependents(id).Select(a => a.Name));
         if (info.Kind == "atlas")
@@ -465,6 +526,25 @@ public sealed class StudioWindow : Window
         else if (info.Kind == "animation")
         {
             _animationEditor.Load(document.Animations.Single(a => a.Id == id), document);
+        }
+
+        if (info.Kind == "model")
+        {
+            C3ModelPreview model = await Task.Run(() =>
+            {
+                C3ModelData data = Project.PreviewModel(id);
+                return C3ModelPreview.Create(data, modelClipIndex ?? (data.Definition.Clips.IsEmpty ? -1 : 0));
+            }, token);
+            _modelEditor.Load(info.Name, model);
+            if (_preview.IsWorldModelActive)
+            {
+                _clientWorkspace.PreviewOnMap(model);
+            }
+            else
+            {
+                _preview.LoadModel(model);
+            }
+            return;
         }
 
         Guid selectedSprite = _atlasEditor.SelectedSprite;
@@ -527,6 +607,7 @@ public sealed class StudioWindow : Window
         _textureInspector.IsVisible = false;
         _atlasEditor.IsVisible = false;
         _animationEditor.IsVisible = false;
+        _modelEditor.IsVisible = false;
         _dependencies.Text = "Select a resource.";
     }
 

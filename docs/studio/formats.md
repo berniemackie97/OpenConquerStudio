@@ -7,6 +7,7 @@ project.ocstudio                         schema 2 project index
 .studio.lock                             editing lease
 Assets/<asset-guid-N>/<sha256>.ocasset.json
 Inputs/<sha256>.rgba                     immutable source pixels
+Inputs/<sha256>.ocmodel                  immutable model and original source closure
 Builds/                                  optional local build destinations
 ```
 
@@ -18,6 +19,7 @@ own parent assets. Resource revisions are immutable; edits publish a new revisio
 
 | Kind | Asset fields |
 | --- | --- |
+| `model` | `id`, `name`, `dataDigest`, `byteLength`; the digest selects a self-contained model revision |
 | `texture` | `id`, `name`, `width`, `height`, `pixelDigest`, `sourceFormat`, `sourceDigest`, `flipHorizontal`, `clockwiseQuarterTurns`, optional `sourceKey` |
 | `atlas` | `id`, `name`, `textureId`, ordered `sprites`: `id`, `name`, `x`, `y`, `width`, `height`, `pivotX`, `pivotY` |
 | `animation` | `id`, `name`, `ticksPerSecond`, `repeat`, ordered `frames`: `id`, `atlasId`, `spriteId`, `durationTicks` |
@@ -126,3 +128,15 @@ and leave caller streams open. The manifest digest binds entire files, including
 Hashes detect corruption; they do not authenticate publishers. These uncompressed transports
 are not frozen universal game formats. Compression, color-space policy, streaming, GPU formats,
 and large-world layouts need actual consumers, measurements, and compatibility review.
+
+## C3 compatibility models
+
+`.ocmodel` is implemented by the existing Content project. Version 2 adds explicit part-local
+matrices, ancestor attachment bindings and per-part clip motion paths. Version 1 remains readable;
+writing an edited decoded model upgrades its container to version 2 while preserving every source
+file byte. See [C3 asset contract](c3-assets.md). The authoring sidecar is committed through the
+same revision/index save transaction as textures and sprites. Undo history includes model bytes.
+
+Model sources have a 64 MiB per-resource and 128 MiB aggregate project budget. Decoding additionally
+bounds source files, tracks, vertices, matrix channels and keyframe indexes before allocation.
+Limits are foundation safeguards, not production corpus-sizing benchmarks.

@@ -19,6 +19,44 @@ public sealed class StudioWindowTests
         .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).UseSkia();
 
     [Fact]
+    public Task ModelInspectorEditsPlaybackAndPersistsSourceData() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        OpenConquer.Content.Mesh.C3ModelData original = C3ModelFixture.Create();
+        Guid id;
+        using (StudioProject project = StudioProject.Create(directory.Project, "Characters"))
+        {
+            id = project.ImportModel("Actor", original);
+            project.Save();
+        }
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Project, token));
+            Find<ListBox>(window, "AssetBrowser").SelectedIndex = 0;
+            await window.PendingOperation;
+            Find<TextBox>(window, "ModelName").Text = "Edited actor";
+            Find<NumericUpDown>(window, "ModelFrameMilliseconds").Value = 42;
+            Find<CheckBox>(window, "ModelRepeat").IsChecked = false;
+            Find<Button>(window, "ApplyModelEdits").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Find<Slider>(window, "AnimationPosition").Value = 84;
+            Assert.Contains("Frame 2", Find<TextBlock>(window, "ModelBoneMatrix").Text);
+            Assert.Contains("4.0000", Find<TextBlock>(window, "ModelBoneMatrix").Text);
+            Find<CheckBox>(window, "ShowModelBones").IsChecked = true;
+            Button save = window.GetLogicalDescendants().OfType<Button>().Single(b => Equals(b.Content, "Save"));
+            save.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+        }
+        finally { window.Close(); }
+        using StudioProject reopened = StudioProject.Open(directory.Project);
+        Assert.Equal("Edited actor", Assert.Single(reopened.Document.Models).Name);
+        Assert.Equal(42, reopened.PreviewModel(id).Definition.Clips[0].FrameMilliseconds);
+        Assert.Equal(original.Source("c3/body.c3").ToArray(), reopened.PreviewModel(id).Source("c3/body.c3").ToArray());
+    }, TestContext.Current.CancellationToken);
+
+    [Fact]
     public Task SelectEditSaveAndReopen_UpdatesPreviewAndPersists() => s_session.Value.Dispatch(async () =>
     {
         using ProjectDirectory directory = new();

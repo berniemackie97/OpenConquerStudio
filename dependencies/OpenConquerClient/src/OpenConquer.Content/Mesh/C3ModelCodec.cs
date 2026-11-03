@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace OpenConquer.Content.Mesh;
 
-/// <summary>OCM3 v1: bounded metadata and ordered, exact source payloads, integrity checked together by SHA-256.</summary>
+/// <summary>OCM3 v2 (reads v1): bounded metadata and ordered, exact source payloads, integrity checked together by SHA-256.</summary>
 public static class C3ModelCodec
 {
     private const int HeaderLength = 48;
@@ -24,14 +24,17 @@ public static class C3ModelCodec
     public static byte[] Write(C3ModelData model)
     {
         ArgumentNullException.ThrowIfNull(model);
-        byte[] metadata = JsonSerializer.SerializeToUtf8Bytes(model.Definition, s_json);
+        byte[] metadata = JsonSerializer.SerializeToUtf8Bytes(model.Definition with
+        {
+            SchemaVersion = 2
+        }, s_json);
         if (metadata.Length > MaximumMetadataBytes)
         {
             throw new InvalidDataException("Model metadata exceeds 1 MiB.");
         }
         byte[] bytes = new byte[checked(HeaderLength + metadata.Length + model.PayloadBytes)];
         BinaryPrimitives.WriteUInt32LittleEndian(bytes, 0x334D434F);
-        BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(4), 1);
+        BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(4), 2);
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(8), metadata.Length);
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(12), model.PayloadBytes);
         metadata.CopyTo(bytes.AsSpan(HeaderLength));
@@ -55,7 +58,7 @@ public static class C3ModelCodec
         int metadataLength = BinaryPrimitives.ReadInt32LittleEndian(bytes[8..]);
         int payloadLength = BinaryPrimitives.ReadInt32LittleEndian(bytes[12..]);
         if (BinaryPrimitives.ReadUInt32LittleEndian(bytes) != 0x334D434F ||
-            BinaryPrimitives.ReadInt32LittleEndian(bytes[4..]) != 1 ||
+            BinaryPrimitives.ReadInt32LittleEndian(bytes[4..]) is not (1 or 2) ||
             metadataLength is < 1 or > MaximumMetadataBytes ||
             payloadLength is < 1 or > C3ModelData.MaximumPayloadBytes ||
             HeaderLength + (long)metadataLength + payloadLength != bytes.Length ||
@@ -72,6 +75,10 @@ public static class C3ModelCodec
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid model metadata.", error); }
 
+        if (definition.SchemaVersion != BinaryPrimitives.ReadInt32LittleEndian(bytes[4..]))
+        {
+            throw new InvalidDataException("Model header and metadata versions disagree.");
+        }
         if (definition.Sources.IsDefaultOrEmpty || definition.Sources.Length > 128)
         {
             throw new InvalidDataException("Invalid model file count.");

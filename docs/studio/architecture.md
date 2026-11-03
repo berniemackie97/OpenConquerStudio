@@ -95,8 +95,8 @@ manual validation. Automated GPU coverage is listed separately in the validation
 
 Image algorithms and world behavior remain in their existing namespaces. The image type is
 again defined directly in Content; no forwarding assembly is needed. Ownership changes require
-the client regression suite and Studio actual-asset checks. The current snapshot includes the
-completed initial character-body rendering slice, not full multipart or action-driven animation.
+the client regression suite and Studio actual-asset checks. Studio extends the recorded source copies with explicit part bindings and per-part motion paths.
+Body/hair preview follows the current native contracts; the complete role state machine remains outside Studio.
 Client gameplay, networking and server contracts remain outside Studio.
 Integrity hashes do not establish publisher authenticity. Existing launcher trust, signed release
 metadata, and Product Tool packaging remain the release path. Client resource bindings,

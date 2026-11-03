@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <Compile Include="../Fixtures/C3ModelFixture.cs" Link="C3ModelFixture.cs" />
     <Compile Include="../Fixtures/StudioProjectDirectory.cs" Link="StudioProjectDirectory.cs" />
     <ProjectReference Include="../../src/OpenConquerStudio/OpenConquerStudio.csproj" />
     <PackageReference Include="Avalonia.Headless" />

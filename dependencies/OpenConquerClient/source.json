@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "sourceRepository": "https://github.com/berniemackie97/OpenConquerClient",
   "sourceCommit": "92cdf2c16c8321780b02490b02864bb7aac52b93",
   "files": [
@@ -2557,19 +2557,23 @@
     },
     {
       "path": "src/OpenConquer.Content/Mesh/C3ModelCodec.cs",
-      "sha256": "bc1332601deb34bfcb27a6aec1b33f3292ba1ac8a7e10c3565fc9e30f1aa3bdd"
+      "sha256": "985d538845c038e9fba1f822ae5e11b4e793ad8bbed6f29d813efece1b69159e",
+      "upstreamSha256": "bc1332601deb34bfcb27a6aec1b33f3292ba1ac8a7e10c3565fc9e30f1aa3bdd"
     },
     {
       "path": "src/OpenConquer.Content/Mesh/C3ModelData.cs",
-      "sha256": "acdb11673d262f69804f9a426a98bf397efc9df576307a2c69026ac1a30fe679"
+      "sha256": "eae5f9fdb4a57e48cf4591f00927168157be3052ccffa273cef8c280764742cf",
+      "upstreamSha256": "acdb11673d262f69804f9a426a98bf397efc9df576307a2c69026ac1a30fe679"
     },
     {
       "path": "src/OpenConquer.Content/Mesh/C3ModelImporter.cs",
-      "sha256": "e906bed168268bbfe7a213076dcf22091466bf51fed44cc8b7f9d86b8133c027"
+      "sha256": "db25a8fcf6e608fc7c7e6cb5358b456a1572179257b9e9e3ab28328fbc7bdd6a",
+      "upstreamSha256": "e906bed168268bbfe7a213076dcf22091466bf51fed44cc8b7f9d86b8133c027"
     },
     {
       "path": "src/OpenConquer.Content/Mesh/C3ModelPreview.cs",
-      "sha256": "0163221b5f0abb9cc989d83eaf8b6b6e277fa38465da1be19f4fef6447acaab3"
+      "sha256": "aeccb235b7b1dce479d3d7967d5a4a29476773874a284a935384cf0fc643bbeb",
+      "upstreamSha256": "0163221b5f0abb9cc989d83eaf8b6b6e277fa38465da1be19f4fef6447acaab3"
     },
     {
       "path": "src/OpenConquer.Content/Mesh/C3Motion.cs",
@@ -3049,7 +3053,8 @@
     },
     {
       "path": "src/OpenConquer.Rendering/World/C3ModelPreviewRenderer.cs",
-      "sha256": "d984b1f2549325f8522dc9b034002536dc8a71cc2e1676a93fb7a1c57d450a45"
+      "sha256": "6d33eb5973b3fd18f6afe5347bf35117effa54837081c4270090d753d9ad4c1a",
+      "upstreamSha256": "d984b1f2549325f8522dc9b034002536dc8a71cc2e1676a93fb7a1c57d450a45"
     },
     {
       "path": "src/OpenConquer.Rendering/World/WorldCameraProjection.cs",
@@ -3099,5 +3104,6 @@
       "path": "src/OpenConquer.Rendering/packages.lock.json",
       "sha256": "70c7ce0868b424329d5d7ba95c69e445845d28dd9e4b8d210e8b2a87533c5b4c"
     }
-  ]
+  ],
+  "studioOwnedChanges": true
 }
