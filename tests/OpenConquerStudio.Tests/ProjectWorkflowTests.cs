@@ -23,7 +23,7 @@ public sealed class ProjectWorkflowTests
             Assert.True(File.Exists(Path.Combine(root, "project.ocstudio")));
         }
 
-        using StudioProject reopened = StudioProject.Open(root);
+        using StudioProject reopened = StudioProject.Open(root, TestContext.Current.CancellationToken);
         Assert.Equal("Named project", reopened.Document.Name);
     }
 
