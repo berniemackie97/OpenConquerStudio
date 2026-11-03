@@ -56,4 +56,4 @@ Integration tests and RenderCheck read actual client content from `OPENCONQUER_C
 The last check needs local assets and working desktop OpenGL. Source-only CI reports unavailable
 asset tests as skipped; it never downloads retail content from historical commits.
 See [formats](docs/studio/formats.md) for existing saved assets and [extraction record](extraction.json) for source provenance.
-Local checks and remaining gates: [workflow validation](docs/studio/workflow-validation-2026-11-03.md).
+Local checks and remaining gates: [workflow validation](docs/studio/validation-2026-11-03.md).
