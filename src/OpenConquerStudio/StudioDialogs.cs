@@ -3,8 +3,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Platform.Storage;
-using OpenConquerStudio.ConquerImport;
 using OpenConquerStudio.Authoring;
+using OpenConquerStudio.ConquerImport;
 
 namespace OpenConquerStudio;
 
@@ -202,16 +202,73 @@ internal static class StudioDialogs
     public static async Task<TerrainCreation?> CreateTerrain(Window owner)
     {
         Window dialog = Dialog("New terrain", 400, 570);
-        TextBox name = new() { Text = "Terrain", Name = "NewTerrainName" };
-        NumericUpDown mapDataId = new() { Minimum = 1, Maximum = uint.MaxValue, Value = 1, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer, Name = "NewTerrainMapDataId" };
-        NumericUpDown width = new() { Minimum = 1, Maximum = 1024, Value = 16, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer, Name = "NewTerrainWidth" };
-        NumericUpDown height = new() { Minimum = 1, Maximum = 1024, Value = 16, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer, Name = "NewTerrainHeight" };
-        NumericUpDown surface = new() { Minimum = 0, Maximum = ushort.MaxValue, Value = 0, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer };
-        NumericUpDown passability = new() { Minimum = 0, Maximum = ushort.MaxValue, Value = 0, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer };
-        NumericUpDown elevation = new() { Minimum = short.MinValue, Maximum = short.MaxValue, Value = 0, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer };
+        TextBox name = new()
+        {
+            Text = "Terrain",
+            Name = "NewTerrainName"
+        };
+        NumericUpDown mapDataId = new()
+        {
+            Minimum = 1,
+            Maximum = uint.MaxValue,
+            Value = 1,
+            FormatString = "0",
+            ParsingNumberStyle = NumberStyles.Integer,
+            Name = "NewTerrainMapDataId"
+        };
+        NumericUpDown width = new()
+        {
+            Minimum = 1,
+            Maximum = 1024,
+            Value = 16,
+            FormatString = "0",
+            ParsingNumberStyle = NumberStyles.Integer,
+            Name = "NewTerrainWidth"
+        };
+        NumericUpDown height = new()
+        {
+            Minimum = 1,
+            Maximum = 1024,
+            Value = 16,
+            FormatString = "0",
+            ParsingNumberStyle = NumberStyles.Integer,
+            Name = "NewTerrainHeight"
+        };
+        NumericUpDown surface = new()
+        {
+            Minimum = 0,
+            Maximum = ushort.MaxValue,
+            Value = 0,
+            FormatString = "0",
+            ParsingNumberStyle = NumberStyles.Integer
+        };
+        NumericUpDown passability = new()
+        {
+            Minimum = 0,
+            Maximum = ushort.MaxValue,
+            Value = 0,
+            FormatString = "0",
+            ParsingNumberStyle = NumberStyles.Integer
+        };
+        NumericUpDown elevation = new()
+        {
+            Minimum = short.MinValue,
+            Maximum = short.MaxValue,
+            Value = 0,
+            FormatString = "0",
+            ParsingNumberStyle = NumberStyles.Integer
+        };
         TextBlock error = new() { TextWrapping = Avalonia.Media.TextWrapping.Wrap };
-        Button create = new() { Content = "Create terrain", IsDefault = true };
-        Button cancel = new() { Content = "Cancel", IsCancel = true };
+        Button create = new()
+        {
+            Content = "Create terrain",
+            IsDefault = true
+        };
+        Button cancel = new()
+        {
+            Content = "Cancel",
+            IsCancel = true
+        };
         cancel.Click += (_, _) => dialog.Close();
         create.Click += (_, _) =>
         {
@@ -231,7 +288,11 @@ internal static class StudioDialogs
             }
             catch (InvalidDataException exception) { error.Text = exception.Message; }
         };
-        StackPanel fields = new() { Margin = new Thickness(20), Spacing = 7 };
+        StackPanel fields = new()
+        {
+            Margin = new Thickness(20),
+            Spacing = 7
+        };
         foreach ((string label, Control field) in new (string, Control)[]
         {
             ("Terrain name", name), ("Unique MapDataId", mapDataId), ("Width", width), ("Height", height),
