@@ -1,6 +1,5 @@
 using System.Globalization;
 using Avalonia.Controls;
-using Avalonia.Layout;
 using OpenConquerStudio.Authoring;
 
 namespace OpenConquerStudio;
@@ -34,7 +33,11 @@ internal sealed class TerrainEditor : StackPanel
         Children.Add(new TextBlock { Text = "Cell X / Y" });
         Children.Add(_x);
         Children.Add(_y);
-        Button go = new() { Content = "Inspect cell", Name = "InspectTerrainCell" };
+        Button go = new()
+        {
+            Content = "Inspect cell",
+            Name = "InspectTerrainCell"
+        };
         go.Click += async (_, _) =>
         {
             if (_asset is null)
@@ -61,7 +64,11 @@ internal sealed class TerrainEditor : StackPanel
         Children.Add(_passability);
         Children.Add(new TextBlock { Text = "Elevation (signed)" });
         Children.Add(_elevation);
-        Button save = new() { Content = "Apply terrain edits", Name = "ApplyTerrainEdits" };
+        Button save = new()
+        {
+            Content = "Apply terrain edits",
+            Name = "ApplyTerrainEdits"
+        };
         save.Click += async (_, _) => { if (_asset is not null) { await apply(); } };
         Children.Add(save);
 
@@ -154,7 +161,11 @@ internal sealed class TerrainEditor : StackPanel
 
     private static NumericUpDown Number(string name, decimal minimum, decimal maximum) => new()
     {
-        Name = name, Minimum = minimum, Maximum = maximum, Increment = 1, FormatString = "0",
+        Name = name,
+        Minimum = minimum,
+        Maximum = maximum,
+        Increment = 1,
+        FormatString = "0",
         ParsingNumberStyle = NumberStyles.Integer,
     };
 }
