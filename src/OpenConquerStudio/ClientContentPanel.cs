@@ -217,13 +217,18 @@ internal sealed class ClientContentPanel : Grid
         try
         {
             ClientAssetEntry[] rows = _inventory.Where(a => (kind is null or "All" || a.Kind == kind) && a.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase)).ToArray();
+            ClientAssetEntry? matching = rows.FirstOrDefault(a => a == selected);
+            if (matching is null)
+            {
+                _sources.SelectedIndex = -1;
+            }
             _sources.ItemsSource = rows;
-            _sources.SelectedItem = rows.FirstOrDefault(a => a == selected);
-            if (selected is not null && _sources.SelectedItem is null)
+            _sources.SelectedItem = matching;
+            if (selected is not null && matching is null)
             {
                 _selectionCleared();
             }
-            if (_sources.SelectedItem is null)
+            if (matching is null)
             {
                 _import.IsVisible = _replace.IsVisible = false;
                 _clipControls.IsVisible = _mapControls.IsVisible = _characterControls.IsVisible = false;

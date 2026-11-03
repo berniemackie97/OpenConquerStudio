@@ -11,7 +11,7 @@ namespace OpenConquerStudio.App.Tests;
 public sealed partial class StudioWindowTests
 {
     [Fact]
-    public Task FilteringClientSourcesClearsPreviewAndRejectsInvalidCameraInput() => s_session.Value.Dispatch(() =>
+    public Task FilteringClientSourcesClearsPreviewAndRejectsInvalidCameraInput() => s_session.Value.Dispatch(async () =>
     {
         int cleared = 0;
         int cameraMoves = 0;
@@ -34,11 +34,12 @@ public sealed partial class StudioWindowTests
             Assert.Equal(0, cameraMoves);
 
             Find<TextBox>(window, "ClientContentFilter").Text = "not present";
+            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { });
+            Assert.Empty(Find<ListBox>(window, "ClientContentBrowser").Items);
             Assert.Null(Find<ListBox>(window, "ClientContentBrowser").SelectedItem);
             Assert.Equal(1, cleared);
         }
         finally { window.Close(); }
-        return Task.CompletedTask;
     }, TestContext.Current.CancellationToken);
 
     [Fact]
