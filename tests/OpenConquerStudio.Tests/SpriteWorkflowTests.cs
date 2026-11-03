@@ -135,7 +135,10 @@ public sealed class SpriteWorkflowTests
         project.Save(TestContext.Current.CancellationToken);
         ProjectDocument saved = project.Document;
 
-        project.ReplaceSourceImage(texture, source with { Texture = new TextureData(1, 1, pixels) });
+        project.ReplaceSourceImage(texture, source with
+        {
+            Texture = new TextureData(1, 1, pixels)
+        });
         Assert.Same(saved, project.Document);
         Assert.False(project.IsModified);
 
@@ -180,12 +183,12 @@ public sealed class SpriteWorkflowTests
             Assert.Equal(animation, project.Document.Animations.Single().Id);
             Assert.Equal(sprite, project.Document.Atlases.Single().Sprites.Single().Id);
             Assert.Equal(frame, project.Document.Animations.Single().Frames.Single().Id);
-            Assert.Equal(replacementPixels, project.Preview(texture).Pixels.ToArray());
+            Assert.Equal(replacementPixels, project.Preview(texture, TestContext.Current.CancellationToken).Pixels.ToArray());
 
             project.Undo();
             Assert.Same(saved, project.Document);
             Assert.False(project.IsModified);
-            Assert.Equal(pixels, project.Preview(texture).Pixels.ToArray());
+            Assert.Equal(pixels, project.Preview(texture, TestContext.Current.CancellationToken).Pixels.ToArray());
             project.Redo();
             project.Save(TestContext.Current.CancellationToken);
         }
@@ -194,7 +197,7 @@ public sealed class SpriteWorkflowTests
         Assert.Equal(texture, Assert.Single(reopened.Document.Assets).Id);
         Assert.Equal(replacementDigest, reopened.Document.Assets[0].SourceDigest);
         Assert.Equal("images/item", reopened.Document.Assets[0].SourceKey);
-        Assert.Equal(replacementPixels, reopened.Preview(texture).Pixels.ToArray());
+        Assert.Equal(replacementPixels, reopened.Preview(texture, TestContext.Current.CancellationToken).Pixels.ToArray());
 
         string destination = directory.PathFor("build");
         StudioCompiler.Compile(reopened, destination, TestContext.Current.CancellationToken);
@@ -220,7 +223,11 @@ public sealed class SpriteWorkflowTests
         Assert.False(project.IsModified);
         Assert.Equal(manifest, File.ReadAllBytes(directory.Manifest));
 
-        ImportedImageFrame invalidKey = reduced with { Texture = new TextureData(2, 1, [10, 20, 30, 255, 10, 20, 30, 255]), SourceKey = "../invalid" };
+        ImportedImageFrame invalidKey = reduced with
+        {
+            Texture = new TextureData(2, 1, [10, 20, 30, 255, 10, 20, 30, 255]),
+            SourceKey = "../invalid"
+        };
         Assert.Throws<InvalidDataException>(() => project.ReplaceSourceImage(texture, invalidKey));
         Assert.Same(before, project.Document);
         Assert.False(project.IsModified);
