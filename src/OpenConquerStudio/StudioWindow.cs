@@ -528,7 +528,7 @@ public sealed partial class StudioWindow : Window
 
     private async Task CreateTerrain(CancellationToken token)
     {
-        TerrainCreation? request = await StudioDialogs.CreateTerrain(this);
+        TerrainCreation? request = await new TerrainCreationDialog().ShowDialog<TerrainCreation?>(this);
         if (request is null)
         {
             return;
