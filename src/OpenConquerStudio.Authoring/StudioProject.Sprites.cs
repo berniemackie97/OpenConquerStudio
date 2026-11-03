@@ -70,6 +70,59 @@ public sealed partial class StudioProject
         return animation.Id;
     }
 
+    public void ReimportAnimation(Guid id, ImmutableArray<ImportedImageFrame> images)
+    {
+        ThrowIfDisposed();
+        AnimationAsset animation = Document.Animations.SingleOrDefault(a => a.Id == id)
+            ?? throw new InvalidDataException("Select an existing animation to refresh.");
+        if (images.IsDefaultOrEmpty || images.Length > MaximumImportFrames || images.Length != animation.Frames.Length)
+        {
+            throw new InvalidDataException("The source frame count changed or exceeds the import limit. Import a new clip.");
+        }
+
+        Dictionary<Guid, AtlasAsset> atlases = Document.Atlases.ToDictionary(a => a.Id);
+        Dictionary<Guid, TextureAsset> textures = Document.Assets.ToDictionary(a => a.Id);
+        Dictionary<Guid, TextureAsset> updated = [];
+        Dictionary<string, TextureData> pixels = new(StringComparer.Ordinal);
+        for (int index = 0; index < images.Length; index++)
+        {
+            ImportedImageFrame image = images[index] ?? throw new InvalidDataException("Source animation contains an empty frame.");
+            AnimationFrame frame = animation.Frames[index];
+            AtlasAsset atlas = atlases[frame.AtlasId];
+            TextureAsset texture = textures[atlas.TextureId];
+            if (atlas.Sprites.Length != 1 || atlas.Sprites[0].Id != frame.SpriteId ||
+                texture.SourceKey is null || texture.SourceKey != image.SourceKey)
+            {
+                throw new InvalidDataException($"Frame {index} no longer matches its source image. Import a new clip.");
+            }
+
+            TextureAsset replacement = ReplacedTexture(texture, image.Texture, image.Format, image.SourceDigest, image.SourceKey);
+            if (updated.TryGetValue(texture.Id, out TextureAsset? previous) && previous != replacement)
+            {
+                throw new InvalidDataException("Repeated source frames contain conflicting image data.");
+            }
+
+            updated[texture.Id] = replacement;
+            pixels.TryAdd(replacement.PixelDigest, image.Texture);
+        }
+
+        if (updated.Values.All(asset => asset == textures[asset.Id]))
+        {
+            return;
+        }
+
+        ProjectDocument document = Document with
+        {
+            Assets = [.. Document.Assets.Select(asset => updated.GetValueOrDefault(asset.Id) ?? asset)]
+        };
+        document.Validate();
+        foreach ((string digest, TextureData texture) in pixels)
+        {
+            _pixels.TryAdd(digest, texture);
+        }
+        Apply(document);
+    }
+
     private const int MaximumImportFrames = 64;
 
     public Guid CreateAtlas(string name, Guid textureId)

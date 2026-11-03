@@ -233,6 +233,111 @@ public sealed class SpriteWorkflowTests
         Assert.False(project.IsModified);
     }
 
+
+    [Fact]
+    public void AnimationSourceRefreshPreservesAuthoredTimingAndCompiledIdentity()
+    {
+        using ProjectDirectory directory = new();
+        Guid clip;
+        Guid textureId;
+        byte[] refreshed = [70, 80, 90, 255, 100, 110, 120, 255];
+        using (StudioProject project = StudioProject.Create(directory.Project, "Game"))
+        {
+            byte[] firstPixels = [1, 2, 3, 255, 4, 5, 6, 255];
+            byte[] secondPixels = [7, 8, 9, 255];
+            ImportedImageFrame first = new("First", new TextureData(2, 1, firstPixels), "rgba",
+                Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(firstPixels)), "images/first");
+            ImportedImageFrame second = new("Second", new TextureData(1, 1, secondPixels), "rgba",
+                Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(secondPixels)), "images/second");
+            clip = project.ImportAnimation("Animation", [first, second, first], 100);
+            textureId = project.Document.Assets.Single(a => a.SourceKey == first.SourceKey).Id;
+            AnimationAsset animation = Assert.Single(project.Document.Animations);
+            project.EditAnimation(animation with
+            {
+                Frames = animation.Frames.SetItem(0, animation.Frames[0] with
+                {
+                    DurationTicks = 250
+                })
+            });
+            project.Save(TestContext.Current.CancellationToken);
+            ProjectDocument original = project.Document;
+
+            ImportedImageFrame refreshedFirst = first with
+            {
+                Texture = new TextureData(2, 1, refreshed),
+                SourceDigest = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(refreshed))
+            };
+            project.ReimportAnimation(clip, [refreshedFirst, second, refreshedFirst]);
+
+            Assert.True(project.IsModified);
+            Assert.Equal(original.Animations, project.Document.Animations);
+            Assert.Equal(original.Atlases, project.Document.Atlases);
+            Assert.Equal(original.Assets.Select(a => a.Id), project.Document.Assets.Select(a => a.Id));
+            Assert.Equal(250, project.Document.Animations.Single().Frames[0].DurationTicks);
+            Assert.Equal(refreshed, project.Preview(textureId, TestContext.Current.CancellationToken).Pixels.ToArray());
+
+            project.Undo();
+            Assert.Same(original, project.Document);
+            Assert.False(project.IsModified);
+            Assert.Equal(firstPixels, project.Preview(textureId, TestContext.Current.CancellationToken).Pixels.ToArray());
+            project.Redo();
+            project.Save(TestContext.Current.CancellationToken);
+        }
+
+        using StudioProject reopened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken);
+        Assert.Equal(clip, Assert.Single(reopened.Document.Animations).Id);
+        Assert.Equal(250, reopened.Document.Animations.Single().Frames[0].DurationTicks);
+        string destination = directory.PathFor("build");
+        StudioCompiler.Compile(reopened, destination, TestContext.Current.CancellationToken);
+        ContentPackage package = ContentPackage.Load(destination, TestContext.Current.CancellationToken);
+        Assert.Equal(refreshed, package.Sprites.Textures[textureId].Pixels.ToArray());
+        Assert.Equal(250, package.Sprites.Animations[clip].Frames[0].DurationTicks);
+    }
+
+    [Fact]
+    public void AnimationSourceRefreshRejectsSourceChangesWithoutMutatingDocumentOrRedo()
+    {
+        using ProjectDirectory directory = new();
+        using StudioProject project = StudioProject.Create(directory.Project, "Game");
+        byte[] firstPixels = [1, 2, 3, 255, 4, 5, 6, 255];
+        byte[] secondPixels = [7, 8, 9, 255];
+        ImportedImageFrame first = new("First", new TextureData(2, 1, firstPixels), "rgba",
+            Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(firstPixels)), "images/first");
+        ImportedImageFrame second = new("Second", new TextureData(1, 1, secondPixels), "rgba",
+            Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(secondPixels)), "images/second");
+        Guid clip = project.ImportAnimation("Animation", [first, second, first], 100);
+        project.Save(TestContext.Current.CancellationToken);
+        ProjectDocument before = project.Document;
+
+        project.Rename("Temporary");
+        project.Undo();
+        Assert.True(project.CanRedo);
+
+        Assert.Throws<InvalidDataException>(() => project.ReimportAnimation(clip, [first, second]));
+        Assert.Throws<InvalidDataException>(() => project.ReimportAnimation(clip, [second, first, first]));
+
+        ImportedImageFrame otherFirst = first with
+        {
+            Texture = new TextureData(2, 1, [100, 101, 102, 255, 103, 104, 105, 255])
+        };
+        Assert.Throws<InvalidDataException>(() => project.ReimportAnimation(clip, [otherFirst, second, first]));
+
+        ImportedImageFrame smaller = first with
+        {
+            Texture = new TextureData(1, 1, [1, 2, 3, 255])
+        };
+        Assert.Throws<InvalidDataException>(() => project.ReimportAnimation(clip, [smaller, second, smaller]));
+
+        Assert.Same(before, project.Document);
+        Assert.False(project.IsModified);
+        Assert.True(project.CanRedo);
+
+        project.ReimportAnimation(clip, [first with { Texture = new TextureData(2, 1, firstPixels) }, second, first]);
+        Assert.Same(before, project.Document);
+        Assert.False(project.IsModified);
+        Assert.True(project.CanRedo);
+    }
+
     [Fact]
     public void FailedRevisionPublication_ReopensLastCommittedGraph()
     {

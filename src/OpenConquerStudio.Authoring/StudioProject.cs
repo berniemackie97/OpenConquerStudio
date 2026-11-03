@@ -160,15 +160,7 @@ public sealed partial class StudioProject : IDisposable
 
     private void ReplaceTexture(TextureAsset original, TextureData texture, string format, string sourceDigest, string? sourceKey)
     {
-        TextureAsset updated = original with
-        {
-            Width = texture.Width,
-            Height = texture.Height,
-            PixelDigest = ProjectFiles.Hash(texture.Pixels.Span),
-            SourceFormat = format,
-            SourceDigest = sourceDigest,
-            SourceKey = sourceKey,
-        };
+        TextureAsset updated = ReplacedTexture(original, texture, format, sourceDigest, sourceKey);
         if (updated == original)
         {
             return;
@@ -182,6 +174,17 @@ public sealed partial class StudioProject : IDisposable
         _pixels.TryAdd(updated.PixelDigest, texture);
         Apply(document);
     }
+
+    private static TextureAsset ReplacedTexture(TextureAsset asset, TextureData texture, string format, string sourceDigest, string? sourceKey) =>
+        asset with
+        {
+            Width = texture.Width,
+            Height = texture.Height,
+            PixelDigest = ProjectFiles.Hash(texture.Pixels.Span),
+            SourceFormat = format,
+            SourceDigest = sourceDigest,
+            SourceKey = sourceKey,
+        };
 
     public TextureData Preview(Guid id, CancellationToken cancellationToken = default)
     {

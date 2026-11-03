@@ -36,6 +36,10 @@ Sources are never overwritten. Explicit texture replacement retains the resource
 authored transforms and dependent references. Replacing with identical source content and
 metadata makes no edit and preserves redo history; invalid replacements leave the
 project unchanged. `Inputs` contains top-left row-major straight-alpha RGBA8.
+ANI source refresh preserves the clip, frame, atlas, sprite and texture identities and
+authored timing. It accepts only the original ordered source-frame keys and frame count;
+changed source structure requires a new import. Referenced image updates validate and
+apply as one transaction. Reimporting identical frames preserves saved state and redo.
 Source formats are `tga`, `dds`, `rgba`, or `created`. File imports hash encoded source bytes;
 decoded adapters/generated images hash source pixels. Source keys are import associations,
 not game resource bindings. Filesystem source paths are not persisted.

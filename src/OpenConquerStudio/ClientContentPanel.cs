@@ -24,7 +24,7 @@ internal sealed class ClientContentPanel : Grid
     private readonly NumericUpDown _armetModel = new() { Minimum = 0, Maximum = uint.MaxValue, Value = 0, Name = "ArmetCatalogId" };
     private readonly StackPanel _characterControls;
     private readonly Button _import = new() { Content = "Import editable copy", Name = "ImportClientAsset" };
-    private readonly Button _replace = new() { Content = "Replace selected authored texture", Name = "ReimportClientImage" };
+    private readonly Button _replace = new() { Content = "Replace selected authored texture", Name = "ReimportClientAsset" };
     private ImmutableArray<ClientAssetEntry> _inventory = [];
     private bool _loading;
     private readonly Func<ClientAssetEntry, Func<ClientAssetOptions>, Task> _preview;
@@ -98,7 +98,8 @@ internal sealed class ClientContentPanel : Grid
                 _mapControls.IsVisible = entry.Kind == "map";
                 _characterControls.IsVisible = entry.Kind == "character";
                 _import.IsVisible = entry.Kind is "texture" or "animation" or "model" or "character";
-                _replace.IsVisible = entry.Kind == "texture";
+                _replace.IsVisible = entry.Kind is "texture" or "animation";
+                _replace.Content = entry.Kind == "animation" ? "Refresh selected authored animation" : "Replace selected authored texture";
                 await preview(entry, () => Options() with
                 {
                     Section = null
@@ -134,10 +135,7 @@ internal sealed class ClientContentPanel : Grid
         {
             if (_sources.SelectedItem is ClientAssetEntry entry)
             {
-                await import(entry, () => Options() with
-                {
-                    Section = null
-                }, true);
+                await import(entry, Options, true);
             }
         };
         IsVisible = false;
