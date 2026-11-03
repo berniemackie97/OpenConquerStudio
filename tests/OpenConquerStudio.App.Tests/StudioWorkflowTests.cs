@@ -223,6 +223,7 @@ public sealed partial class StudioWindowTests
     {
         using ProjectDirectory directory = new();
         directory.CreateSavedTexture();
+        byte[] saved = File.ReadAllBytes(directory.Manifest);
         StudioWindow window = new();
         window.Show();
         try
@@ -241,8 +242,7 @@ public sealed partial class StudioWindowTests
 
             Assert.Equal("Still editing", Find<TextBox>(window, "AssetName").Text);
             Assert.False(window.Project.IsModified);
-            using StudioProject reopened = StudioProject.Open(directory.Project);
-            Assert.Equal("Color", Assert.Single(reopened.Document.Assets).Name);
+            Assert.Equal(saved, File.ReadAllBytes(directory.Manifest));
         }
         finally
         {
