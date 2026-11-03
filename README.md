@@ -40,3 +40,4 @@ dotnet run --project tools/OpenConquerStudio.RenderCheck -c Release --no-build -
 
 The last check needs working desktop OpenGL. CI uses Mesa on Linux; hosted macOS does not provide GPU interop.
 See [formats](docs/studio/formats.md) for existing saved assets and [extraction record](extraction.json) for source provenance.
+Local checks and remaining gates: [validation](docs/studio/validation-2026-11-03.md).
