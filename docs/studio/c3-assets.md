@@ -39,6 +39,7 @@ Version 1 loads with identity locals and no ancestor/per-part overrides. Edits w
   that chain. The separate transform-query target leg is not inserted into drawing.
 - Matrix channels do not establish a parented bone hierarchy. The inspector shows channels and
   channel origins. Only explicit linked-part ancestry is stored and rendered.
+- The primary motion owns the clip clock. A longer embedded hair motion does not extend the body idle cycle.
 - Body/initial-idle selection and 66 ms frames follow WORLD-021. Optional hair selection follows
   WORLD-022. Other action selectors and role variants are not guessed from those formulas.
 

@@ -42,7 +42,10 @@ public sealed class C3ModelPreview
         }
         BoundsMin = minimum;
         BoundsMax = maximum;
-        FrameCount = Math.Max(1, parts.SelectMany(p => p.Tracks).Max(t => t.Motion?.FrameCount ?? 0));
+        // The primary clip owns the clock. A longer embedded attachment motion must not extend body idle playback.
+        C3Motion? primary = Clip is null ? parts[0].Tracks[0].Motion : C3MotionReader.Read(
+            C3MeshFile.Parse(model.Source(Clip.MotionPath)).Sections.First(s => s.Identifier == 0x49544F4D));
+        FrameCount = Math.Max(1, primary?.FrameCount ?? 0);
     }
 
     public C3ModelData Model

@@ -47,6 +47,8 @@ public sealed class ModelWorkflowTests
         ContentPackage package = ContentPackage.Load(directory.PathFor("first"), TestContext.Current.CancellationToken);
         Assert.Equal(original.Source("c3/body.c3").ToArray(), package.Models[id].Source("c3/body.c3").ToArray());
         C3ModelPreview preview = C3ModelPreview.Create(package.Models[id], 0);
+        Assert.Equal(6u, preview.FrameCount);
+        Assert.Equal(61u, preview.Parts[1].Tracks[0].Motion!.FrameCount);
         Matrix4x4 expectedBone = Matrix4x4.CreateTranslation(14, 22, 36);
         expectedBone.M12 = 0.2f;
         Assert.Equal(Matrix4x4.CreateScale(2, 3, 4) * expectedBone, preview.PartTransform(1, 2));
@@ -146,6 +148,7 @@ public sealed class ModelWorkflowTests
         var source = OpenConquer.Content.PackagedClientContentSource.Open(content);
         C3ModelData model = CharacterImporter.Read(source, 2, 335, TestContext.Current.CancellationToken);
         C3ModelData restored = C3ModelCodec.Read(C3ModelCodec.Write(model));
+        Assert.Equal(16u, C3ModelPreview.Create(restored, 0).FrameCount);
         Assert.Equal(2, restored.Definition.Parts.Length);
         Assert.Equal(new C3CharacterSource(2, 335, 2_000_000, 2_119_335), restored.Definition.CharacterSource);
         Assert.Equal("v_armet", Assert.Single(restored.Definition.Bindings).ParentSubmesh);

@@ -9,7 +9,7 @@ internal static class C3ModelFixture
     internal static C3ModelData Create()
     {
         byte[] body = File("body_surface", "v_armet");
-        byte[] hair = File("hair_surface");
+        byte[] hair = FileWithFrames(61, "hair_surface");
         C3ResolvedPart parent = new("body", "c3/body.c3", "", "ini/body-motion.dbc", 1, 5, 6, 7, 123, 456, 0);
         C3ResolvedPart child = new("armet", "c3/hair.c3", "", "ini/hair-motion.dbc", 2, 5, 6, 8, 124, 457, 0);
         return C3ModelData.Create(Guid.NewGuid(), [parent, child],
@@ -22,7 +22,9 @@ internal static class C3ModelFixture
     internal static ImmutableArray<float> Matrix(Matrix4x4 value) =>
         [.. System.Runtime.InteropServices.MemoryMarshal.Cast<Matrix4x4, float>(new ReadOnlySpan<Matrix4x4>(in value))];
 
-    internal static byte[] File(params string[] submeshNames)
+    internal static byte[] File(params string[] submeshNames) => FileWithFrames(6, submeshNames);
+
+    internal static byte[] FileWithFrames(uint frameCount, params string[] submeshNames)
     {
         using MemoryStream output = new();
         output.Write(new byte[16]);
@@ -30,7 +32,7 @@ internal static class C3ModelFixture
         foreach (string name in submeshNames)
         {
             Section("PHY4", Phy(name));
-            Section("MOTI", Motion());
+            Section("MOTI", Motion(frameCount));
         }
         Section("UNKN", [11, 22, 33, 44, 55]);
         return output.ToArray();
@@ -95,12 +97,12 @@ internal static class C3ModelFixture
         return output.ToArray();
     }
 
-    private static byte[] Motion()
+    private static byte[] Motion(uint frameCount)
     {
         using MemoryStream output = new();
         using BinaryWriter writer = new(output, System.Text.Encoding.UTF8, leaveOpen: true);
         writer.Write(1u);
-        writer.Write(6u);
+        writer.Write(frameCount);
         writer.Write("KKEY"u8);
         writer.Write(2u);
         foreach (uint frame in new[] { 0u, 5u })
@@ -114,7 +116,7 @@ internal static class C3ModelFixture
             }
         }
         writer.Write(1);
-        writer.Write(new byte[6 * 4]);
+        writer.Write(new byte[checked((int)frameCount * 4)]);
         return output.ToArray();
     }
 }
