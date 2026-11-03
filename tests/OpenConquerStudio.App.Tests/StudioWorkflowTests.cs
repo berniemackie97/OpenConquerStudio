@@ -409,7 +409,6 @@ public sealed partial class StudioWindowTests
         finally { window.Close(); }
     }, TestContext.Current.CancellationToken);
 
-
     [Fact]
     public Task TerrainInspectorCommitsCellNavigationAndSaveWithoutLosingCoordinates() => s_session.Value.Dispatch(async () =>
     {
@@ -486,6 +485,5 @@ public sealed partial class StudioWindowTests
         }
         finally { window.Close(); }
     }, TestContext.Current.CancellationToken);
-
 
 }
