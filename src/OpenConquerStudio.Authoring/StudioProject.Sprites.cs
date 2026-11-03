@@ -108,9 +108,11 @@ public sealed partial class StudioProject
     {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(atlas);
-        if (!Document.Atlases.Any(a => a.Id == atlas.Id))
+        AtlasAsset current = Document.Atlases.FirstOrDefault(a => a.Id == atlas.Id)
+            ?? throw new InvalidDataException("Select an existing atlas to edit.");
+        if (current.Name == atlas.Name && current.TextureId == atlas.TextureId && current.Sprites.SequenceEqual(atlas.Sprites))
         {
-            throw new InvalidDataException("Select an existing atlas to edit.");
+            return;
         }
 
         Apply(Document with
@@ -136,9 +138,11 @@ public sealed partial class StudioProject
     {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(animation);
-        if (!Document.Animations.Any(a => a.Id == animation.Id))
+        AnimationAsset current = Document.Animations.FirstOrDefault(a => a.Id == animation.Id)
+            ?? throw new InvalidDataException("Select an existing animation to edit.");
+        if (current.Name == animation.Name && current.TicksPerSecond == animation.TicksPerSecond && current.Repeat == animation.Repeat && current.Frames.SequenceEqual(animation.Frames))
         {
-            throw new InvalidDataException("Select an existing animation to edit.");
+            return;
         }
 
         Apply(Document with
