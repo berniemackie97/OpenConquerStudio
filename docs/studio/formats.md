@@ -61,9 +61,16 @@ layers, world bindings and authored terrain visualizations are not represented y
 
 The current authoring budget is 262,144 cells per project, with width and height limited to
 1–1,024 cells each. This is a foundation safety limit, not a target-world performance budget.
-Terrain cells are not compiled into game releases yet: Studio explicitly rejects builds that
-contain terrain until the authoritative server terrain/collision and client map consumers are
-integrated. The cell payload is authoring data, **not** the server's `.ocbt` artifact.
+The `export-base-terrain` command emits the server tool's supported version 1 source JSON:
+`formatVersion`, `mapDataId`, `width`, `height`, ordered `cells` containing `surfaceId`,
+`passabilityFlag`, and `elevation`, followed by `exits: []`. It omits Studio resource
+IDs, display names, absolute paths and timestamps. Export requires a saved project and a
+new destination. Separate processes produce identical output bytes for the same cell data.
+The source export is not a binary writer; exits cannot yet be authored.
+
+Terrain cells are not compiled into complete game releases yet: Studio explicitly rejects
+builds containing terrain until the authoritative server terrain/collision and client map
+consumers are integrated. The cell payload is authoring data, **not** the server's `.ocbt` artifact.
 
 ### Budgets and validation
 

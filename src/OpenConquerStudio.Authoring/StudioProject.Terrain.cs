@@ -24,6 +24,13 @@ public sealed partial class StudioProject
         return TerrainGrid.GetCell(_terrainCells[terrain.CellDigest], terrain.Width, terrain.Height, x, y);
     }
 
+    internal ReadOnlySpan<byte> ReadTerrainPayload(Guid id)
+    {
+        ThrowIfDisposed();
+        TerrainAsset terrain = Document.Terrains.Single(a => a.Id == id);
+        return _terrainCells[terrain.CellDigest];
+    }
+
     public void EditTerrainCell(Guid id, int x, int y, TerrainCell cell, string name)
     {
         ThrowIfDisposed();

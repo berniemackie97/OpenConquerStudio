@@ -79,6 +79,18 @@ navigate to cell X/Y, edit a cell's three fields, rename the resource, and commi
 with **Apply terrain edits**, navigation or **Save**. Undo and Redo apply to these changes.
 The project stores terrain cells in an immutable, digest-verified payload.
 
+The Studio CLI can export saved terrain as source JSON for the server's existing version 1
+`generate-base-terrain` interface:
+
+```sh
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- export-base-terrain /path/to/project <terrain-guid> /path/to/new-terrain.json
+```
+
+This source can be passed to the server-owned
+`OpenConquer.GameData.Tool generate-base-terrain <source.json> <terrain.ocbt>` command.
+The export contains ordered cells and an empty exit list because exit authoring is not yet
+available. It is not a complete client/server world build.
+
 This is the first terrain-authoring foundation, not a finished world editor. It does not yet
 display painted terrain in the viewport, author exits or scenery, or compile paired client/server
 map outputs. **Save and build** rejects projects containing terrain rather than publishing an

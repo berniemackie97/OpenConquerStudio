@@ -125,6 +125,41 @@ class StudioCliTests(unittest.TestCase):
             clip.write_bytes(clip.read_bytes()[:-1])
             self.run_tool("verify", root / "first", expected=1)
 
+    def test_terrain_export_matches_server_source_contract_across_processes(self):
+        with tempfile.TemporaryDirectory(prefix="studio-terrain-") as temporary:
+            root = Path(temporary).resolve()
+            project = root / "project"
+            project.mkdir()
+            self.run_tool("create", project, "World")
+            terrain = self.run_tool("new-terrain", project, "Field", 9100, 3, 2, 12, 0, -30).stdout.strip()
+            self.run_tool("terrain-cell", project, terrain, 2, 1, 65535, 5, -32768)
+            first = root / "first.json"
+            second = root / "second.json"
+            self.run_tool("export-base-terrain", project, terrain, first)
+            self.run_tool("export-base-terrain", project, terrain, second)
+            self.assertEqual(first.read_bytes(), second.read_bytes())
+
+            payload = json.loads(first.read_bytes())
+            self.assertEqual(
+                ["formatVersion", "mapDataId", "width", "height", "cells", "exits"],
+                list(payload),
+            )
+            self.assertEqual((1, 9100, 3, 2),
+                             (payload["formatVersion"], payload["mapDataId"], payload["width"], payload["height"]))
+            self.assertEqual(6, len(payload["cells"]))
+            self.assertEqual(
+                {"surfaceId": 12, "passabilityFlag": 0, "elevation": -30},
+                payload["cells"][0],
+            )
+            self.assertEqual(
+                {"surfaceId": 65535, "passabilityFlag": 5, "elevation": -32768},
+                payload["cells"][-1],
+            )
+            self.assertEqual([], payload["exits"])
+            self.run_tool("export-base-terrain", project, terrain, first, expected=1)
+            self.run_tool("build", project, root / "incomplete", expected=1)
+            self.assertFalse((root / "incomplete").exists())
+
     def test_process_termination_during_save_preserves_a_complete_committed_project(self):
         with tempfile.TemporaryDirectory(prefix="studio-crash-") as temporary:
             root = Path(temporary).resolve()
