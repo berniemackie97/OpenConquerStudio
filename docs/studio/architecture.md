@@ -1,6 +1,11 @@
 # Studio ownership
 
-`OpenConquerStudio.slnx` builds the editor, authoring libraries, content runtime, tooling and rendering dependencies that currently form the Studio/Engine foundation. Studio/Engine is one product, with OpenConquer as its first complete target. The solution does not build the Client, Launcher or server applications. The current `Runtime` assembly is a bounded content reader/sampler, not yet a scene execution runtime; that integration is a [future acceptance gate](../product/roadmap.md).
+`OpenConquerStudio.slnx` builds the editor, authoring libraries, content runtime,
+tooling and rendering dependencies that currently form the Studio/Engine foundation.
+Studio/Engine is one product, with OpenConquer as its first complete target. The
+solution does not build the Client, Launcher or server applications. The current
+`Runtime` assembly is a bounded content reader/sampler, not yet a scene execution
+runtime; that integration is a [future acceptance gate](../product/roadmap.md).
 
 Studio includes source snapshots of the client's existing Content and Rendering projects under
 `dependencies/OpenConquerClient`. These are regular tracked files, not a client submodule or a

@@ -6,7 +6,7 @@ Status definitions: **Implemented** means code exists; **Verified** means the na
 
 | Capability | Current assessment | Existing evidence | Next acceptance gate |
 | --- | --- | --- | --- |
-| Product ownership | Inconsistent documentation | [Architecture](../studio/architecture.md) and [asset plan](../studio/asset-platform-plan.md) describe an earlier content-only boundary | M0.1: align product contract and preserve concrete execution/authority boundaries |
+| Product ownership | Defined; full workflow not implemented | [Roadmap](roadmap.md), [architecture](../studio/architecture.md) and [asset plan](../studio/asset-platform-plan.md) | M0.1: accept the unified contract; M6: verify runtime integration |
 | Project create/open/save and revision history | Implemented; automated workflows verified | [Usage](../studio/README.md), [project tests](../../tests/OpenConquerStudio.Tests/ProjectWorkflowTests.cs), [PR #8](https://github.com/berniemackie97/OpenConquerStudio/pull/8) | M0.3–M0.4: complete desktop failure/navigation/recovery matrix |
 | Inspector edits, selection and workspace navigation | Implemented with known integration verification gap | [App workflow tests](../../tests/OpenConquerStudio.App.Tests/StudioWorkflowTests.cs), [PR #8](https://github.com/berniemackie97/OpenConquerStudio/pull/8) | M0.4–M0.5: re-audit actual UI interactions on supported systems |
 | Source browsing and previews | Implemented for supported input families | [Client content browser](../../src/OpenConquerStudio/ClientContentPanel.cs), [usage](../studio/README.md) | M0.5: verify selection, stale previews, invalid inputs and missing content |

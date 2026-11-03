@@ -1,8 +1,12 @@
 # OpenConquerStudio
 
-OpenConquer Studio/Engine is one integrated game-development product: authoring, validated content builds, shared rendering/runtime contracts and game integration. OpenConquer is its first production target.
+OpenConquer Studio/Engine is one integrated game-development product: asset
+authoring, validated content builds, shared rendering/runtime contracts and game
+integration. OpenConquer is its first production target.
 
-The current application implements the asset-authoring foundation, not the full planned engine/runtime workflow. Game simulation, networking and server authority remain in their respective game projects.
+The current application implements the asset-authoring foundation, not the full
+planned engine/runtime workflow. Game simulation, networking and server authority
+remain in their respective game projects.
 
 ## Build and run
 

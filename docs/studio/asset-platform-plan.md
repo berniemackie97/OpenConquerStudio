@@ -1,8 +1,16 @@
 # Asset platform target and delivery plan
 
-OpenConquer Studio/Engine is one integrated game-development product with a separate repository and desktop application. Its target workflow spans asset/scene authoring, deterministic compilation, reusable runtime consumption and deployment. OpenConquer is the first complete game target; broader support is not yet implemented. The current application provides a content-authoring foundation, not a complete standalone game runtime.
+OpenConquer Studio/Engine is one integrated game-development product with a separate
+repository and desktop application. Its target workflow spans asset/scene
+authoring, deterministic compilation, reusable runtime consumption and deployment.
+OpenConquer is the first complete game target; broader support is not yet
+implemented. The current application provides a content-authoring foundation,
+not a complete standalone game runtime.
 
-Game execution loops, gameplay, networking and server authority remain in their respective projects. Shared codecs and rendering mechanisms belong to their current owners; the desktop is not a runtime dependency. See the [product roadmap](../product/roadmap.md) for acceptance gates.
+Game execution loops, gameplay, networking and server authority remain in their
+respective projects. Shared codecs and rendering mechanisms belong to their
+current owners; the desktop is not a runtime dependency. See the
+[product roadmap](../product/roadmap.md) for acceptance gates.
 
 The executable foundation
 currently implements texture, atlas, and sprite-animation projects. The asset families, editors, and production gates
