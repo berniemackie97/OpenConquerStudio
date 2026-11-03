@@ -155,17 +155,28 @@ public sealed partial class StudioProject : IDisposable
         ThrowIfDisposed();
         TextureAsset original = FindAsset(id);
         (TextureData texture, string format, string digest) = TextureImporter.Read(path, cancellationToken);
+        ReplaceTexture(original, texture, format, digest, original.SourceKey);
+    }
+
+    private void ReplaceTexture(TextureAsset original, TextureData texture, string format, string sourceDigest, string? sourceKey)
+    {
         TextureAsset updated = original with
         {
             Width = texture.Width,
             Height = texture.Height,
             PixelDigest = ProjectFiles.Hash(texture.Pixels.Span),
             SourceFormat = format,
-            SourceDigest = digest,
+            SourceDigest = sourceDigest,
+            SourceKey = sourceKey,
         };
+        if (updated == original)
+        {
+            return;
+        }
+
         ProjectDocument document = Document with
         {
-            Assets = Document.Assets.Select(a => a.Id == id ? updated : a).ToImmutableArray()
+            Assets = Document.Assets.Select(a => a.Id == original.Id ? updated : a).ToImmutableArray()
         };
         document.Validate();
         _pixels.TryAdd(updated.PixelDigest, texture);

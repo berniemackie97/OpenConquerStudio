@@ -76,6 +76,30 @@ public sealed class ProjectWorkflowTests
         Assert.Equal(originalSource, File.ReadAllBytes(source));
     }
 
+
+    [Fact]
+    public void ReplacingWithIdenticalFileDoesNotCreateAnEditOrDiscardRedo()
+    {
+        using ProjectDirectory directory = new();
+        string source = directory.WriteTga();
+        using StudioProject project = StudioProject.Create(directory.Project, "Game");
+        Guid id = project.ImportTexture(source, "Source", TestContext.Current.CancellationToken);
+        project.Save(TestContext.Current.CancellationToken);
+        ProjectDocument saved = project.Document;
+
+        project.EditTexture(id, "Changed", false, 0);
+        project.Undo();
+        Assert.True(project.CanRedo);
+
+        project.ReplaceTexture(id, source, TestContext.Current.CancellationToken);
+        Assert.Same(saved, project.Document);
+        Assert.False(project.IsModified);
+        Assert.True(project.CanRedo);
+
+        project.Redo();
+        Assert.Equal("Changed", Assert.Single(project.Document.Assets).Name);
+    }
+
     [Fact]
     public void CreateTextureAndCompile_RequiresNoSourceInstallation()
     {

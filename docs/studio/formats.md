@@ -32,7 +32,10 @@ selects the following frame. Repeating clips wrap by total duration; once clips 
 last frame. Timing is authored independently of rendering frequency. It does not claim ANI
 files contain a universal playback rate.
 
-Sources are never overwritten. `Inputs` contains top-left row-major straight-alpha RGBA8.
+Sources are never overwritten. Explicit texture replacement retains the resource identity,
+authored transforms and dependent references. Replacing with identical source content and
+metadata makes no edit and preserves redo history; invalid replacements leave the
+project unchanged. `Inputs` contains top-left row-major straight-alpha RGBA8.
 Source formats are `tga`, `dds`, `rgba`, or `created`. File imports hash encoded source bytes;
 decoded adapters/generated images hash source pixels. Source keys are import associations,
 not game resource bindings. Filesystem source paths are not persisted.

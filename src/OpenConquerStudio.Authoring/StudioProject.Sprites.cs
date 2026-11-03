@@ -18,23 +18,7 @@ public sealed partial class StudioProject
     {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(image);
-        TextureAsset original = FindAsset(id);
-        TextureAsset replacement = original with
-        {
-            Width = image.Texture.Width,
-            Height = image.Texture.Height,
-            PixelDigest = ProjectFiles.Hash(image.Texture.Pixels.Span),
-            SourceFormat = image.Format,
-            SourceDigest = image.SourceDigest,
-            SourceKey = image.SourceKey,
-        };
-        ProjectDocument updated = Document with
-        {
-            Assets = [.. Document.Assets.Select(a => a.Id == id ? replacement : a)]
-        };
-        updated.Validate();
-        _pixels.TryAdd(replacement.PixelDigest, image.Texture);
-        Apply(updated);
+        ReplaceTexture(FindAsset(id), image.Texture, image.Format, image.SourceDigest, image.SourceKey);
     }
 
     public Guid ImportAnimation(string name, ImmutableArray<ImportedImageFrame> images, int frameMilliseconds)
