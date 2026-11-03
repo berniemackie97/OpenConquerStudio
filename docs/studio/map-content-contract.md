@@ -1,8 +1,8 @@
 # Map content contract and migration plan
 
-Status: target design and migration gates, November 3, 2026. This does not freeze a new binary
-schema or claim that Studio already edits maps. Studio is the content-authoring platform;
-client and server remain the owners of game execution and authority.
+Status: target design and migration gates, November 3, 2026. This does not freeze a new compiled
+map schema. Studio/Engine currently adds bounded authored terrain cell revisions, but not
+world editing or compiled map outputs. Client and server retain game execution and authority.
 
 ## Current formats and consumers
 
