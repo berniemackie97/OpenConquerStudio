@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Numerics;
 using Avalonia.Controls;
 using OpenConquer.Content.Mesh;
+using OpenConquerStudio.Authoring;
 
 namespace OpenConquerStudio;
 
@@ -21,6 +22,10 @@ internal sealed class ModelEditor : StackPanel
     private C3ModelTrack[] _allTracks = [];
     private bool _loading;
     private int _frame;
+    private int _loadedClipIndex;
+    private string _loadedName = "";
+    private decimal? _loadedMilliseconds;
+    private bool _loadedRepeat;
 
     public ModelEditor(Func<string, int, int, bool, Task> apply, Func<int, Task> selectClip, Func<Task> addMotion, Action<bool, float> view, Func<Task> previewMap)
     {
@@ -71,12 +76,16 @@ internal sealed class ModelEditor : StackPanel
         try
         {
             _frame = 0;
+            _loadedName = name;
+            _loadedClipIndex = preview.ClipIndex;
             _name.Text = name;
             _clips.ItemsSource = preview.Model.Definition.Clips.Select(c => c.Name).Prepend("Embedded pose").ToArray();
             _clips.SelectedIndex = preview.ClipIndex + 1;
             _milliseconds.Value = preview.Clip?.FrameMilliseconds ?? 66;
             _milliseconds.IsEnabled = preview.Clip is not null;
             _repeat.IsChecked = preview.Clip?.Repeat ?? true;
+            _loadedMilliseconds = _milliseconds.Value;
+            _loadedRepeat = _repeat.IsChecked == true;
             _repeat.IsEnabled = preview.Clip is not null;
             _allTracks = [.. preview.Parts.SelectMany(p => p.Tracks)];
             _tracks.ItemsSource = _allTracks.Select((t, i) => $"{i}: {t.Mesh.Name}{(t.IsAttachment ? " (attachment)" : "")}").ToArray();
@@ -91,6 +100,40 @@ internal sealed class ModelEditor : StackPanel
             DescribeTrack();
         }
         finally { _loading = false; }
+    }
+
+    public bool HasPendingEdits => _name.Text != _loadedName ||
+        (_loadedClipIndex >= 0 && (_milliseconds.Value != _loadedMilliseconds || (_repeat.IsChecked == true) != _loadedRepeat));
+
+    public void ApplyPending(StudioProject project, Guid id)
+    {
+        if (!HasPendingEdits)
+        {
+            return;
+        }
+
+        if (_loadedClipIndex >= 0 && _milliseconds.Value is not decimal milliseconds)
+        {
+            throw new InvalidDataException("Enter a frame duration before applying model edits.");
+        }
+
+        project.EditModel(id, _name.Text ?? "", _loadedClipIndex, (int)(_milliseconds.Value ?? 66), _repeat.IsChecked == true);
+        _loadedName = _name.Text ?? "";
+        _loadedMilliseconds = _milliseconds.Value;
+        _loadedRepeat = _repeat.IsChecked == true;
+    }
+
+    public void RestoreClipSelection()
+    {
+        _loading = true;
+        try
+        {
+            _clips.SelectedIndex = _loadedClipIndex + 1;
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 
     private void DescribeTrack()
