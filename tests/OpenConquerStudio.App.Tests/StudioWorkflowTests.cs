@@ -274,10 +274,9 @@ public sealed partial class StudioWindowTests
             panel.Load([entry], "second source");
             Assert.Null(browser.SelectedItem);
             Assert.False(panel.Inspector.IsVisible);
-            Assert.True(cleared > previous);
+            Assert.Equal(previous + 1, cleared);
         }
         finally { window.Close(); }
     }, TestContext.Current.CancellationToken);
-
 
 }
