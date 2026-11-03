@@ -128,6 +128,7 @@ public sealed partial class StudioWindow
 
     private void ClearPreview()
     {
+        _previewInvalidated = false;
         _preview.Clear();
         ClientContent.Inspector.IsVisible = false;
         _inspectedAsset = null;

@@ -106,6 +106,10 @@ internal sealed class ClientContentPanel : Grid
             }
             else if (!_loading && _sources.SelectedItem is null)
             {
+                Inspector.IsVisible = false;
+                _import.IsVisible = _replace.IsVisible = false;
+                _clipControls.IsVisible = _mapControls.IsVisible = _characterControls.IsVisible = false;
+                _sections.ItemsSource = Array.Empty<string>();
                 _selectionCleared();
             }
         };
