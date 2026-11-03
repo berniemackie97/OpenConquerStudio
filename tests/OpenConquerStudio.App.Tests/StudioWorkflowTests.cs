@@ -17,7 +17,13 @@ public sealed partial class StudioWindowTests
         int cameraMoves = 0;
         ClientContentPanel panel = new((_, _) => Task.CompletedTask, (_, _, _) => Task.CompletedTask,
             (_, _) => cameraMoves++, () => cleared++);
-        Window window = new() { Content = new StackPanel { Children = { panel, panel.Inspector } } };
+        Window window = new()
+        {
+            Content = new StackPanel
+            {
+                Children = { panel, panel.Inspector }
+            }
+        };
         window.Show();
         try
         {
