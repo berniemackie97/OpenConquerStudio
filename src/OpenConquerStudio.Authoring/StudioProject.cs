@@ -9,19 +9,21 @@ public sealed partial class StudioProject : IDisposable
     private readonly FileStream _lease;
     private readonly Dictionary<string, TextureData> _pixels;
     private readonly Dictionary<string, byte[]> _models;
+    private readonly Dictionary<string, byte[]> _terrainCells;
     private readonly List<ProjectDocument> _undo = [];
     private readonly List<ProjectDocument> _redo = [];
     private ProjectDocument? _savedDocument;
     private string? _savedDigest;
     private bool _disposed;
 
-    private StudioProject(string root, FileStream lease, ProjectDocument document, Dictionary<string, TextureData> pixels, string? savedDigest, Dictionary<string, byte[]>? models = null)
+    private StudioProject(string root, FileStream lease, ProjectDocument document, Dictionary<string, TextureData> pixels, string? savedDigest, Dictionary<string, byte[]>? models = null, Dictionary<string, byte[]>? terrainCells = null)
     {
         Root = root;
         _lease = lease;
         Document = document;
         _pixels = pixels;
         _models = models ?? [];
+        _terrainCells = terrainCells ?? [];
         _savedDocument = savedDigest is null ? null : document;
         _savedDigest = savedDigest;
         IsModified = savedDigest is null;
@@ -71,8 +73,8 @@ public sealed partial class StudioProject : IDisposable
         FileStream lease = AcquireLease(root);
         try
         {
-            (ProjectDocument document, Dictionary<string, TextureData> pixels, string digest, Dictionary<string, byte[]> models) = ProjectStorage.Read(root, cancellationToken);
-            return new StudioProject(root, lease, document, pixels, digest, models);
+            (ProjectDocument document, Dictionary<string, TextureData> pixels, string digest, Dictionary<string, byte[]> models, Dictionary<string, byte[]> terrains) = ProjectStorage.Read(root, cancellationToken);
+            return new StudioProject(root, lease, document, pixels, digest, models, terrains);
         }
         catch
         {
@@ -213,7 +215,7 @@ public sealed partial class StudioProject : IDisposable
     public void Save(CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
-        _savedDigest = ProjectStorage.Save(Root, Document, _pixels, _models, _savedDigest, cancellationToken);
+        _savedDigest = ProjectStorage.Save(Root, Document, _pixels, _models, _terrainCells, _savedDigest, cancellationToken);
         _savedDocument = Document;
         IsModified = false;
     }
@@ -255,19 +257,26 @@ public sealed partial class StudioProject : IDisposable
             _undo.RemoveAt(0);
         }
 
-        // Immutable pixels and model payloads are shared by snapshots. Bound their combined history to 128 MiB.
         HashSet<string> retained;
         HashSet<string> retainedModels;
+        HashSet<string> retainedTerrain;
         while (true)
         {
             retained = Document.Assets.Concat(_undo.SelectMany(d => d.Assets)).Select(a => a.PixelDigest).ToHashSet(StringComparer.Ordinal);
             retainedModels = Document.Models.Concat(_undo.SelectMany(d => d.Models)).Select(a => a.DataDigest).ToHashSet(StringComparer.Ordinal);
-            if (_undo.Count == 0 || retained.Sum(d => (long)_pixels[d].Pixels.Length) + retainedModels.Sum(d => (long)_models[d].Length) <= 128 * 1024 * 1024)
+            retainedTerrain = Document.Terrains.Concat(_undo.SelectMany(d => d.Terrains)).Select(a => a.CellDigest).ToHashSet(StringComparer.Ordinal);
+            if (_undo.Count == 0 || retained.Sum(d => (long)_pixels[d].Pixels.Length) +
+                retainedModels.Sum(d => (long)_models[d].Length) + retainedTerrain.Sum(d => (long)_terrainCells[d].Length) <= 128 * 1024 * 1024)
             {
                 break;
             }
 
             _undo.RemoveAt(0);
+        }
+
+        foreach (string digest in _terrainCells.Keys.Where(d => !retainedTerrain.Contains(d)).ToArray())
+        {
+            _terrainCells.Remove(digest);
         }
 
         foreach (string digest in _models.Keys.Where(d => !retainedModels.Contains(d)).ToArray())
@@ -331,6 +340,7 @@ public sealed partial class StudioProject : IDisposable
             _lease.Dispose();
             _pixels.Clear();
             _models.Clear();
+            _terrainCells.Clear();
             _undo.Clear();
             _redo.Clear();
             _disposed = true;

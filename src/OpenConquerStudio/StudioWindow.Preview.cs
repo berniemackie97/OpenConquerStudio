@@ -33,7 +33,10 @@ public sealed partial class StudioWindow
                     spriteId = atlas.Sprites[0].Id;
                 }
             }
-            frames = await Task.Run(() => MakePreview(info, spriteId, token), token);
+            if (info.Kind != "terrain")
+            {
+                frames = await Task.Run(() => MakePreview(info, spriteId, token), token);
+            }
         }
         token.ThrowIfCancellationRequested();
         _loadingInspector = true;
@@ -50,8 +53,18 @@ public sealed partial class StudioWindow
             _atlasEditor.IsVisible = info.Kind == "atlas";
             _animationEditor.IsVisible = info.Kind == "animation";
             _modelEditor.IsVisible = info.Kind == "model";
+            _terrainEditor.IsVisible = info.Kind == "terrain";
             _dependencies.Text = "Uses: " + string.Join(", ", document.Dependencies(id).Select(dependency => document.Resources.Single(a => a.Id == dependency).Name)) +
                 "\nUsed by: " + string.Join(", ", document.Dependents(id).Select(a => a.Name));
+            if (info.Kind == "terrain")
+            {
+                _preview.Clear();
+                _preview.IsVisible = false;
+                _emptyPreview.Text = "Terrain cells are edited in the inspector. Compiled world previews require the map authoring pipeline.";
+                _emptyPreview.IsVisible = true;
+                _terrainEditor.Load(document.Terrains.Single(a => a.Id == id));
+                return;
+            }
             if (model is not null)
             {
                 _modelEditor.Load(info.Name, model);
@@ -136,6 +149,7 @@ public sealed partial class StudioWindow
         _atlasEditor.IsVisible = false;
         _animationEditor.IsVisible = false;
         _modelEditor.IsVisible = false;
+        _terrainEditor.IsVisible = false;
         _dependencies.Text = "Select an asset to inspect its dependencies.";
         _emptyPreview.Text = _project is null ? "Open a Studio project or connect your client checkout." : "Use Assets to import or create editable content.\nConnected client sources are available in Client content.";
         _emptyPreview.IsVisible = true;

@@ -55,6 +55,7 @@ public sealed partial class StudioWindow : Window
     private readonly AtlasEditor _atlasEditor;
     private readonly AnimationEditor _animationEditor;
     private readonly ModelEditor _modelEditor;
+    private readonly TerrainEditor _terrainEditor;
     private readonly Button _undo = new() { Content = "Undo", Name = "Undo" };
     private readonly Button _redo = new() { Content = "Redo", Name = "Redo" };
     private readonly TabControl _assetTabs;
@@ -121,6 +122,9 @@ public sealed partial class StudioWindow : Window
             int lastClip = await Task.Run(() => Project.PreviewModel(selected.Id).Definition.Clips.Length - 1, token);
             await UpdatePreview(selected.Id, token, lastClip);
         }), _preview.ModelView, PreviewModelOnMap);
+        _terrainEditor = new TerrainEditor(() => ExecuteAsync(_ => Task.CompletedTask), CommitForNavigation,
+            (id, x, y) => Project.ReadTerrainCell(id, x, y));
+        _terrainEditor.PendingChanged += PendingEditsChanged;
         _projectName.TextChanged += (_, _) => PendingEditsChanged();
         _assetName.TextChanged += (_, _) => PendingEditsChanged();
         _flip.IsCheckedChanged += (_, _) => PendingEditsChanged();
@@ -143,6 +147,7 @@ public sealed partial class StudioWindow : Window
         AddCommand("Import C3", ImportModel, requiresProject: true);
         AddCommand("Client artwork", ImportArtwork, requiresProject: true);
         AddCommand("New texture", CreateTexture, requiresProject: true);
+        AddCommand("New terrain", CreateTerrain, requiresProject: true);
         AddCommand("New atlas", CreateAtlas, requiresProject: true, selectionKind: "texture");
         AddCommand("New animation", CreateAnimation, requiresProject: true, selectionKind: "atlas");
         AddCommand("Delete resource", DeleteResource, requiresProject: true, selectionKind: "*");
@@ -294,7 +299,7 @@ public sealed partial class StudioWindow : Window
             Spacing = 10,
             Margin = new Thickness(12, 0, 0, 0),
             [Grid.ColumnProperty] = 4,
-            Children = { _textureInspector, _atlasEditor, _animationEditor, _modelEditor, ClientContent.Inspector, Heading("Dependencies"), _dependencies }
+            Children = { _textureInspector, _atlasEditor, _animationEditor, _modelEditor, _terrainEditor, ClientContent.Inspector, Heading("Dependencies"), _dependencies }
         };
         body.Children.Add(new ScrollViewer { Content = inspector, [Grid.ColumnProperty] = 4, HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled });
         Grid root = new()
@@ -405,6 +410,7 @@ public sealed partial class StudioWindow : Window
         _atlasEditor.IsVisible = false;
         _animationEditor.IsVisible = false;
         _modelEditor.IsVisible = false;
+        _terrainEditor.IsVisible = false;
         ClientContent.Inspector.IsVisible = true;
     }
 
@@ -518,6 +524,18 @@ public sealed partial class StudioWindow : Window
         _assetTabs.SelectedIndex = 0;
         RefreshAssets(id);
         await UpdatePreview(id, token);
+    }
+
+    private async Task CreateTerrain(CancellationToken token)
+    {
+        TerrainCreation? request = await new TerrainCreationDialog().ShowDialog<TerrainCreation?>(this);
+        if (request is null)
+        {
+            return;
+        }
+
+        Guid id = await Task.Run(() => Project.CreateTerrain(request.Name, request.MapDataId, request.Width, request.Height, request.Fill), token);
+        await SelectAsset(id, token);
     }
 
     private Task PreviewModelOnMap() => ExecuteAsync(async token =>
@@ -699,6 +717,7 @@ public sealed partial class StudioWindow : Window
         _redo.IsEnabled = !_busy && !HasPendingEdits && _project?.CanRedo == true;
         _assetTabs.IsEnabled = !_busy;
         _modelEditor.IsEnabled = !_busy;
+        _terrainEditor.IsEnabled = !_busy;
         _atlasEditor.IsEnabled = !_busy;
         _animationEditor.IsEnabled = !_busy;
         ClientContent.IsEnabled = !_busy;

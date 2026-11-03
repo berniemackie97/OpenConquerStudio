@@ -71,6 +71,19 @@ mkdir migrated-game
 dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- migrate old-game migrated-game
 ```
 
+## Author terrain cells
+
+Choose **Assets → New terrain**, select a unique MapDataId and set dimensions and initial raw
+surface/passability/elevation values. Select the terrain in **Authored**. Its inspector can
+navigate to cell X/Y, edit a cell's three fields, rename the resource, and commit those edits
+with **Apply terrain edits**, navigation or **Save**. Undo and Redo apply to these changes.
+The project stores terrain cells in an immutable, digest-verified payload.
+
+This is the first terrain-authoring foundation, not a finished world editor. It does not yet
+display painted terrain in the viewport, author exits or scenery, or compile paired client/server
+map outputs. **Save and build** rejects projects containing terrain rather than publishing an
+incomplete game build. Actual desktop/GPU world validation remains a separate gate.
+
 ## Author sprites and animation
 
 1. Select a texture, then **Assets → New atlas**. The initial sprite covers the whole texture.

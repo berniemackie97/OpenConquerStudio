@@ -209,6 +209,7 @@ public sealed partial class StudioProject
             Models = [.. Document.Models.Where(a => a.Id != id)],
             Atlases = [.. Document.Atlases.Where(a => a.Id != id)],
             Animations = [.. Document.Animations.Where(a => a.Id != id)],
+            Terrains = [.. Document.Terrains.Where(a => a.Id != id)],
         });
     }
 

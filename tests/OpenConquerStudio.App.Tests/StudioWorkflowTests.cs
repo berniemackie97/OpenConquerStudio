@@ -409,5 +409,120 @@ public sealed partial class StudioWindowTests
         finally { window.Close(); }
     }, TestContext.Current.CancellationToken);
 
+    [Fact]
+    public Task TerrainInspectorCommitsCellNavigationAndSaveWithoutLosingCoordinates() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        Guid id;
+        using (StudioProject project = StudioProject.Create(directory.Project, "World"))
+        {
+            id = project.CreateTerrain("Ground", 8100, 3, 2, new TerrainCell(1, 0, -10));
+            project.Save(TestContext.Current.CancellationToken);
+        }
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            Find<ListBox>(window, "AssetBrowser").SelectedItem =
+                Find<ListBox>(window, "AssetBrowser").Items.OfType<ResourceInfo>().Single(r => r.Id == id);
+            await window.PendingOperation;
+            Assert.True(Find<NumericUpDown>(window, "TerrainSurface").IsEffectivelyVisible);
+            Find<NumericUpDown>(window, "TerrainSurface").Value = 44;
+            Find<NumericUpDown>(window, "TerrainCellX").Value = 2;
+            Find<NumericUpDown>(window, "TerrainCellY").Value = 1;
+            Find<Button>(window, "InspectTerrainCell").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.Equal(new TerrainCell(44, 0, -10), window.Project.ReadTerrainCell(id, 0, 0));
+            Find<NumericUpDown>(window, "TerrainSurface").Value = 99;
+            Find<NumericUpDown>(window, "TerrainElevation").Value = short.MinValue;
+            Find<Button>(window, "ApplyTerrainEdits").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.Equal(new TerrainCell(99, 0, short.MinValue), window.Project.ReadTerrainCell(id, 2, 1));
+            Find<TextBox>(window, "TerrainName").Text = "Ground edited";
+            window.GetLogicalDescendants().OfType<Button>().Single(b => Equals(b.Content, "Save"))
+                .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.False(window.Project.IsModified);
+            Assert.Equal("Ground edited", Assert.Single(window.Project.Document.Terrains).Name);
+        }
+        finally { window.Close(); }
+
+        using StudioProject reopened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken);
+        Assert.Equal(id, Assert.Single(reopened.Document.Terrains).Id);
+        Assert.Equal(new TerrainCell(44, 0, -10), reopened.ReadTerrainCell(id, 0, 0));
+        Assert.Equal(new TerrainCell(99, 0, short.MinValue), reopened.ReadTerrainCell(id, 2, 1));
+    }, TestContext.Current.CancellationToken);
+
+    [Fact]
+    public Task InvalidTerrainDraftPreventsNavigationAndRetainsInspector() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        Guid id;
+        using (StudioProject project = StudioProject.Create(directory.Project, "World"))
+        {
+            id = project.CreateTerrain("Ground", 8200, 2, 2, new TerrainCell(1, 0, 0));
+            project.Save(TestContext.Current.CancellationToken);
+        }
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            Find<ListBox>(window, "AssetBrowser").SelectedIndex = 0;
+            await window.PendingOperation;
+            Find<NumericUpDown>(window, "TerrainSurface").Text = "invalid";
+            Find<NumericUpDown>(window, "TerrainCellX").Value = 1;
+            Find<Button>(window, "InspectTerrainCell").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.True(Find<NumericUpDown>(window, "TerrainSurface").IsEffectivelyVisible);
+            Assert.Equal("invalid", Find<NumericUpDown>(window, "TerrainSurface").Text);
+            Assert.Equal(new TerrainCell(1, 0, 0), window.Project.ReadTerrainCell(id, 0, 0));
+            Assert.False(window.Project.IsModified);
+            Find<Button>(window, "Undo").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.False(window.Project.IsModified);
+        }
+        finally { window.Close(); }
+    }, TestContext.Current.CancellationToken);
+
+    [Fact]
+    public Task TerrainCreationDialogRejectsOversizedGridAndCreatesEditableResource() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        using (StudioProject project = StudioProject.Create(directory.Project, "World"))
+        {
+            Assert.Equal("World", project.Document.Name);
+        }
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            window.GetLogicalDescendants().OfType<MenuItem>().Single(m => Equals(m.Header, "New terrain"))
+                .RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { });
+            Window dialog = Assert.Single(window.OwnedWindows);
+            Assert.Equal("New terrain", dialog.Title);
+            Find<NumericUpDown>(dialog, "NewTerrainMapDataId").Value = 8300;
+            Find<NumericUpDown>(dialog, "NewTerrainWidth").Value = 1024;
+            Find<NumericUpDown>(dialog, "NewTerrainHeight").Value = 1024;
+            Button create = dialog.GetLogicalDescendants().OfType<Button>().Single(b => Equals(b.Content, "Create terrain"));
+            create.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Assert.Contains("cell budget", dialog.GetLogicalDescendants().OfType<TextBlock>()
+                .Select(b => b.Text).FirstOrDefault(t => t?.Contains("cell budget", StringComparison.Ordinal) == true));
+            Find<NumericUpDown>(dialog, "NewTerrainWidth").Value = 2;
+            Find<NumericUpDown>(dialog, "NewTerrainHeight").Value = 2;
+            create.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            TerrainAsset terrain = Assert.Single(window.Project.Document.Terrains);
+            Assert.Equal(8300u, terrain.MapDataId);
+            Assert.Equal((2, 2), (terrain.Width, terrain.Height));
+            Assert.Equal(new TerrainCell(0, 0, 0), window.Project.ReadTerrainCell(terrain.Id, 1, 1));
+            await window.ExecuteAsync(token => Task.Run(() => window.Project.Save(token), token));
+        }
+        finally { window.Close(); }
+    }, TestContext.Current.CancellationToken);
+
 
 }

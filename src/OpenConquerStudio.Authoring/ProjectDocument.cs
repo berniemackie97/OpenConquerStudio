@@ -8,6 +8,8 @@ public sealed record TextureAsset(Guid Id, string Name, int Width, int Height, s
 
 public sealed record ModelAsset(Guid Id, string Name, string DataDigest, int ByteLength);
 
+public sealed record TerrainAsset(Guid Id, string Name, uint MapDataId, int Width, int Height, string CellDigest);
+
 public sealed record AtlasAsset(Guid Id, string Name, Guid TextureId, ImmutableArray<SpriteRegion> Sprites);
 public sealed record AnimationAsset(Guid Id, string Name, int TicksPerSecond, bool Repeat, ImmutableArray<AnimationFrame> Frames);
 public sealed record ResourceInfo(Guid Id, string Name, string Kind)
@@ -19,6 +21,8 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
     ImmutableArray<AtlasAsset> Atlases, ImmutableArray<AnimationAsset> Animations)
 {
     public ImmutableArray<ModelAsset> Models { get; init; } = [];
+    public ImmutableArray<TerrainAsset> Terrains { get; init; } = [];
+    public const int MaximumTotalTerrainCells = 262_144;
     public const int MaximumModelBytes = 128 * 1024 * 1024;
     public const int CurrentVersion = 2;
     public const int MaximumAssets = 64;
@@ -28,6 +32,7 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
     public IEnumerable<ResourceInfo> Resources => Assets.Select(a => new ResourceInfo(a.Id, a.Name, "texture"))
         .Concat(Atlases.Select(a => new ResourceInfo(a.Id, a.Name, "atlas")))
         .Concat(Models.Select(a => new ResourceInfo(a.Id, a.Name, "model")))
+        .Concat(Terrains.Select(a => new ResourceInfo(a.Id, a.Name, "terrain")))
         .Concat(Animations.Select(a => new ResourceInfo(a.Id, a.Name, "animation"))).OrderBy(a => a.Id);
 
     public void Validate()
@@ -39,7 +44,7 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
 
         ValidateName(Name);
         if (Id == Guid.Empty || Assets.IsDefault || Atlases.IsDefault || Animations.IsDefault || Assets.Length > MaximumAssets ||
-            Models.IsDefault || Assets.Length + Atlases.Length + Animations.Length + Models.Length > MaximumResources)
+            Models.IsDefault || Terrains.IsDefault || Assets.Length + Atlases.Length + Animations.Length + Models.Length + Terrains.Length > MaximumResources)
         {
             throw new InvalidDataException("Project identity or asset count is invalid.");
         }
@@ -88,6 +93,25 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
         if (modelBytes > MaximumModelBytes)
         {
             throw new InvalidDataException("Model assets exceed the 128 MiB project budget.");
+        }
+
+        long terrainCells = 0;
+        HashSet<uint> mapDataIds = [];
+        foreach (TerrainAsset terrain in Terrains)
+        {
+            if (terrain is null || terrain.Id == Guid.Empty || !ids.Add(terrain.Id) || terrain.MapDataId == 0 ||
+                !mapDataIds.Add(terrain.MapDataId))
+            {
+                throw new InvalidDataException("Terrain identities and map data IDs must be nonempty and unique.");
+            }
+
+            ValidateName(terrain.Name);
+            ValidateDigest(terrain.CellDigest);
+            terrainCells += TerrainGrid.CellCount(terrain.Width, terrain.Height);
+            if (terrainCells > MaximumTotalTerrainCells)
+            {
+                throw new InvalidDataException("The project exceeds its authored terrain cell budget.");
+            }
         }
 
         Dictionary<Guid, TextureAsset> textures = Assets.ToDictionary(a => a.Id);
@@ -154,7 +178,7 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
             return [.. animation.Frames.Select(f => f.AtlasId).Distinct().Order()];
         }
 
-        if (Assets.Any(a => a.Id == id) || Models.Any(a => a.Id == id))
+        if (Assets.Any(a => a.Id == id) || Models.Any(a => a.Id == id) || Terrains.Any(a => a.Id == id))
         {
             return [];
         }

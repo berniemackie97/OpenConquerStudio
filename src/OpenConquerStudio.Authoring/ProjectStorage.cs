@@ -16,7 +16,7 @@ internal static class ProjectStorage
     private const int MaximumResourceBytes = 2 * 1024 * 1024;
     private const int MaximumMetadataBytes = 8 * 1024 * 1024;
 
-    internal static (ProjectDocument Document, Dictionary<string, TextureData> Pixels, string Digest, Dictionary<string, byte[]> Models) Read(string root, CancellationToken token)
+    internal static (ProjectDocument Document, Dictionary<string, TextureData> Pixels, string Digest, Dictionary<string, byte[]> Models, Dictionary<string, byte[]> Terrains) Read(string root, CancellationToken token)
     {
         byte[] bytes = ProjectFiles.Read(Path.Combine(root, ProjectStorage.ManifestName), ProjectFiles.MaximumManifestBytes);
         using (JsonDocument json = JsonDocument.Parse(bytes))
@@ -36,6 +36,7 @@ internal static class ProjectStorage
         }
 
         List<ModelAsset> models = [];
+        List<TerrainAsset> terrains = [];
         List<TextureAsset> textures = [];
         List<AtlasAsset> atlases = [];
         List<AnimationAsset> animations = [];
@@ -66,6 +67,11 @@ internal static class ProjectStorage
                     models.Add(model);
                     id = model.Id;
                     break;
+                case "terrain":
+                    TerrainAsset terrain = Decode<TerrainAsset>(assetBytes);
+                    terrains.Add(terrain);
+                    id = terrain.Id;
+                    break;
                 case "texture":
                     TextureAsset texture = Decode<TextureAsset>(assetBytes);
                     textures.Add(texture);
@@ -93,7 +99,8 @@ internal static class ProjectStorage
 
         ProjectDocument document = new(index.SchemaVersion, index.Id, index.Name, [.. textures], [.. atlases], [.. animations])
         {
-            Models = [.. models]
+            Models = [.. models],
+            Terrains = [.. terrains]
         };
         document.Validate();
         Dictionary<string, byte[]> payloads = [];
@@ -108,7 +115,7 @@ internal static class ProjectStorage
             }
             payloads.TryAdd(model.DataDigest, data);
         }
-        return (document, ReadPixels(root, document, token), ProjectFiles.Hash(bytes), payloads);
+        return (document, ReadPixels(root, document, token), ProjectFiles.Hash(bytes), payloads, ReadTerrains(root, document, token));
     }
 
     private static T Decode<T>(byte[] bytes) where T : class
@@ -149,7 +156,32 @@ internal static class ProjectStorage
         return pixels;
     }
 
-    internal static string Save(string root, ProjectDocument document, Dictionary<string, TextureData> pixels, Dictionary<string, byte[]> models, string? savedDigest, CancellationToken token)
+    private static Dictionary<string, byte[]> ReadTerrains(string root, ProjectDocument document, CancellationToken token)
+    {
+        Dictionary<string, byte[]> cells = new(StringComparer.Ordinal);
+        foreach (TerrainAsset terrain in document.Terrains)
+        {
+            token.ThrowIfCancellationRequested();
+            if (!cells.TryGetValue(terrain.CellDigest, out byte[]? data))
+            {
+                data = ProjectFiles.Read(TerrainPath(root, terrain.CellDigest), TerrainGrid.MaximumBytes);
+                if (ProjectFiles.Hash(data) != terrain.CellDigest)
+                {
+                    throw new InvalidDataException($"Terrain '{terrain.Name}' failed its cell payload integrity check.");
+                }
+                cells.Add(terrain.CellDigest, data);
+            }
+
+            if (data.Length != TerrainGrid.ByteLength(terrain.Width, terrain.Height))
+            {
+                throw new InvalidDataException($"Terrain '{terrain.Name}' cell payload length does not match its dimensions.");
+            }
+        }
+
+        return cells;
+    }
+
+    internal static string Save(string root, ProjectDocument document, Dictionary<string, TextureData> pixels, Dictionary<string, byte[]> models, Dictionary<string, byte[]> terrains, string? savedDigest, CancellationToken token)
     {
         document.Validate();
         string manifest = Path.Combine(root, ProjectStorage.ManifestName);
@@ -165,6 +197,12 @@ internal static class ProjectStorage
             token.ThrowIfCancellationRequested();
             WriteImmutable(ModelPath(root, model.DataDigest), models[model.DataDigest], OpenConquer.Content.Mesh.C3ModelCodec.MaximumLength);
         }
+        foreach (TerrainAsset terrain in document.Terrains)
+        {
+            token.ThrowIfCancellationRequested();
+            WriteImmutable(TerrainPath(root, terrain.CellDigest), terrains[terrain.CellDigest], TerrainGrid.MaximumBytes);
+        }
+
         List<ResourceRevision> revisions = [];
         int metadataBytes = 0;
         foreach (ResourceInfo info in document.Resources)
@@ -173,6 +211,7 @@ internal static class ProjectStorage
             byte[] bytes = info.Kind switch
             {
                 "model" => ProjectFiles.Serialize(new ResourceDocument<ModelAsset>(1, document.Models.Single(a => a.Id == info.Id))),
+                "terrain" => ProjectFiles.Serialize(new ResourceDocument<TerrainAsset>(1, document.Terrains.Single(a => a.Id == info.Id))),
                 "texture" => ProjectFiles.Serialize(new ResourceDocument<TextureAsset>(1, document.Assets.Single(a => a.Id == info.Id))),
                 "atlas" => ProjectFiles.Serialize(new ResourceDocument<AtlasAsset>(1, document.Atlases.Single(a => a.Id == info.Id))),
                 "animation" => ProjectFiles.Serialize(new ResourceDocument<AnimationAsset>(1, document.Animations.Single(a => a.Id == info.Id))),
@@ -227,4 +266,6 @@ internal static class ProjectStorage
     private static string ModelPath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".ocmodel");
 
     private static string PixelPath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".rgba");
+
+    private static string TerrainPath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".octerrain");
 }

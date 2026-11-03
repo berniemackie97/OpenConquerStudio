@@ -8,6 +8,7 @@ project.ocstudio                         schema 2 project index
 Assets/<asset-guid-N>/<sha256>.ocasset.json
 Inputs/<sha256>.rgba                     immutable source pixels
 Inputs/<sha256>.ocmodel                  immutable model and original source closure
+Inputs/<sha256>.octerrain                immutable authored terrain cells (6 bytes per cell)
 Builds/                                  optional local build destinations
 ```
 
@@ -23,6 +24,7 @@ own parent assets. Resource revisions are immutable; edits publish a new revisio
 | `texture` | `id`, `name`, `width`, `height`, `pixelDigest`, `sourceFormat`, `sourceDigest`, `flipHorizontal`, `clockwiseQuarterTurns`, optional `sourceKey` |
 | `atlas` | `id`, `name`, `textureId`, ordered `sprites`: `id`, `name`, `x`, `y`, `width`, `height`, `pivotX`, `pivotY` |
 | `animation` | `id`, `name`, `ticksPerSecond`, `repeat`, ordered `frames`: `id`, `atlasId`, `spriteId`, `durationTicks` |
+| `terrain` | `id`, `name`, `mapDataId`, `width`, `height`, `cellDigest`; the digest selects immutable cell data |
 
 Coordinates use the transformed texture's top-left pixel origin. Pivots are signed pixel
 offsets from a sprite's top-left corner. Flip precedes clockwise rotation. Changing texture
@@ -47,6 +49,21 @@ not game resource bindings. Filesystem source paths are not persisted.
 TGA import uses the existing 32-bit RLE subset: no color map/image ID, zero origin, bottom-left
 orientation, descriptor `0x08`. DDS supports the existing DXT1/DXT3 subset. Unsupported mipmaps,
 volume textures, compression formats, and other semantics are rejected.
+
+### Authored terrain
+
+A terrain uses a stable resource GUID and a separate positive, project-unique MapDataId.
+Its cell payload contains row-major, top-left-origin cells: six little-endian bytes per cell,
+encoding unsigned 16-bit surface ID, unsigned 16-bit raw passability flag and signed 16-bit
+elevation. The payload's SHA-256 is verified on reopen; edits create immutable revisions and
+participate in project undo/redo and atomic save. Source map exit markers, scenery, animation
+layers, world bindings and authored terrain visualizations are not represented yet.
+
+The current authoring budget is 262,144 cells per project, with width and height limited to
+1–1,024 cells each. This is a foundation safety limit, not a target-world performance budget.
+Terrain cells are not compiled into game releases yet: Studio explicitly rejects builds that
+contain terrain until the authoritative server terrain/collision and client map consumers are
+integrated. The cell payload is authoring data, **not** the server's `.ocbt` artifact.
 
 ### Budgets and validation
 
