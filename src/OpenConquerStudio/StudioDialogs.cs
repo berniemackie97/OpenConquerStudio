@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Platform.Storage;
 using OpenConquerStudio.ConquerImport;
+using OpenConquerStudio.Authoring;
 
 namespace OpenConquerStudio;
 
@@ -198,6 +199,54 @@ internal static class StudioDialogs
         return await dialog.ShowDialog<TextureCreation?>(owner);
     }
 
+    public static async Task<TerrainCreation?> CreateTerrain(Window owner)
+    {
+        Window dialog = Dialog("New terrain", 400, 570);
+        TextBox name = new() { Text = "Terrain", Name = "NewTerrainName" };
+        NumericUpDown mapDataId = new() { Minimum = 1, Maximum = uint.MaxValue, Value = 1, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer, Name = "NewTerrainMapDataId" };
+        NumericUpDown width = new() { Minimum = 1, Maximum = 1024, Value = 16, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer, Name = "NewTerrainWidth" };
+        NumericUpDown height = new() { Minimum = 1, Maximum = 1024, Value = 16, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer, Name = "NewTerrainHeight" };
+        NumericUpDown surface = new() { Minimum = 0, Maximum = ushort.MaxValue, Value = 0, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer };
+        NumericUpDown passability = new() { Minimum = 0, Maximum = ushort.MaxValue, Value = 0, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer };
+        NumericUpDown elevation = new() { Minimum = short.MinValue, Maximum = short.MaxValue, Value = 0, FormatString = "0", ParsingNumberStyle = NumberStyles.Integer };
+        TextBlock error = new() { TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+        Button create = new() { Content = "Create terrain", IsDefault = true };
+        Button cancel = new() { Content = "Cancel", IsCancel = true };
+        cancel.Click += (_, _) => dialog.Close();
+        create.Click += (_, _) =>
+        {
+            try
+            {
+                string terrainName = name.Text ?? "";
+                ProjectDocument.ValidateName(terrainName);
+                int x = EditorInput.Integer(width, "terrain width");
+                int y = EditorInput.Integer(height, "terrain height");
+                if ((long)x * y > ProjectDocument.MaximumTotalTerrainCells)
+                {
+                    throw new InvalidDataException("The terrain exceeds the current authored cell budget.");
+                }
+                dialog.Close(new TerrainCreation(terrainName, EditorInput.UnsignedInteger(mapDataId, "map data ID"), x, y,
+                    new TerrainCell((ushort)EditorInput.Integer(surface, "surface"), (ushort)EditorInput.Integer(passability, "passability"),
+                        (short)EditorInput.Integer(elevation, "elevation"))));
+            }
+            catch (InvalidDataException exception) { error.Text = exception.Message; }
+        };
+        StackPanel fields = new() { Margin = new Thickness(20), Spacing = 7 };
+        foreach ((string label, Control field) in new (string, Control)[]
+        {
+            ("Terrain name", name), ("Unique MapDataId", mapDataId), ("Width", width), ("Height", height),
+            ("Initial surface ID", surface), ("Initial passability flag (raw)", passability), ("Initial elevation", elevation)
+        })
+        {
+            fields.Children.Add(new TextBlock { Text = label });
+            fields.Children.Add(field);
+        }
+        fields.Children.Add(error);
+        fields.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { create, cancel } });
+        dialog.Content = new ScrollViewer { Content = fields };
+        return await dialog.ShowDialog<TerrainCreation?>(owner);
+    }
+
     public static async Task<string?> PickArtwork(Window owner)
     {
         Window dialog = Dialog("Import client artwork", 460, 420);
@@ -245,3 +294,4 @@ internal static class StudioDialogs
 }
 
 internal sealed record TextureCreation(string Name, int Width, int Height, byte Red, byte Green, byte Blue);
+internal sealed record TerrainCreation(string Name, uint MapDataId, int Width, int Height, TerrainCell Fill);
