@@ -124,7 +124,32 @@ public sealed class SpriteWorkflowTests
 
 
     [Fact]
-    public void SourceReimportPreservesResourceGraphAndSavedStateWhenUnchanged()
+    public void IdenticalSourceReimportDoesNotChangeSavedStateOrRedo()
+    {
+        using ProjectDirectory directory = new();
+        using StudioProject project = StudioProject.Create(directory.Project, "Game");
+        byte[] pixels = [10, 20, 30, 255];
+        string digest = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(pixels));
+        ImportedImageFrame source = new("Source", new TextureData(1, 1, pixels), "rgba", digest, "images/item");
+        Guid texture = project.ImportSourceImage(source);
+        project.Save(TestContext.Current.CancellationToken);
+        ProjectDocument saved = project.Document;
+
+        project.ReplaceSourceImage(texture, source with { Texture = new TextureData(1, 1, pixels) });
+        Assert.Same(saved, project.Document);
+        Assert.False(project.IsModified);
+
+        project.Rename("Changed");
+        project.Undo();
+        Assert.True(project.CanRedo);
+        project.ReplaceSourceImage(texture, source);
+        Assert.Same(saved, project.Document);
+        Assert.False(project.IsModified);
+        Assert.True(project.CanRedo);
+    }
+
+    [Fact]
+    public void ChangedSourceReimportPreservesGraphAndCompilesAfterReopen()
     {
         using ProjectDirectory directory = new();
         Guid texture;
@@ -133,10 +158,9 @@ public sealed class SpriteWorkflowTests
         using (StudioProject project = StudioProject.Create(directory.Project, "Game"))
         {
             byte[] pixels = [10, 20, 30, 255, 40, 50, 60, 255];
-            TextureData originalPixels = new(2, 1, pixels);
-            string originalDigest = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(pixels));
-            ImportedImageFrame original = new("Source", originalPixels, "rgba", originalDigest, "images/item");
-            texture = project.ImportSourceImage(original);
+            string digest = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(pixels));
+            ImportedImageFrame source = new("Source", new TextureData(2, 1, pixels), "rgba", digest, "images/item");
+            texture = project.ImportSourceImage(source);
             Guid atlas = project.CreateAtlas("Atlas", texture);
             Guid animation = project.CreateAnimation("Animation", atlas);
             Guid sprite = project.Document.Atlases.Single().Sprites.Single().Id;
@@ -144,25 +168,12 @@ public sealed class SpriteWorkflowTests
             project.Save(TestContext.Current.CancellationToken);
             ProjectDocument saved = project.Document;
 
-            project.ReplaceSourceImage(texture, original with { Texture = new TextureData(2, 1, pixels) });
-            Assert.Same(saved, project.Document);
-            Assert.False(project.IsModified);
-            Assert.False(project.CanRedo);
-
-            project.Rename("Changed");
-            project.Undo();
-            Assert.True(project.CanRedo);
-            project.ReplaceSourceImage(texture, original);
-            Assert.True(project.CanRedo);
-            Assert.Same(saved, project.Document);
-
-            project.ReplaceSourceImage(texture, original with
+            project.ReplaceSourceImage(texture, source with
             {
                 Texture = new TextureData(2, 1, replacementPixels),
                 SourceDigest = replacementDigest
             });
 
-            Assert.False(project.CanRedo);
             Assert.True(project.IsModified);
             Assert.Equal(texture, project.Document.Atlases.Single().TextureId);
             Assert.Equal(atlas, project.Document.Animations.Single().Frames.Single().AtlasId);
@@ -184,6 +195,11 @@ public sealed class SpriteWorkflowTests
         Assert.Equal(replacementDigest, reopened.Document.Assets[0].SourceDigest);
         Assert.Equal("images/item", reopened.Document.Assets[0].SourceKey);
         Assert.Equal(replacementPixels, reopened.Preview(texture).Pixels.ToArray());
+
+        string destination = directory.PathFor("build");
+        StudioCompiler.Compile(reopened, destination, TestContext.Current.CancellationToken);
+        ContentPackage runtime = ContentPackage.Load(destination, TestContext.Current.CancellationToken);
+        Assert.Equal(replacementPixels, runtime.Sprites.Textures[texture].Pixels.ToArray());
     }
 
     [Fact]
