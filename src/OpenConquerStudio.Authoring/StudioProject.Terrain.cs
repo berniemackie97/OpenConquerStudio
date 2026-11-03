@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace OpenConquerStudio.Authoring;
 
 public sealed partial class StudioProject
