@@ -50,6 +50,23 @@ public sealed class ClientProjectConnection
 
     public static bool IsClientRepository(string root) => File.Exists(Path.Combine(root, "src", "OpenConquer.Client", "OpenConquer.Client.csproj"));
 
+    public static StudioProject OpenWorkspace(string repository, CancellationToken token = default)
+    {
+        repository = AssetFileIO.RequireSafePath(repository);
+        if (!IsClientRepository(repository))
+        {
+            throw new InvalidDataException("Select the OpenConquerClient source repository.");
+        }
+        string workspace = AssetFileIO.RequireSafePath(Path.Combine(repository, ".studio", "authoring"));
+        if (File.Exists(Path.Combine(workspace, "project.ocstudio")))
+        {
+            return StudioProject.Open(workspace, token);
+        }
+        token.ThrowIfCancellationRequested();
+        Directory.CreateDirectory(workspace);
+        return StudioProject.Create(workspace, Path.GetFileName(repository));
+    }
+
     public static (StudioProject Project, ClientProjectConnection Connection) OpenRepository(string repository, CancellationToken token = default)
     {
         repository = AssetFileIO.RequireSafePath(repository);

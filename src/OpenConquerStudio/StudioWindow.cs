@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Avalonia;
@@ -15,8 +14,18 @@ using OpenConquerStudio.Runtime;
 namespace OpenConquerStudio;
 
 [SuppressMessage("Design", "CA1001", Justification = "Avalonia owns the window lifetime; Closed releases the preview and project after pending operations finish.")]
-public sealed class StudioWindow : Window
+public sealed partial class StudioWindow : Window
 {
+    private readonly Menu _menu = new() { Name = "MainMenu" };
+    private readonly MenuItem _fileMenu = new() { Header = "File" };
+    private readonly MenuItem _editMenu = new() { Header = "Edit" };
+    private readonly MenuItem _assetsMenu = new() { Header = "Assets" };
+    private readonly MenuItem _buildMenu = new() { Header = "Build" };
+    private readonly List<(Control Control, string Kind)> _contextCommands = [];
+    private readonly MenuItem _undoMenu = new() { Header = "Undo" };
+    private readonly MenuItem _redoMenu = new() { Header = "Redo" };
+    private readonly TextBlock _notice = new() { TextWrapping = TextWrapping.Wrap, FontSize = 12, Name = "OperationNotice" };
+    private readonly Expander _activity = new() { Header = "Activity", Name = "ActivityPanel" };
     private readonly WrapPanel _commands = new() { Orientation = Orientation.Horizontal, ItemSpacing = 8, LineSpacing = 8, Margin = new Thickness(12) };
     private readonly ListBox _assets = new() { Name = "AssetBrowser" };
     private readonly TextBox _projectName = new() { PlaceholderText = "Project name", Name = "ProjectName" };
@@ -25,6 +34,16 @@ public sealed class StudioWindow : Window
     private readonly ComboBox _rotation = new() { ItemsSource = new[] { "0°", "90° clockwise", "180°", "270° clockwise" }, SelectedIndex = 0, Name = "Rotation" };
     private readonly TextBlock _metadata = new() { TextWrapping = TextWrapping.Wrap };
     private readonly TextBox _output = new() { IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, MinHeight = 90, Name = "Diagnostics" };
+    private readonly TextBlock _emptyPreview = new()
+    {
+        Text = "Open a project to begin",
+        Name = "EmptyPreview",
+        FontSize = 16,
+        TextWrapping = TextWrapping.Wrap,
+        HorizontalAlignment = HorizontalAlignment.Center,
+        VerticalAlignment = VerticalAlignment.Center,
+        Margin = new Thickness(36),
+    };
     private readonly AssetPreview _preview = new();
     private readonly TextBlock _projectStatus = new() { Margin = new Thickness(12, 0), TextWrapping = TextWrapping.Wrap };
     private readonly List<Control> _projectCommands = [];
@@ -51,22 +70,28 @@ public sealed class StudioWindow : Window
 
     public StudioWindow(string? projectRoot = null)
     {
+        _menu.ItemsSource = new[] { _fileMenu, _editMenu, _assetsMenu, _buildMenu };
+        _undoMenu.Click += async (_, _) => await RestoreHistory(true);
+        _redoMenu.Click += async (_, _) => await RestoreHistory(false);
+        _editMenu.ItemsSource = new[] { _undoMenu, _redoMenu };
         Title = "OpenConquerStudio";
         Width = 1280;
         Height = 760;
-        MinWidth = 1150;
+        MinWidth = 1000;
         MinHeight = 600;
         _clientWorkspace = new ClientWorkspace(this, _preview);
-        _atlasEditor = new AtlasEditor(asset => ExecuteAsync(async token =>
+        _atlasEditor = new AtlasEditor(readAsset => ExecuteAsync(async token =>
         {
+            AtlasAsset asset = readAsset();
             _project!.EditAtlas(asset);
             await UpdatePreview(asset.Id, token);
-        }), spriteId => { if (_assets.SelectedItem is ResourceInfo row) { _ = ExecuteAsync(token => UpdatePreview(row.Id, token)); } });
-        _animationEditor = new AnimationEditor(asset => ExecuteAsync(async token =>
+        }), spriteId => { if (_assets.SelectedItem is ResourceInfo row) { _ = ExecuteAsync(token => UpdatePreview(row.Id, token)); } }, CommitForNavigation);
+        _animationEditor = new AnimationEditor(readAsset => ExecuteAsync(async token =>
         {
+            AnimationAsset asset = readAsset();
             _project!.EditAnimation(asset);
             await UpdatePreview(asset.Id, token);
-        }), _preview.SelectFrame);
+        }), _preview.SelectFrame, CommitForNavigation);
         _modelEditor = new ModelEditor((name, clip, milliseconds, repeat) => ExecuteAsync(async token =>
         {
             if (SelectedAsset is not { Kind: "model" } selected)
@@ -96,6 +121,13 @@ public sealed class StudioWindow : Window
             int lastClip = await Task.Run(() => Project.PreviewModel(selected.Id).Definition.Clips.Length - 1, token);
             await UpdatePreview(selected.Id, token, lastClip);
         }), _preview.ModelView, PreviewModelOnMap);
+        _projectName.TextChanged += (_, _) => PendingEditsChanged();
+        _assetName.TextChanged += (_, _) => PendingEditsChanged();
+        _flip.IsCheckedChanged += (_, _) => PendingEditsChanged();
+        _rotation.SelectionChanged += (_, _) => PendingEditsChanged();
+        _atlasEditor.PendingChanged += PendingEditsChanged;
+        _animationEditor.PendingChanged += PendingEditsChanged;
+        _modelEditor.PendingChanged += PendingEditsChanged;
         _preview.ModelFrameChanged += _modelEditor.UpdateFrame;
         _undo.Click += async (_, _) => await RestoreHistory(undo: true);
         _redo.Click += async (_, _) => await RestoreHistory(undo: false);
@@ -105,14 +137,15 @@ public sealed class StudioWindow : Window
         AddCommand("New project", NewProject);
         AddCommand("Open project", OpenProject);
         AddCommand("Open client project", OpenClientProject);
+        AddCommand("Close project", CloseProject, requiresProject: true);
         AddCommand("Client content folder", _clientWorkspace.ChangeContentFolder, requiresProject: true);
         AddCommand("Import texture", ImportTexture, requiresProject: true);
         AddCommand("Import C3", ImportModel, requiresProject: true);
         AddCommand("Client artwork", ImportArtwork, requiresProject: true);
         AddCommand("New texture", CreateTexture, requiresProject: true);
-        AddCommand("New atlas", CreateAtlas, requiresProject: true);
-        AddCommand("New animation", CreateAnimation, requiresProject: true);
-        AddCommand("Delete resource", DeleteResource, requiresProject: true);
+        AddCommand("New atlas", CreateAtlas, requiresProject: true, selectionKind: "texture");
+        AddCommand("New animation", CreateAnimation, requiresProject: true, selectionKind: "atlas");
+        AddCommand("Delete resource", DeleteResource, requiresProject: true, selectionKind: "*");
         _commands.Children.Add(_undo);
         _commands.Children.Add(_redo);
         AddCommand("Save", SaveProject, requiresProject: true);
@@ -189,6 +222,42 @@ public sealed class StudioWindow : Window
                 new() { Header = "Client content", Content = ClientContent },
             },
         };
+        _assetTabs.SelectionChanged += async (_, e) =>
+        {
+            if (e.Source != _assetTabs || _busy || _refreshing)
+            {
+                return;
+            }
+            int target = _assetTabs.SelectedIndex;
+            if (target == 0)
+            {
+                await ExecuteAsync(async token =>
+                {
+                    _activeWorkspaceTab = 0;
+                    if (_assets.SelectedItem is ResourceInfo selected)
+                    {
+                        await UpdatePreview(selected.Id, token);
+                    }
+                    else
+                    {
+                        ClearPreview();
+                    }
+                });
+            }
+            else
+            {
+                await ExecuteAsync(_ =>
+                {
+                    ShowSourceInspector();
+                    _preview.Clear();
+                    return Task.CompletedTask;
+                });
+                if (_activeWorkspaceTab == 1)
+                {
+                    await ClientContent.PreviewSelection();
+                }
+            }
+        };
         Control[] browserControls = [Heading("Project"), _projectName, rename, Heading("Assets"), _assetTabs];
         for (int row = 0; row < browserControls.Length; row++)
         {
@@ -198,8 +267,12 @@ public sealed class StudioWindow : Window
         Grid.SetColumn(browser, 0);
         body.Children.Add(browser);
         body.Children.Add(new GridSplitter { Width = 5, HorizontalAlignment = HorizontalAlignment.Stretch, [Grid.ColumnProperty] = 1 });
-        Grid.SetColumn(_preview, 2);
-        body.Children.Add(_preview);
+        Grid previewArea = new()
+        {
+            Children = { _preview, _emptyPreview },
+            [Grid.ColumnProperty] = 2
+        };
+        body.Children.Add(previewArea);
         body.Children.Add(new GridSplitter { Width = 5, HorizontalAlignment = HorizontalAlignment.Stretch, [Grid.ColumnProperty] = 3 });
         _textureInspector.Children.Add(Heading("Texture"));
         foreach (Control control in new Control[] { _metadata, _assetName, _flip, _rotation, apply, replace })
@@ -216,18 +289,26 @@ public sealed class StudioWindow : Window
         body.Children.Add(new ScrollViewer { Content = inspector, [Grid.ColumnProperty] = 4, HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled });
         Grid root = new()
         {
-            RowDefinitions = new RowDefinitions("Auto,Auto,*,120")
+            RowDefinitions = new RowDefinitions("Auto,Auto,*,Auto")
         };
-        root.Children.Add(_commands);
+        root.Children.Add(new StackPanel { Children = { _menu, _commands } });
         Grid.SetRow(_projectStatus, 1);
         root.Children.Add(_projectStatus);
         Grid.SetRow(body, 2);
         root.Children.Add(body);
-        Border output = new()
+        _activity.Content = _output;
+        _output.MaxHeight = 160;
+        StackPanel output = new()
         {
-            Margin = new Thickness(12, 0, 12, 12),
-            Child = _output,
+            Margin = new Thickness(12, 0, 12, 8),
+            Spacing = 4,
+            Children = { _notice, _activity },
             [Grid.RowProperty] = 3
+        };
+        _output.TextChanged += (_, _) =>
+        {
+            string message = _output.Text ?? "";
+            _notice.Text = message.Split('\n')[0];
         };
         root.Children.Add(output);
         Content = root;
@@ -242,18 +323,45 @@ public sealed class StudioWindow : Window
         Closed += (_, _) => { _project?.Dispose(); _preview.Dispose(); };
         ClearPreview();
         Refresh();
-        _output.Text = "Create an empty project, then import a TGA/DDS texture or create a new texture.";
+        _output.Text = "Open a Studio project or connect your client checkout. Use Assets to import or create editable content.";
     }
 
     private static TextBlock Heading(string text) => new() { Text = text, FontWeight = FontWeight.SemiBold, FontSize = 16 };
 
-    private void AddCommand(string text, Func<CancellationToken, Task> action, bool requiresProject = false)
+    private void AddCommand(string text, Func<CancellationToken, Task> action, bool requiresProject = false, string? selectionKind = null)
     {
+        MenuItem menu = text switch
+        {
+            "New project" or "Open project" or "Open client project" or "Close project" or "Client content folder" or "Save" => _fileMenu,
+            "Save and build" => _buildMenu,
+            _ => _assetsMenu,
+        };
+        string caption = text == "Save and build" ? "Build" : text;
+        MenuItem item = new()
+        {
+            Header = caption
+        };
+        bool commit = text is not ("New project" or "Open project" or "Open client project" or "Close project");
+        item.Click += async (_, _) => await ExecuteAsync(action, commit);
+        menu.Items.Add(item);
+        if (requiresProject)
+        {
+            _projectCommands.Add(item);
+        }
+        if (selectionKind is not null)
+        {
+            _contextCommands.Add((item, selectionKind));
+        }
+        if (text is not ("New project" or "Open project" or "Open client project" or "Save" or "Save and build"))
+        {
+            return;
+        }
         Button button = new()
         {
-            Content = text
+            Content = caption,
+            Name = text == "Save and build" ? "BuildProject" : null
         };
-        button.Click += async (_, _) => await ExecuteAsync(action);
+        button.Click += async (_, _) => await ExecuteAsync(action, commit);
         if (text == "Save")
         {
             button.HotKey = new KeyGesture(Key.S, OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control);
@@ -262,6 +370,10 @@ public sealed class StudioWindow : Window
         if (requiresProject)
         {
             _projectCommands.Add(button);
+        }
+        if (selectionKind is not null)
+        {
+            _contextCommands.Add((button, selectionKind));
         }
     }
 
@@ -274,6 +386,11 @@ public sealed class StudioWindow : Window
 
     internal void ShowSourceInspector()
     {
+        _emptyPreview.IsVisible = false;
+        _preview.IsVisible = true;
+        _assetTabs.SelectedIndex = 1;
+        _dependencies.Text = "Client sources are read-only. Imported copies have their own authored dependencies.";
+        _activeWorkspaceTab = 1;
         _textureInspector.IsVisible = false;
         _atlasEditor.IsVisible = false;
         _animationEditor.IsVisible = false;
@@ -283,18 +400,18 @@ public sealed class StudioWindow : Window
 
     internal Task PendingOperation => _operation ?? Task.CompletedTask;
 
-    internal Task ExecuteAsync(Func<CancellationToken, Task> action)
+    internal Task ExecuteAsync(Func<CancellationToken, Task> action, bool commitEdits = true)
     {
         if (_busy)
         {
             return Task.CompletedTask;
         }
 
-        _operation = ExecuteCore(action);
+        _operation = ExecuteCore(action, commitEdits);
         return _operation;
     }
 
-    private async Task ExecuteCore(Func<CancellationToken, Task> action)
+    private async Task ExecuteCore(Func<CancellationToken, Task> action, bool commitEdits)
     {
         _busy = true;
         using CancellationTokenSource cancellation = new();
@@ -302,7 +419,16 @@ public sealed class StudioWindow : Window
         RefreshEnabled();
         try
         {
+            if (commitEdits)
+            {
+                await CommitPendingEdits(cancellation.Token);
+            }
             await action(cancellation.Token);
+            if (_previewInvalidated && _activeWorkspaceTab == 0 && _inspectedAsset is Guid pending &&
+                _project?.Document.Resources.Any(r => r.Id == pending) == true)
+            {
+                await UpdatePreview(pending, cancellation.Token, _modelEditor.ActiveClip);
+            }
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
         {
@@ -310,134 +436,25 @@ public sealed class StudioWindow : Window
         }
         catch (Exception exception) when (exception is IOException or InvalidDataException or UnauthorizedAccessException or JsonException or ArgumentException or InvalidOperationException)
         {
-            _output.Text = exception.Message;
+            _activity.IsExpanded = true;
+            _output.Text = exception.Message + " Fix the field or use Undo to discard pending edits.";
+            if (_inspectedAsset is Guid inspected && _project?.Document.Resources.Any(r => r.Id == inspected) == true)
+            {
+                _refreshing = true;
+                try
+                {
+                    _assetTabs.SelectedIndex = _activeWorkspaceTab;
+                    RefreshAssets(inspected);
+                    _modelEditor.RestoreClipSelection();
+                }
+                finally { _refreshing = false; }
+            }
         }
         finally
         {
             _cancellation = null;
             _busy = false;
             Refresh();
-        }
-    }
-
-    private async Task<bool> CanReplaceProject(CancellationToken token)
-    {
-        if (_project?.IsModified != true)
-        {
-            return true;
-        }
-
-        string choice = await StudioDialogs.ConfirmChanges(this);
-        if (choice == "Save")
-        {
-            await Task.Run(() => _project.Save(token), token);
-        }
-
-        return choice != "Cancel";
-    }
-
-    private async Task NewProject(CancellationToken token)
-    {
-        if (!await CanReplaceProject(token))
-        {
-            return;
-        }
-
-        string? root = await StudioDialogs.PickFolder(this, "Select an empty directory for the project");
-        if (root is not null)
-        {
-            StudioProject candidate = await Task.Run(() => StudioProject.Create(root, Path.GetFileName(root)), token);
-            ReplaceProject(candidate);
-        }
-    }
-
-    private async Task OpenProject(CancellationToken token)
-    {
-        if (!await CanReplaceProject(token))
-        {
-            return;
-        }
-
-        string? root = await StudioDialogs.PickFolder(this, "Open project directory");
-        if (root is not null && root != _project?.Root)
-        {
-            await LoadProject(root, token);
-        }
-    }
-
-    internal async Task LoadProject(string root, CancellationToken token)
-    {
-        (StudioProject candidate, ClientProjectConnection? connection, ImmutableArray<ClientAssetEntry> inventory, string? warning) = await Task.Run(() =>
-        {
-            bool clientRepository = ClientProjectConnection.IsClientRepository(root);
-            string workspace = clientRepository ? Path.Combine(root, ".studio", "authoring") : root;
-            StudioProject project;
-            ClientProjectConnection? attached = null;
-            if (clientRepository && !File.Exists(Path.Combine(workspace, "project.ocstudio")))
-            {
-                (project, attached) = ClientProjectConnection.OpenRepository(root, token);
-            }
-            else
-            {
-                project = StudioProject.Open(workspace, token);
-            }
-
-            try
-            {
-                attached ??= ClientProjectConnection.OpenAttached(project.Root);
-                if (clientRepository && attached is null)
-                {
-                    attached = ClientProjectConnection.Attach(project, root, Path.Combine(root, "content", "retail-5517", "payload"), token);
-                }
-                return (project, attached, attached?.Inventory(token) ?? [], (string?)null);
-            }
-            catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException or JsonException or ArgumentException)
-            {
-                // A missing local source connection must not make valid authored assets inaccessible.
-                return (project, (ClientProjectConnection?)null, ImmutableArray<ClientAssetEntry>.Empty,
-                    "Client connection unavailable: " + error.Message + " Use Client content folder to reconnect. Authored assets remain available.");
-            }
-            catch
-            {
-                project.Dispose();
-                throw;
-            }
-        }, token);
-        ReplaceProject(candidate);
-        if (connection is not null)
-        {
-            _clientWorkspace.Attach(connection, inventory);
-            _assetTabs.SelectedIndex = 1;
-            _output.Text = $"Connected to {connection.Repository}\nSource content: {connection.ContentRoot}\n{inventory.Length} client source entries. Select Client content to browse maps, ANI sections, images, and puzzles.";
-        }
-        else if (warning is not null)
-        {
-            _output.Text = warning;
-        }
-    }
-
-    private void ReplaceProject(StudioProject candidate)
-    {
-        _project?.Dispose();
-        _project = candidate;
-        _clientWorkspace.Reset();
-        _assetTabs.SelectedIndex = 0;
-        ClearPreview();
-        _metadata.Text = "Select a texture to inspect its properties.";
-        _output.Text = "Project opened: " + candidate.Root;
-    }
-
-    private async Task OpenClientProject(CancellationToken token)
-    {
-        if (!await CanReplaceProject(token))
-        {
-            return;
-        }
-
-        string? repository = await StudioDialogs.PickFolder(this, "Open the OpenConquerClient repository");
-        if (repository is not null)
-        {
-            await LoadProject(repository, token);
         }
     }
 
@@ -507,115 +524,26 @@ public sealed class StudioWindow : Window
         await SelectAsset(id, token);
     }
 
-    private async Task UpdatePreview(Guid id, CancellationToken token, int? modelClipIndex = null)
-    {
-        ProjectDocument document = _project!.Document;
-        ClientContent.Inspector.IsVisible = false;
-        ResourceInfo info = document.Resources.Single(a => a.Id == id);
-        _preview.Pause();
-        _textureInspector.IsVisible = info.Kind == "texture";
-        _atlasEditor.IsVisible = info.Kind == "atlas";
-        _animationEditor.IsVisible = info.Kind == "animation";
-        _modelEditor.IsVisible = info.Kind == "model";
-        _dependencies.Text = "Uses: " + string.Join(", ", document.Dependencies(id).Select(dependency => document.Resources.Single(a => a.Id == dependency).Name)) +
-            "\nUsed by: " + string.Join(", ", document.Dependents(id).Select(a => a.Name));
-        if (info.Kind == "atlas")
-        {
-            _atlasEditor.Load(document.Atlases.Single(a => a.Id == id), document);
-        }
-        else if (info.Kind == "animation")
-        {
-            _animationEditor.Load(document.Animations.Single(a => a.Id == id), document);
-        }
-
-        if (info.Kind == "model")
-        {
-            C3ModelPreview model = await Task.Run(() =>
-            {
-                C3ModelData data = Project.PreviewModel(id);
-                return C3ModelPreview.Create(data, modelClipIndex ?? (data.Definition.Clips.IsEmpty ? -1 : 0));
-            }, token);
-            _modelEditor.Load(info.Name, model);
-            if (_preview.IsWorldModelActive)
-            {
-                _clientWorkspace.PreviewOnMap(model);
-            }
-            else
-            {
-                _preview.LoadModel(model);
-            }
-            return;
-        }
-
-        Guid selectedSprite = _atlasEditor.SelectedSprite;
-        ImmutableArray<ViewportSprite> frames = await Task.Run(() => MakePreview(info, selectedSprite, token), token);
-        AnimationAsset? animation = document.Animations.FirstOrDefault(a => a.Id == id);
-        _preview.Load(frames, animation is null ? null : new SpriteAnimation(animation.Id, animation.TicksPerSecond, animation.Repeat, animation.Frames));
-        if (animation is not null)
-        {
-            _preview.SelectFrame(_animationEditor.SelectedFrame);
-        }
-        TextureData texture = frames[0].Texture;
-        if (info.Kind == "texture")
-        {
-            TextureAsset asset = document.Assets.Single(a => a.Id == id);
-            _assetName.Text = asset.Name;
-            _flip.IsChecked = asset.FlipHorizontal;
-            _rotation.SelectedIndex = asset.ClockwiseQuarterTurns;
-            _metadata.Text = $"{texture.Width} × {texture.Height} RGBA8\nID: {asset.Id}\nSource: {asset.SourceFormat}";
-        }
-    }
-
-    private ImmutableArray<ViewportSprite> MakePreview(ResourceInfo info, Guid selectedSprite, CancellationToken token)
-    {
-        ProjectDocument document = _project!.Document;
-        Dictionary<Guid, TextureData> textures = [];
-        TextureData GetTexture(Guid id)
-        {
-            if (!textures.TryGetValue(id, out TextureData? texture))
-            {
-                texture = _project.Preview(id, token);
-                textures.Add(id, texture);
-            }
-
-            return texture;
-        }
-
-        ViewportSprite GetSprite(Guid atlasId, Guid spriteId)
-        {
-            AtlasAsset atlas = document.Atlases.Single(a => a.Id == atlasId);
-            return new ViewportSprite(atlas.TextureId, GetTexture(atlas.TextureId), atlas.Sprites.Single(s => s.Id == spriteId));
-        }
-
-        if (info.Kind == "texture")
-        {
-            TextureData texture = GetTexture(info.Id);
-            return [new ViewportSprite(info.Id, texture, new SpriteRegion(info.Id, info.Name, 0, 0, texture.Width, texture.Height, texture.Width / 2, texture.Height / 2))];
-        }
-
-        if (info.Kind == "atlas")
-        {
-            return [GetSprite(info.Id, selectedSprite)];
-        }
-
-        return [.. document.Animations.Single(a => a.Id == info.Id).Frames.Select(f => GetSprite(f.AtlasId, f.SpriteId))];
-    }
-
-    private void ClearPreview()
-    {
-        _preview.Clear();
-        _textureInspector.IsVisible = false;
-        _atlasEditor.IsVisible = false;
-        _animationEditor.IsVisible = false;
-        _modelEditor.IsVisible = false;
-        _dependencies.Text = "Select a resource.";
-    }
-
     private async Task RestoreHistory(bool undo)
     {
         await ExecuteAsync(async token =>
         {
             Guid? id = (_assets.SelectedItem as ResourceInfo)?.Id;
+            if (HasPendingEdits)
+            {
+                _loadingInspector = true;
+                try
+                {
+                    _projectName.Text = Project.Document.Name;
+                }
+                finally { _loadingInspector = false; }
+                if (id is Guid dirty && _activeWorkspaceTab == 0)
+                {
+                    await UpdatePreview(dirty, token);
+                }
+                _output.Text = "Pending edits reverted.";
+                return;
+            }
             if (undo)
             {
                 _project!.Undo();
@@ -633,7 +561,7 @@ public sealed class StudioWindow : Window
             {
                 ClearPreview();
             }
-        });
+        }, commitEdits: false);
     }
 
     private async Task CreateAtlas(CancellationToken token)
@@ -676,24 +604,32 @@ public sealed class StudioWindow : Window
         _output.Text = "Project saved.";
     }
 
-    private async Task Build(CancellationToken token)
+    internal async Task Build(CancellationToken token)
     {
-        string? parent = await StudioDialogs.PickFolder(this, "Select a directory to hold the new build");
-        if (parent is null)
+        string destination = Path.Combine(Project.Root, "Builds", "content-" + Guid.NewGuid().ToString("N")[..8]);
+        ContentBuild build = await Task.Run(() => { Project.Save(token); return StudioCompiler.Compile(Project, destination, token); }, token);
+        _output.Text = $"Built {build.Textures.Length} textures and {build.Resources.Length} resources.\n{destination}";
+    }
+
+    private async Task CloseProject(CancellationToken token)
+    {
+        if (!await CanReplaceProject(token))
         {
             return;
         }
-
-        string destination = Path.Combine(parent, "content-" + Guid.NewGuid().ToString("N"));
-        ContentBuild build = await Task.Run(() => { _project!.Save(token); return StudioCompiler.Compile(_project, destination, token); }, token);
-        _output.Text = $"Compiled and validated {build.Textures.Length} textures and {build.Resources.Length} sprite resources.\n{destination}";
+        _project?.Dispose();
+        _project = null;
+        _activeWorkspaceTab = 0;
+        _assetTabs.SelectedIndex = 0;
+        _projectName.Text = "";
+        _clientWorkspace.Reset();
+        ClearPreview();
+        _output.Text = "Project closed. Open a project or create a new one.";
     }
 
     private void Refresh()
     {
-        _projectName.Text = _project?.Document.Name ?? "";
-        _projectStatus.Text = _project is null ? "No project open" : $"{_project.Root}  |  {_project.Document.Id}  {(_project.IsModified ? "• Unsaved changes" : "• Saved")}";
-        Title = (_project?.IsModified == true ? "* " : "") + "OpenConquerStudio" + (_project is null ? "" : " — " + _project.Document.Name);
+        RefreshShell();
         RefreshAssets((_assets.SelectedItem as ResourceInfo)?.Id);
         RefreshEnabled();
     }
@@ -730,13 +666,24 @@ public sealed class StudioWindow : Window
             command.IsEnabled = !_busy && _assets.SelectedItem is ResourceInfo { Kind: "texture" };
         }
 
-        _undo.IsEnabled = !_busy && _project?.CanUndo == true;
-        _redo.IsEnabled = !_busy && _project?.CanRedo == true;
+        foreach ((Control control, string kind) in _contextCommands)
+        {
+            control.IsEnabled = !_busy && _activeWorkspaceTab == 0 && SelectedAsset is { } selected && (kind == "*" || selected.Kind == kind);
+        }
+        _undo.IsEnabled = !_busy && (_project?.CanUndo == true || HasPendingEdits);
+        _undoMenu.IsEnabled = _undo.IsEnabled;
+        _redoMenu.IsEnabled = !_busy && !HasPendingEdits && _project?.CanRedo == true;
+        _menu.IsEnabled = !_busy;
+        _redo.IsEnabled = !_busy && !HasPendingEdits && _project?.CanRedo == true;
+        _assetTabs.IsEnabled = !_busy;
+        _modelEditor.IsEnabled = !_busy;
         _atlasEditor.IsEnabled = !_busy;
         _animationEditor.IsEnabled = !_busy;
         ClientContent.IsEnabled = !_busy;
+        ClientContent.Inspector.IsEnabled = !_busy;
         _assets.IsEnabled = !_busy;
         _cancel.IsEnabled = _busy;
+        _cancel.IsVisible = _busy;
     }
 
     private async void HandleClosing(object? sender, WindowClosingEventArgs e)
@@ -762,7 +709,7 @@ public sealed class StudioWindow : Window
             }
 
             bool close = false;
-            await ExecuteAsync(async token => close = await CanReplaceProject(token));
+            await ExecuteAsync(async token => close = await CanReplaceProject(token), commitEdits: false);
             if (close)
             {
                 _allowClose = true;

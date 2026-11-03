@@ -6,7 +6,11 @@ namespace OpenConquerStudio;
 
 public sealed class StudioApp : Application
 {
-    public override void Initialize() => Styles.Add(new FluentTheme());
+    public override void Initialize()
+    {
+        Styles.Add(new FluentTheme());
+        StudioTheme.Apply(this);
+    }
 
     public override void OnFrameworkInitializationCompleted()
     {

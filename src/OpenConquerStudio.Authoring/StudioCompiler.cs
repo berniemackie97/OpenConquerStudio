@@ -29,10 +29,8 @@ public static class StudioCompiler
         }
 
         string parent = Path.GetDirectoryName(destination) ?? throw new IOException("A build destination requires a parent directory.");
-        if (!Directory.Exists(parent))
-        {
-            throw new DirectoryNotFoundException("Create the build destination's parent directory first.");
-        }
+        ProjectFiles.RequireSafePath(parent);
+        Directory.CreateDirectory(parent);
 
         string stage = Path.Combine(parent, $".studio-build-{Guid.NewGuid():N}");
         Directory.CreateDirectory(stage);

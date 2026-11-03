@@ -36,7 +36,8 @@ public sealed class C3ModelPreview
                 }
             }
         }
-        if (!float.IsFinite(minimum.X) || !float.IsFinite(maximum.X))
+        if (!float.IsFinite(minimum.X) || !float.IsFinite(minimum.Y) || !float.IsFinite(minimum.Z) ||
+            !float.IsFinite(maximum.X) || !float.IsFinite(maximum.Y) || !float.IsFinite(maximum.Z))
         {
             throw new InvalidDataException("Model has no finite drawable geometry.");
         }

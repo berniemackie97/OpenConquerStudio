@@ -34,18 +34,20 @@ unchanged. Imported copies save and compile through the regular authoring workfl
 
 The automatically created `.studio/authoring` workspace is local and ignored by Git.
 For a version-controlled game-asset project, use **New project** in your chosen content
-directory, then **Client content folder** to attach the client sources.
+directory, then **File → Client content folder** to attach the client sources.
 
-1. **New project**: choose an existing empty directory. **Open project**: choose a directory containing `project.ocstudio`.
-2. **Import texture**: select a supported TGA/DDS. **Client artwork** imports an editable copy from the included catalog.
+1. **New project**: enter a name and choose the parent folder. Studio creates the project folder. **Open project**: choose `project.ocstudio`.
+2. **Assets → Import texture**: select a supported TGA/DDS. **Client artwork** imports an editable copy from the included catalog.
    **New texture** creates a solid image without original game files.
 3. Select a texture. Edit its name, flip, or rotation; click **Apply asset edits**.
    **Replace source image** preserves its identity and edit settings. Referencing atlases must still fit the result.
-4. **Save** persists applied edits. **Undo** and **Redo** restore editing transactions within the current session.
-5. **Save and build** creates and validates a new content directory beneath the folder you select.
+4. **Save** commits and persists visible field edits. **Undo** and **Redo** restore editing transactions within the current session.
+5. **Build** saves, compiles and validates a new content directory under `Builds/` in the project. The Activity panel shows its path. Existing builds are retained.
 
-Original import files stay unchanged. Apply/Rename buttons commit fields to the project;
-unapplied typing is not saved. Closing or switching projects prompts for unsaved applied edits.
+Original import files stay unchanged. Apply/Rename buttons provide an explicit preview update;
+Save and navigation also commit visible fields. Invalid fields block the action and remain available
+to correct. Undo first reverts pending fields, then restores project transactions. Closing or
+switching projects offers Save, Discard and Cancel, including when a field is invalid.
 Only one Studio window or command-line operation can edit a project at a time.
 
 To open a project at startup:
@@ -63,10 +65,10 @@ dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- migra
 
 ## Author sprites and animation
 
-1. Select a texture, then **New atlas**. The initial sprite covers the whole texture.
+1. Select a texture, then **Assets → New atlas**. The initial sprite covers the whole texture.
 2. Select the atlas. Edit sprite rectangles and pixel pivots; **Apply sprite edits**.
    **Add sprite** adds another region. Remove unused regions with **Remove sprite**.
-3. Select the atlas, then **New animation**. Its sprites become ordered frames.
+3. Select the atlas, then **Assets → New animation**. Its sprites become ordered frames.
 4. Select the animation. Choose each frame's sprite and duration; **Update frame**.
    Add, remove, or reorder frames with the frame controls.
 5. Set ticks per second and repeat mode; **Apply clip settings**. At 1000 ticks/second,

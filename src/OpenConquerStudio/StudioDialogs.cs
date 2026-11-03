@@ -20,6 +20,62 @@ internal static class StudioDialogs
         return selected[0].TryGetLocalPath() ?? throw new IOException("Select a local filesystem directory.");
     }
 
+    public static async Task<string?> ProjectName(Window owner)
+    {
+        Window dialog = Dialog("New project", 430, 240);
+        TextBox name = new()
+        {
+            Text = "My game",
+            Name = "NewProjectName"
+        };
+        TextBlock error = new()
+        {
+            TextWrapping = Avalonia.Media.TextWrapping.Wrap
+        };
+        Button create = new()
+        {
+            Content = "Choose location",
+            IsDefault = true
+        };
+        Button cancel = new()
+        {
+            Content = "Cancel",
+            IsCancel = true
+        };
+        cancel.Click += (_, _) => dialog.Close();
+        create.Click += (_, _) =>
+        {
+            string text = (name.Text ?? "").Trim();
+            if (text.Length is 0 or > 120 || text is "." or ".." || text.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || text.Contains('\\') || text.Contains('/') || text.EndsWith('.') || text.EndsWith(' '))
+            {
+                error.Text = "Enter a project name that can be used as a folder name.";
+                return;
+            }
+            dialog.Close(text);
+        };
+        dialog.Content = new StackPanel
+        {
+            Margin = new Thickness(20),
+            Spacing = 12,
+            Children = { new TextBlock { Text = "Project name" }, name,
+                new TextBlock { Text = "Studio creates a new folder at the location you choose.", TextWrapping = Avalonia.Media.TextWrapping.Wrap }, error,
+                new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { create, cancel } } }
+        };
+        dialog.Opened += (_, _) => { name.Focus(); name.SelectAll(); };
+        return await dialog.ShowDialog<string?>(owner);
+    }
+
+    public static async Task<string?> PickProject(Window owner)
+    {
+        IReadOnlyList<IStorageFile> selected = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Open Studio project",
+            AllowMultiple = false,
+            FileTypeFilter = [new FilePickerFileType("Studio project") { Patterns = ["*.ocstudio"] }],
+        });
+        return selected.Count == 0 ? null : selected[0].TryGetLocalPath() ?? throw new IOException("Select a local project file.");
+    }
+
     public static async Task<string?> PickTexture(Window owner)
     {
         IReadOnlyList<IStorageFile> selected = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
@@ -126,7 +182,11 @@ internal static class StudioDialogs
                 return;
             }
 
-            dialog.Close(new TextureCreation(name.Text, (int)(width.Value ?? 1), (int)(height.Value ?? 1), (byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb));
+            try
+            {
+                dialog.Close(new TextureCreation(name.Text, EditorInput.Integer(width, "width"), EditorInput.Integer(height, "height"), (byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb));
+            }
+            catch (InvalidDataException exception) { error.Text = exception.Message; }
         };
         dialog.Content = new StackPanel
         {

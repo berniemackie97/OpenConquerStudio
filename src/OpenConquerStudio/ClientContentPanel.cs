@@ -27,10 +27,12 @@ internal sealed class ClientContentPanel : Grid
     private readonly Button _replace = new() { Content = "Replace selected authored texture", Name = "ReimportClientImage" };
     private ImmutableArray<ClientAssetEntry> _inventory = [];
     private bool _loading;
+    private readonly Func<ClientAssetEntry, Func<ClientAssetOptions>, Task> _preview;
 
-    public ClientContentPanel(Func<ClientAssetEntry, ClientAssetOptions, Task> preview,
-        Func<ClientAssetEntry, ClientAssetOptions, bool, Task> import, Action<int, int> moveCamera)
+    public ClientContentPanel(Func<ClientAssetEntry, Func<ClientAssetOptions>, Task> preview,
+        Func<ClientAssetEntry, Func<ClientAssetOptions>, bool, Task> import, Action<int, int> moveCamera)
     {
+        _preview = preview;
         RowDefinitions = new RowDefinitions("Auto,Auto,*");
         RowSpacing = 6;
         Children.Add(_filter);
@@ -63,14 +65,14 @@ internal sealed class ClientContentPanel : Grid
         {
             if (_sources.SelectedItem is ClientAssetEntry entry)
             {
-                await preview(entry, Options());
+                await preview(entry, Options);
             }
         };
         _characterControls.Children.Add(updateCharacter);
         Inspector = new StackPanel
         {
             Spacing = 8,
-            Children = { _details, _clipControls, _mapControls, _characterControls, _import, _replace },
+            Children = { new TextBlock { Text = "Client source • read-only. Import a copy to edit.", TextWrapping = Avalonia.Media.TextWrapping.Wrap }, _details, _clipControls, _mapControls, _characterControls, _import, _replace },
             IsVisible = false,
         };
         _filter.TextChanged += (_, _) => Filter();
@@ -85,7 +87,7 @@ internal sealed class ClientContentPanel : Grid
                 _characterControls.IsVisible = entry.Kind == "character";
                 _import.IsVisible = entry.Kind is "texture" or "animation" or "model" or "character";
                 _replace.IsVisible = entry.Kind == "texture";
-                await preview(entry, Options() with
+                await preview(entry, () => Options() with
                 {
                     Section = null
                 });
@@ -95,7 +97,7 @@ internal sealed class ClientContentPanel : Grid
         {
             if (!_loading && _sources.SelectedItem is ClientAssetEntry entry && _sections.SelectedItem is string section)
             {
-                await preview(entry, Options() with
+                await preview(entry, () => Options() with
                 {
                     Section = section
                 });
@@ -105,14 +107,14 @@ internal sealed class ClientContentPanel : Grid
         {
             if (_sources.SelectedItem is ClientAssetEntry entry)
             {
-                await import(entry, Options(), false);
+                await import(entry, Options, false);
             }
         };
         _replace.Click += async (_, _) =>
         {
             if (_sources.SelectedItem is ClientAssetEntry entry)
             {
-                await import(entry, Options() with
+                await import(entry, () => Options() with
                 {
                     Section = null
                 }, true);
@@ -121,8 +123,33 @@ internal sealed class ClientContentPanel : Grid
         IsVisible = false;
     }
 
-    private ClientAssetOptions Options() => new(_sections.SelectedItem as string, (int)(_duration.Value ?? 100),
-        (uint)(_hair.Value ?? 0), (uint)(_bodyModel.Value ?? 0), (uint)(_armetModel.Value ?? 0));
+    public void Reset()
+    {
+        _loading = true;
+        try
+        {
+            _inventory = [];
+            _sources.ItemsSource = Array.Empty<ClientAssetEntry>();
+            _filter.Text = "";
+            _kind.SelectedIndex = 0;
+            _sections.ItemsSource = Array.Empty<string>();
+            _details.Text = "Connect client sources from File → Client content folder.";
+            _import.IsVisible = _replace.IsVisible = false;
+            _clipControls.IsVisible = _mapControls.IsVisible = _characterControls.IsVisible = false;
+            Inspector.IsVisible = false;
+            IsVisible = false;
+        }
+        finally { _loading = false; }
+    }
+
+    public Task PreviewSelection() => _sources.SelectedItem is ClientAssetEntry entry
+        ? _preview(entry, Options) : Task.CompletedTask;
+
+    private ClientAssetOptions Options() => new(_sections.SelectedItem as string,
+        _clipControls.IsVisible ? EditorInput.Integer(_duration, "frame duration") : 100,
+        _characterControls.IsVisible ? (uint)EditorInput.Integer(_hair, "hair style") : 0,
+        _characterControls.IsVisible ? EditorInput.UnsignedInteger(_bodyModel, "body catalog ID") : 0,
+        _characterControls.IsVisible ? EditorInput.UnsignedInteger(_armetModel, "headwear catalog ID") : 0);
 
     public Control Inspector
     {
@@ -167,12 +194,21 @@ internal sealed class ClientContentPanel : Grid
 
     private void Filter()
     {
+        ClientAssetEntry? selected = _sources.SelectedItem as ClientAssetEntry;
         string filter = _filter.Text ?? "";
         string? kind = _kind.SelectedItem as string;
         _loading = true;
         try
         {
-            _sources.ItemsSource = _inventory.Where(a => (kind is null or "All" || a.Kind == kind) && a.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase)).ToArray();
+            ClientAssetEntry[] rows = _inventory.Where(a => (kind is null or "All" || a.Kind == kind) && a.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase)).ToArray();
+            _sources.ItemsSource = rows;
+            _sources.SelectedItem = rows.FirstOrDefault(a => a == selected);
+            if (_sources.SelectedItem is null)
+            {
+                _import.IsVisible = _replace.IsVisible = false;
+                _clipControls.IsVisible = _mapControls.IsVisible = _characterControls.IsVisible = false;
+                _details.Text = rows.Length == 0 ? "No matching sources. Change the filter or connect a content folder from File." : "Select a source to inspect it. Import supported content to edit a copy.";
+            }
         }
         finally
         {

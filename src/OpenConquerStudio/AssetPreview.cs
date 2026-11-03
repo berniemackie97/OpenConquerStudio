@@ -19,6 +19,7 @@ internal sealed class AssetPreview : Grid, IDisposable
     private readonly StudioViewport _viewport = new();
     private readonly AnimationTransport _transport;
     private readonly Image _pixels = new() { Stretch = Stretch.Uniform, Margin = new Thickness(24), Name = "TexturePreview" };
+    private readonly Slider _zoom = new() { Minimum = 0.1, Maximum = 8, Value = 1, Name = "ViewportZoom" };
     private WriteableBitmap? _bitmap;
     private bool _modelActive;
     public bool IsWorldModelActive
@@ -48,22 +49,29 @@ internal sealed class AssetPreview : Grid, IDisposable
             TextWrapping = TextWrapping.Wrap,
             Margin = new Thickness(8)
         };
-        _viewport.StatusChanged += message => status.Text = message;
-        Slider zoom = new()
+        _viewport.StatusChanged += message =>
         {
-            Minimum = 0.1,
-            Maximum = 8,
-            Value = 1,
-            Name = "ViewportZoom"
+            status.Text = message;
+            if (message.StartsWith("GPU preview failed:", StringComparison.Ordinal))
+            {
+                _transport.Pause();
+            }
         };
-        zoom.PropertyChanged += (_, e) => { if (e.Property == Slider.ValueProperty) { _viewport.SetZoom(zoom.Value); } };
+        _zoom.PropertyChanged += (_, e) => { if (e.Property == Slider.ValueProperty) { _viewport.SetZoom(_zoom.Value); } };
+        Button fit = new()
+        {
+            Content = "Reset view",
+            Name = "ResetPreviewView"
+        };
+        DockPanel.SetDock(fit, Dock.Right);
+        fit.Click += (_, _) => _zoom.Value = 1;
         Grid preview = new()
         {
             RowDefinitions = new RowDefinitions("*,Auto,Auto,Auto"),
             RowSpacing = 6
         };
         preview.Children.Add(_viewport);
-        preview.Children.Add(new StackPanel { Spacing = 4, Children = { _zoomLabel, zoom }, [RowProperty] = 1 });
+        preview.Children.Add(new StackPanel { Spacing = 4, Children = { new DockPanel { Children = { fit, _zoomLabel } }, _zoom }, [RowProperty] = 1 });
         SetRow(_transport, 2);
         preview.Children.Add(_transport);
         SetRow(status, 3);
@@ -82,7 +90,9 @@ internal sealed class AssetPreview : Grid, IDisposable
 
     public void Load(ImmutableArray<ViewportSprite> frames, SpriteAnimation? animation)
     {
+        _zoom.Value = 1;
         _modelActive = false;
+        IsWorldModelActive = false;
         _zoomLabel.Text = "Zoom (1 = fit)";
         TextureData texture = frames[0].Texture;
         WriteableBitmap bitmap = new(new PixelSize(texture.Width, texture.Height), new Vector(96, 96), PixelFormat.Rgba8888, AlphaFormat.Unpremul);
@@ -142,6 +152,7 @@ internal sealed class AssetPreview : Grid, IDisposable
 
     public void Clear()
     {
+        _zoom.Value = 1;
         _transport.Load(null);
         _modelActive = false;
         IsWorldModelActive = false;

@@ -126,6 +126,10 @@ internal sealed class StudioViewport : OpenGlControlBase
             throw new ArgumentOutOfRangeException(nameof(frame));
         }
         _modelFrame = frame;
+        if (_needsRendererReset)
+        {
+            _failed = false;
+        }
         RequestNextFrameRendering();
     }
 

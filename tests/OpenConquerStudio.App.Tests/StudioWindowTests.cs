@@ -11,12 +11,115 @@ using OpenConquerStudio.Tests;
 
 namespace OpenConquerStudio.App.Tests;
 
-public sealed class StudioWindowTests
+public sealed partial class StudioWindowTests
 {
     private static readonly Lazy<HeadlessUnitTestSession> s_session = new(() => HeadlessUnitTestSession.StartNew(typeof(StudioWindowTests)));
 
     public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<StudioApp>()
         .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).UseSkia();
+
+    [Fact]
+    public Task SaveCommitsVisibleFieldsWithoutAnApplyClick() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        directory.CreateSavedTexture();
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Project, token));
+            Find<ListBox>(window, "AssetBrowser").SelectedIndex = 0;
+            await window.PendingOperation;
+            Find<TextBox>(window, "AssetName").Text = "Saved directly";
+            Find<TextBox>(window, "ProjectName").Text = "Renamed game";
+            Assert.StartsWith("* ", window.Title);
+            Find<CheckBox>(window, "FlipHorizontal").IsChecked = true;
+            window.GetLogicalDescendants().OfType<Button>().Single(b => Equals(b.Content, "Save")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.DoesNotContain("* ", window.Title);
+        }
+        finally { window.Close(); }
+        using StudioProject project = StudioProject.Open(directory.Project);
+        Assert.Equal("Renamed game", project.Document.Name);
+        Assert.Equal("Saved directly", Assert.Single(project.Document.Assets).Name);
+        Assert.True(project.Document.Assets[0].FlipHorizontal);
+    }, TestContext.Current.CancellationToken);
+
+    [Fact]
+    public Task SourceTabCannotLeaveAnAuthoredInspectorActive() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        directory.CreateSavedTexture();
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Project, token));
+            Find<ListBox>(window, "AssetBrowser").SelectedIndex = 0;
+            await window.PendingOperation;
+            Assert.True(Find<TextBox>(window, "AssetName").IsEffectivelyVisible);
+            Find<TabControl>(window, "ProjectContentTabs").SelectedIndex = 1;
+            await window.PendingOperation;
+            Assert.False(Find<TextBox>(window, "AssetName").IsEffectivelyVisible);
+            Find<TabControl>(window, "ProjectContentTabs").SelectedIndex = 0;
+            await window.PendingOperation;
+            Assert.True(Find<TextBox>(window, "AssetName").IsEffectivelyVisible);
+        }
+        finally { window.Close(); }
+    }, TestContext.Current.CancellationToken);
+
+    [Fact]
+    public Task InvalidDraftSurvivesSaveAndSelectionFailure() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        using (StudioProject project = StudioProject.Create(directory.Project, "Game"))
+        {
+            project.CreateTexture("First", 1, 1, 1, 2, 3);
+            project.CreateTexture("Second", 1, 1, 4, 5, 6);
+            project.Save();
+        }
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Project, token));
+            ListBox browser = Find<ListBox>(window, "AssetBrowser");
+            browser.SelectedIndex = 0;
+            await window.PendingOperation;
+            Guid original = Assert.IsType<ResourceInfo>(browser.SelectedItem).Id;
+            Find<TextBox>(window, "AssetName").Text = "";
+            byte[] index = File.ReadAllBytes(directory.Manifest);
+            window.GetLogicalDescendants().OfType<Button>().Single(b => Equals(b.Content, "Save")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.Equal(index, File.ReadAllBytes(directory.Manifest));
+            Assert.Equal("", Find<TextBox>(window, "AssetName").Text);
+            browser.SelectedIndex = 1;
+            await window.PendingOperation;
+            Assert.Equal(original, Assert.IsType<ResourceInfo>(browser.SelectedItem).Id);
+            Assert.Equal("", Find<TextBox>(window, "AssetName").Text);
+            Find<TextBox>(window, "AssetName").Text = window.Project.Document.Assets.Single(a => a.Id == original).Name;
+        }
+        finally { window.Close(); }
+    }, TestContext.Current.CancellationToken);
+
+    [Fact]
+    public Task OpeningTheActiveProjectKeepsItsSession() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        directory.CreateSavedTexture();
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Project, token));
+            StudioProject original = window.Project;
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            Assert.Same(original, window.Project);
+            Assert.DoesNotContain("in use", Find<TextBox>(window, "Diagnostics").Text, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("Already open", Find<TextBox>(window, "Diagnostics").Text);
+        }
+        finally { window.Close(); }
+    }, TestContext.Current.CancellationToken);
 
     [Fact]
     public Task ModelInspectorEditsPlaybackAndPersistsSourceData() => s_session.Value.Dispatch(async () =>
@@ -164,8 +267,8 @@ public sealed class StudioWindowTests
         StudioWindow window = new();
         window.Show();
         await window.ExecuteAsync(token => window.LoadProject(directory.Project, token));
-        Button catalog = window.GetLogicalDescendants().OfType<Button>().Single(b => Equals(b.Content, "Client artwork"));
-        catalog.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        MenuItem catalog = window.GetLogicalDescendants().OfType<MenuItem>().Single(b => Equals(b.Header, "Client artwork"));
+        catalog.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
         Window dialog = Assert.Single(window.OwnedWindows);
         ListBox list = Assert.Single(dialog.GetLogicalDescendants().OfType<ListBox>());
         Assert.Equal(8, list.Items.Count);
@@ -243,8 +346,14 @@ public sealed class StudioWindowTests
         window.Show();
         async Task Click(string content)
         {
-            window.GetLogicalDescendants().OfType<Button>().Single(b => Equals(b.Content, content))
-                .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            if (content is "New atlas" or "New animation")
+            {
+                window.GetLogicalDescendants().OfType<MenuItem>().Single(b => Equals(b.Header, content)).RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            }
+            else
+            {
+                window.GetLogicalDescendants().OfType<Button>().Single(b => Equals(b.Content, content)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            }
             await window.PendingOperation;
         }
 
