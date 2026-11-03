@@ -127,7 +127,8 @@ public sealed class SpriteWorkflowTests
     public void SourceReimportPreservesResourceGraphAndSavedStateWhenUnchanged()
     {
         using ProjectDirectory directory = new();
-        using StudioProject project = StudioProject.Create(directory.Project, "Game");
+        using (StudioProject project = StudioProject.Create(directory.Project, "Game"))
+        {
         byte[] pixels = [10, 20, 30, 255, 40, 50, 60, 255];
         TextureData originalPixels = new(2, 1, pixels);
         string originalDigest = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(pixels));
@@ -175,14 +176,13 @@ public sealed class SpriteWorkflowTests
         Assert.Equal(pixels, project.Preview(texture).Pixels.ToArray());
         project.Redo();
         project.Save(TestContext.Current.CancellationToken);
-
-        using (StudioProject reopened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken))
-        {
-            Assert.Equal(texture, Assert.Single(reopened.Document.Assets).Id);
-            Assert.Equal(replacementDigest, reopened.Document.Assets[0].SourceDigest);
-            Assert.Equal("images/item", reopened.Document.Assets[0].SourceKey);
-            Assert.Equal(replacementPixels, reopened.Preview(texture).Pixels.ToArray());
         }
+
+        using StudioProject reopened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken);
+        Assert.Equal(texture, Assert.Single(reopened.Document.Assets).Id);
+        Assert.Equal(replacementDigest, reopened.Document.Assets[0].SourceDigest);
+        Assert.Equal("images/item", reopened.Document.Assets[0].SourceKey);
+        Assert.Equal(replacementPixels, reopened.Preview(texture).Pixels.ToArray());
     }
 
     [Fact]
