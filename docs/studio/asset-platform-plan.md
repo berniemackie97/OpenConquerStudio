@@ -12,10 +12,10 @@ respective projects. Shared codecs and rendering mechanisms belong to their
 current owners; the desktop is not a runtime dependency. See the
 [product roadmap](../product/roadmap.md) for acceptance gates.
 
-The executable foundation
-currently implements texture, atlas, and sprite-animation projects. The asset families, editors, and production gates
-below define subsequent implementation work; their presence in this plan does not make
-them supported by the current application.
+The executable foundation implements textures, atlases, sprite animation, selected mesh
+workflows and bounded terrain-cell authoring. Terrain currently saves immutable cell
+revisions but does not build client/server world artifacts or render authored worlds.
+The remaining asset families, editors and production gates below are not yet implemented.
 
 OpenConquerStudio owns its authoring documents, content build orchestration, resource codecs,
 import adapters and workspace. OpenConquerClient is the first target. A target adapter defines
