@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Themes.Fluent;
 using Avalonia.Threading;
+using OpenConquer.Content.Mesh;
 using OpenConquer.Rendering.Presentation;
 using OpenConquer.Rendering.World;
 using OpenConquerStudio.Authoring;
@@ -48,6 +49,7 @@ internal static class Program
                 ClientProjectConnection connection = ClientProjectConnection.Attach(project, repository,
                     Path.Combine(repository, "content", "retail-5517", "payload"));
                 project.ImportAnimation("Action states", connection.ReadAnimation("ani/control.ani", "Action_Act0Btn"), 100);
+                project.ImportModel("Body 2 with linked hair", CharacterImporter.Read(connection.Source, 2, 335));
                 project.Save();
                 Directory.CreateDirectory(Path.Combine(root, "Builds"));
                 StudioCompiler.Compile(project, Path.Combine(root, "Builds", "verified"));
@@ -58,6 +60,7 @@ internal static class Program
             }
 
             RenderCheckApp.Package = ContentPackage.Load(Path.Combine(root, "Builds", "verified"));
+            RenderCheckApp.Character = C3ModelPreview.Create(RenderCheckApp.Package.Models.Values.Single(), 0);
             return DesktopGraphics.Configure(AppBuilder.Configure<RenderCheckApp>(), allowSoftwareGpu: true).LogToTrace().StartWithClassicDesktopLifetime([]);
         }
         finally
@@ -72,6 +75,7 @@ public sealed class RenderCheckApp : Application
     internal static ContentPackage Package { get; set; } = null!;
     internal static ClientProjectConnection Connection { get; set; } = null!;
     internal static WorldMapScene Map { get; set; } = null!;
+    internal static C3ModelPreview Character { get; set; } = null!;
 
     public override void Initialize() => Styles.Add(new FluentTheme());
 
@@ -125,7 +129,43 @@ public sealed class RenderCheckApp : Application
                     await LoadMap(replacement);
                     var recreated = await replacement.CaptureNextFrame().WaitAsync(TimeSpan.FromSeconds(20));
                     RequireMapPixels(recreated.Pixels);
-                    Console.WriteLine("PASS: actual Control.ani frames imported, compiled, loaded, and rendered; actual map 1010 puzzles/terrain rendered; camera, resize, and context recreation validated.");
+                    replacement.SetModel(Character);
+                    var modelFirst = await replacement.CaptureNextFrame().WaitAsync(TimeSpan.FromSeconds(20));
+                    RequireMapPixels(modelFirst.Pixels);
+                    replacement.SetModelFrame(4);
+                    var modelNext = await replacement.CaptureNextFrame().WaitAsync(TimeSpan.FromSeconds(10));
+                    if (modelFirst.Pixels.AsSpan().SequenceEqual(modelNext.Pixels))
+                    {
+                        throw new InvalidDataException("Actual C3 idle playback did not change the framebuffer.");
+                    }
+                    replacement.SetModelView(true, 0);
+                    var modelBones = await replacement.CaptureNextFrame().WaitAsync(TimeSpan.FromSeconds(10));
+                    if (modelNext.Pixels.AsSpan().SequenceEqual(modelBones.Pixels))
+                    {
+                        throw new InvalidDataException("Native matrix-channel origins did not appear in the framebuffer.");
+                    }
+                    StudioViewport modelRecreated = new();
+                    window.Content = modelRecreated;
+                    modelRecreated.SetModel(Character);
+                    var modelAfterContext = await modelRecreated.CaptureNextFrame().WaitAsync(TimeSpan.FromSeconds(20));
+                    RequireMapPixels(modelAfterContext.Pixels);
+                    StudioViewport worldModel = new();
+                    window.Content = worldModel;
+                    await LoadMap(worldModel);
+                    var withoutActor = await worldModel.CaptureNextFrame().WaitAsync(TimeSpan.FromSeconds(20));
+                    worldModel.SetWorldModel(Character);
+                    var actorOnMap = await worldModel.CaptureNextFrame().WaitAsync(TimeSpan.FromSeconds(20));
+                    if (withoutActor.Pixels.AsSpan().SequenceEqual(actorOnMap.Pixels))
+                    {
+                        throw new InvalidDataException("The character did not appear in the source map framebuffer.");
+                    }
+                    worldModel.SetModelFrame(4);
+                    var animatedOnMap = await worldModel.CaptureNextFrame().WaitAsync(TimeSpan.FromSeconds(10));
+                    if (actorOnMap.Pixels.AsSpan().SequenceEqual(animatedOnMap.Pixels))
+                    {
+                        throw new InvalidDataException("The character did not animate inside the source map.");
+                    }
+                    Console.WriteLine("PASS: actual Control.ani and map 1010; compiled C3 body/hair, standalone and map animation, bone origins, resize and context recreation validated.");
                     desktop.Shutdown(0);
                 }
                 catch (Exception error)

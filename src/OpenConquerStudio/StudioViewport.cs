@@ -6,6 +6,7 @@ using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using Avalonia.Threading;
 using OpenConquer.Content;
+using OpenConquer.Content.Mesh;
 using OpenConquer.Rendering.OpenGL;
 using OpenConquer.Rendering.OpenGL.Resources;
 using OpenConquer.Rendering.Presentation;
@@ -29,6 +30,7 @@ internal sealed class StudioViewport : OpenGlControlBase
     private OpenGLRenderer? _renderer;
     private GL? _gl;
     private bool _resetTextures;
+    private bool _resetModel;
     private bool _failed;
     private int _frameIndex;
     private double _zoom = 1;
@@ -38,6 +40,11 @@ internal sealed class StudioViewport : OpenGlControlBase
     private int _logicalWidth = 512;
     private bool _needsRendererReset;
     private bool _mapReady;
+    private C3ModelPreview? _model;
+    private C3ModelPreviewRenderer? _modelRenderer;
+    private int _modelFrame;
+    private float _modelRotation;
+    private bool _showBones;
 
     public StudioViewport()
     {
@@ -59,6 +66,7 @@ internal sealed class StudioViewport : OpenGlControlBase
     public void SetFrames(ImmutableArray<ViewportSprite> frames)
     {
         Dispatcher.UIThread.VerifyAccess();
+        _model = null;
         _frames = frames;
         _map = null;
         _mapSource = null;
@@ -74,6 +82,7 @@ internal sealed class StudioViewport : OpenGlControlBase
     public void SetMap(WorldMapScene scene, IClientContentSource source)
     {
         Dispatcher.UIThread.VerifyAccess();
+        _model = null;
         _frames = [];
         _map = scene;
         scene.SetZoomPercent((int)Math.Round(_zoom * 100));
@@ -84,6 +93,47 @@ internal sealed class StudioViewport : OpenGlControlBase
         {
             _failed = false;
         }
+        RequestNextFrameRendering();
+    }
+
+    public void SetModel(C3ModelPreview model)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        SetFrames([]);
+        _model = model;
+        _modelFrame = 0;
+        RequestNextFrameRendering();
+    }
+
+    public void SetWorldModel(C3ModelPreview model)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        if (_map is null)
+        {
+            throw new InvalidOperationException("Load a source map before previewing a character in it.");
+        }
+        _model = model;
+        _modelFrame = 0;
+        _resetModel = true;
+        RequestNextFrameRendering();
+    }
+
+    public void SetModelFrame(int frame)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        if (_model is null || frame < 0 || frame >= _model.FrameCount)
+        {
+            throw new ArgumentOutOfRangeException(nameof(frame));
+        }
+        _modelFrame = frame;
+        RequestNextFrameRendering();
+    }
+
+    public void SetModelView(bool bones, float rotation)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        _showBones = bones;
+        _modelRotation = rotation;
         RequestNextFrameRendering();
     }
 
@@ -151,6 +201,12 @@ internal sealed class StudioViewport : OpenGlControlBase
 
         try
         {
+            if (_resetModel || _resetTextures)
+            {
+                _modelRenderer?.Dispose();
+                _modelRenderer = _model is null ? null : new C3ModelPreviewRenderer(_device, _model);
+                _resetModel = false;
+            }
             if (_resetTextures)
             {
                 _mapTextures?.Dispose();
@@ -179,9 +235,14 @@ internal sealed class StudioViewport : OpenGlControlBase
             _renderer.BeginFrame();
             if (_map is not null && _mapTextures is not null)
             {
-                if (_map.Prepare(_mapTextures, 1024, 768, unchecked((uint)Environment.TickCount), textureBudget: 4))
+                bool ready = _map.Prepare(_mapTextures, 1024, 768, unchecked((uint)Environment.TickCount), textureBudget: 4);
+                if (ready)
                 {
-                    _map.Draw(_mapTextures, _renderer);
+                    _map.Draw(_mapTextures, _renderer, _modelRenderer is null ? null : renderer =>
+                    {
+                        var matrices = _map.HeroMatrices;
+                        _modelRenderer.DrawInWorld(renderer, _modelFrame, matrices.Main, matrices.Shadow);
+                    });
                     if (!_mapReady)
                     {
                         _mapReady = true;
@@ -190,7 +251,10 @@ internal sealed class StudioViewport : OpenGlControlBase
                 }
 
                 _renderer.EndFrame((uint)fb);
-                CaptureIfRequested(width, height);
+                if (ready)
+                {
+                    CaptureIfRequested(width, height);
+                }
                 RequestNextFrameRendering();
                 return;
             }
@@ -203,6 +267,10 @@ internal sealed class StudioViewport : OpenGlControlBase
                 }
             }
 
+            if (_modelRenderer is not null)
+            {
+                _modelRenderer.Draw(_renderer, _modelFrame, (float)_zoom, _modelRotation, _showBones);
+            }
             if (CurrentSprite is { } sprite)
             {
                 if (!_textures.TryGetValue(sprite.TextureId, out OpenGLTexture2D? texture))
@@ -293,6 +361,7 @@ internal sealed class StudioViewport : OpenGlControlBase
                 texture.Dispose();
             }
 
+            _modelRenderer?.Dispose();
             _mapTextures?.Dispose();
 
             _renderer?.Dispose();
@@ -317,6 +386,8 @@ internal sealed class StudioViewport : OpenGlControlBase
         _capture?.TrySetException(new InvalidOperationException("The viewport graphics context closed."));
         _capture = null;
         _textures.Clear();
+        _modelRenderer = null;
+        _resetTextures = true;
         _mapTextures = null;
         _renderer = null;
         _device = null;

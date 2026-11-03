@@ -66,6 +66,40 @@ try
             }
 
             break;
+        case ["import-c3", string root, string path, string name]:
+            using (StudioProject project = StudioProject.Open(root, cancellation.Token))
+            {
+                Guid id = project.ImportModelFile(path, name, cancellation.Token);
+                project.Save(cancellation.Token);
+                Console.WriteLine(id);
+            }
+            break;
+        case ["import-character", string root, string repository, string appearance, string hair]:
+            using (StudioProject project = StudioProject.Open(root, cancellation.Token))
+            {
+                ClientProjectConnection connection = ClientProjectConnection.OpenAttached(root) ?? ClientProjectConnection.Attach(project,
+                    repository, Path.Combine(repository, "content", "retail-5517", "payload"), cancellation.Token);
+                var model = CharacterImporter.Read(connection.Source, uint.Parse(appearance, CultureInfo.InvariantCulture),
+                    uint.Parse(hair, CultureInfo.InvariantCulture), cancellation.Token);
+                Guid id = project.ImportModel("Character " + appearance, model);
+                project.Save(cancellation.Token);
+                Console.WriteLine(id);
+            }
+            break;
+        case ["model-clip", string root, string id, string name, string clip, string milliseconds, string repeat]:
+            using (StudioProject project = StudioProject.Open(root, cancellation.Token))
+            {
+                project.EditModel(Guid.Parse(id), name, Number(clip), Number(milliseconds), bool.Parse(repeat));
+                project.Save(cancellation.Token);
+            }
+            break;
+        case ["add-model-motion", string root, string id, string name, string path]:
+            using (StudioProject project = StudioProject.Open(root, cancellation.Token))
+            {
+                project.AddModelMotion(Guid.Parse(id), name, path, cancellation.Token);
+                project.Save(cancellation.Token);
+            }
+            break;
         case ["inspect-client-map", string root, string mapId]:
             using (StudioProject project = StudioProject.Open(root, cancellation.Token))
             {
@@ -235,18 +269,19 @@ try
             using (StudioProject project = StudioProject.Open(root, cancellation.Token))
             {
                 ContentBuild build = StudioCompiler.Compile(project, destination, cancellation.Token);
-                Console.WriteLine($"Compiled and validated {build.Textures.Length} textures and {build.Resources.Length} sprite resources.");
+                Console.WriteLine($"Compiled and validated {build.Textures.Length} textures and {build.Resources.Length} resources.");
             }
 
             break;
         case ["verify", string directory]:
             ContentBuild verified = StudioCompiler.Validate(directory, cancellation.Token);
-            Console.WriteLine($"Validated {verified.Textures.Length} textures and {verified.Resources.Length} sprite resources for project {verified.ProjectId}.");
+            Console.WriteLine($"Validated {verified.Textures.Length} textures and {verified.Resources.Length} resources for project {verified.ProjectId}.");
             break;
         default:
             Console.Error.WriteLine("Usage:\n  create <empty-directory> <name>\n  list-artwork\n  import-artwork <project-directory> <artwork-key>\n  import <project-directory> <source.tga|source.dds> <name>\n  new-texture <project-directory> <name> <width> <height> <red> <green> <blue>\n  edit <project-directory> <asset-id> <name> <flip-horizontal:true|false> <clockwise-quarter-turns:0..3>\n  replace <project-directory> <asset-id> <source.tga|source.dds>\n  build <project-directory> <new-output-directory>\n  verify <output-directory>");
             Console.Error.WriteLine("  migrate <source-project> <empty-destination>\n  list <project>\n  new-atlas <project> <texture-id> <name>\n  sprite <project> <atlas-id> <sprite-id|new> <name> <x> <y> <width> <height> <pivot-x> <pivot-y>\n  new-animation <project> <atlas-id> <name> <ticks-per-second> <frame-duration>\n  clip <project> <animation-id> <name> <ticks-per-second> <repeat:true|false>\n  frame <project> <animation-id> <frame-id|new> <atlas-id> <sprite-id> <duration> <zero-based-position>\n  delete <project> <resource-id>");
             Console.Error.WriteLine("  connect-client <repository>\n  client-assets <project> <all|map|animation|texture|puzzle> <filter>\n  import-client-image <project> <virtual-path>\n  import-client-animation <project> <ani-path> <section> <frame-milliseconds>\n  inspect-client-map <project> <map-data-id>");
+            Console.Error.WriteLine("  import-c3 <project> <mesh.c3> <name>\n  import-character <project> <client-repository> <body-appearance> <hair-style>\n  model-clip <project> <id> <name> <zero-based-clip> <milliseconds> <repeat>\n  add-model-motion <project> <id> <name> <motion.c3>");
             return 2;
     }
 

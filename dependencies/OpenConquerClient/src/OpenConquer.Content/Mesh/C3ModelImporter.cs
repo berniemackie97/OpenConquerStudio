@@ -3,12 +3,16 @@ namespace OpenConquer.Content.Mesh;
 /// <summary>Captures the currently supported native body/idle composition without rewriting its source records.</summary>
 public static class C3ModelImporter
 {
-    public static C3ModelData Character(IClientContentSource source, Guid id, uint packedAppearance, CancellationToken token = default)
+    public static C3ModelData Character(IClientContentSource source, Guid id, uint packedAppearance, CancellationToken token = default) =>
+        Character(source, id, packedAppearance, 0, token);
+
+    public static C3ModelData Character(IClientContentSource source, Guid id, uint packedAppearance, uint bodyModelId, CancellationToken token = default)
     {
         ArgumentNullException.ThrowIfNull(source);
         C3RoleCatalog catalog = C3RoleCatalog.Load(source);
         uint body = packedAppearance % 1000;
-        if (!catalog.TryResolve("body", checked(body * 1_000_000), out IReadOnlyList<C3ResolvedPart> parts))
+        uint selectedBody = bodyModelId == 0 ? checked(body * 1_000_000) : bodyModelId;
+        if (!catalog.TryResolve("body", selectedBody, out IReadOnlyList<C3ResolvedPart> parts))
         {
             throw new InvalidDataException("The body is absent from the role catalog.");
         }
@@ -59,7 +63,7 @@ public static class C3ModelImporter
             Capture(motion, ContentLookupMode.PackageOnly);
             clips.Add(new C3ModelClip("Idle", C3ModelData.NormalizePath(motion), 66, true));
         }
-        C3ModelData model = C3ModelData.Create(id, parts, clips, catalog.VirtualMeshNames, files);
+        C3ModelData model = C3ModelData.Create(id, parts, clips, catalog.VirtualMeshNames, files, characterSource: new C3CharacterSource(packedAppearance, 0, selectedBody, 0));
         for (int part = 0; part < parts.Count; part++)
         {
             _ = model.DecodePart(part, clips.Count == 0 ? -1 : 0);

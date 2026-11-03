@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using OpenConquer.Content.Map;
+using OpenConquer.Content.Mesh;
 using OpenConquer.Rendering.World;
 using OpenConquerStudio.Authoring;
 using OpenConquerStudio.ConquerImport;
@@ -73,13 +74,40 @@ internal sealed class ClientWorkspace
         }
     }
 
-    private Task PreviewAsset(ClientAssetEntry entry, string? section, int duration) => _owner.ExecuteAsync(async token =>
+    public void PreviewOnMap(C3ModelPreview model)
     {
+        if (_sourceMap is null || _connection is null)
+        {
+            throw new InvalidOperationException("Open a map in Client content first, then select the authored character.");
+        }
+        _preview.LoadMap(_sourceMap, _connection.Source, model);
+        _owner.Diagnostic = "Character preview uses the map's native camera, scenery depth order and geometric shadow. Placement is a preview, not a saved map edit.";
+    }
+
+    private Task PreviewAsset(ClientAssetEntry entry, ClientAssetOptions options) => _owner.ExecuteAsync(async token =>
+    {
+        string? section = options.Section;
+        int duration = options.FrameMilliseconds;
         ClientProjectConnection connection = _connection ?? throw new InvalidOperationException("Open a client project first.");
         _sourceMap = null;
         _preview.Clear();
         _clientContent.Describe(entry.Path);
         _owner.ShowSourceInspector();
+        if (entry.Kind is "model" or "character")
+        {
+            C3ModelPreview model = await Task.Run(() =>
+            {
+                C3ModelData data = entry.Kind == "character" ? CharacterImporter.Read(connection.Source, entry.Appearance!.Value, options.HairStyle, options.BodyModelId, options.ArmetModelId, token)
+                    : connection.ReadModel(entry.Path, token);
+                return C3ModelPreview.Create(data, data.Definition.Clips.IsEmpty ? -1 : 0);
+            }, token);
+            _preview.LoadModel(model);
+            string details = $"{entry.Path} · {model.Parts.Length} part(s) · {model.FrameCount} frames\n" +
+                $"{model.Parts.Sum(p => p.Tracks.Length)} native matrix tracks. Import to edit/save clip settings and inspect bones.";
+            _clientContent.Describe(details);
+            _owner.Diagnostic = details;
+            return;
+        }
         if (entry.Kind is not ("map" or "puzzle" or "animation" or "texture"))
         {
             string details = await Task.Run(() => connection.DescribeSource(entry), token);
@@ -98,7 +126,7 @@ internal sealed class ClientWorkspace
             int omitted = map.Scene.PositionedOverlays.Sum(group => group.Entries.OfType<GameMapAnimatedOverlayEntry>().Count());
             _clientContent.Describe(details);
             _preview.LoadMap(_sourceMap, connection.Source);
-            _owner.Diagnostic = details + $"\nSource map preview uses the client's shared puzzle/terrain renderer. {omitted} positioned animated overlays are not rendered by that implementation. Map editing and character rendering are not implemented.";
+            _owner.Diagnostic = details + $"\nSource map preview uses the client's shared puzzle/terrain renderer. {omitted} positioned animated overlays are not rendered by that implementation. Map editing is not implemented. Character assets can be previewed separately from the character catalog.";
             return;
         }
 
@@ -141,11 +169,20 @@ internal sealed class ClientWorkspace
         _owner.Diagnostic = "Previewing actual client source content. Import an editable copy to save and compile changes.";
     });
 
-    private Task ImportAsset(ClientAssetEntry entry, string? section, int duration, bool replace) => _owner.ExecuteAsync(async token =>
+    private Task ImportAsset(ClientAssetEntry entry, ClientAssetOptions options, bool replace) => _owner.ExecuteAsync(async token =>
     {
+        string? section = options.Section;
+        int duration = options.FrameMilliseconds;
         ClientProjectConnection connection = _connection ?? throw new InvalidOperationException("Open a client project first.");
         Guid id;
-        if (entry.Kind == "animation")
+        if (entry.Kind is "model" or "character")
+        {
+            C3ModelData model = await Task.Run(() => entry.Kind == "character"
+                ? CharacterImporter.Read(connection.Source, entry.Appearance!.Value, options.HairStyle, options.BodyModelId, options.ArmetModelId, token)
+                : connection.ReadModel(entry.Path, token), token);
+            id = await Task.Run(() => _owner.Project.ImportModel(entry.Path, model), token);
+        }
+        else if (entry.Kind == "animation")
         {
             if (section is null)
             {

@@ -8,7 +8,7 @@ using OpenConquerStudio.Runtime;
 
 namespace OpenConquerStudio.ConquerImport;
 
-public sealed record ClientAssetEntry(string Kind, string Path, uint? MapDataId = null, bool Available = true)
+public sealed record ClientAssetEntry(string Kind, string Path, uint? MapDataId = null, bool Available = true, uint? Appearance = null)
 {
     public override string ToString() => MapDataId is uint id ? $"Map {id}: {Path}{(Available ? "" : " (source missing)")}" : Path;
 }
@@ -127,6 +127,15 @@ public sealed class ClientProjectConnection
             entries.Add(new ClientAssetEntry("map", map!.Path, id, _loose.TryResolveFile(map.Path, out _)));
         }
 
+        if (Source.TryOpenRead("ini/c3.wdb", ContentLookupMode.LooseOnly, out Stream? catalogProbe))
+        {
+            catalogProbe.Dispose();
+            for (uint body = 1; body <= 4; body++)
+            {
+                entries.Add(new ClientAssetEntry("character", $"Character body {body}", Appearance: body));
+            }
+        }
+
         Stack<(string Directory, int Depth)> pending = new();
         pending.Push((ContentRoot, 0));
         int count = 0;
@@ -165,6 +174,14 @@ public sealed class ClientProjectConnection
         }
 
         return [.. entries.OrderBy(a => a.Kind, StringComparer.Ordinal).ThenBy(a => a.Path, StringComparer.Ordinal).ThenBy(a => a.MapDataId)];
+    }
+
+    public OpenConquer.Content.Mesh.C3ModelData ReadModel(string path, CancellationToken token = default)
+    {
+        token.ThrowIfCancellationRequested();
+        byte[] bytes = ContentReader.ReadRequiredBytes(Source, path, ContentLookupMode.LooseThenPackage,
+            OpenConquer.Content.Mesh.C3MeshFile.MaximumFileBytes);
+        return OpenConquer.Content.Mesh.C3ModelImporter.File(Guid.NewGuid(), path, bytes);
     }
 
     public ImmutableArray<string> AnimationSections(string path) => [.. AniIndexFile.Load(Source, path, ContentLookupMode.LooseThenPackage).Sections.Select(s => s.Name)];

@@ -23,8 +23,19 @@ The Client and Launcher applications are not included or built. No server checko
 - **Open project**: choose a directory containing `project.ocstudio`. An explicit directory argument also works: `dotnet run --project src/OpenConquerStudio -- /path/to/game-project`.
 
 The automatic connected workspace remains local and ignored. Use a normal project for team assets.
-Source files are preserved. Map/puzzle inspection and map previews work; map editing and complete
-character authoring are not implemented. Compiled assets do not yet replace client resources automatically.
+Source files are preserved. Map/puzzle inspection and map previews work. Map editing and complete
+character composition remain in development. Compiled assets do not yet replace client resources automatically.
+
+## C3 characters
+
+1. Open your client project with local C3 assets installed. In **Client content**, filter **character** and select a body.
+2. Set hair style if needed; **Preview character**, then **Import editable copy**.
+3. In **Authored**, select the model. Choose a clip, play/scrub it, inspect bone matrix channels, and edit timing/repeat.
+4. **Add C3 motion** attaches a compatible motion file. **Save and build** writes a self-contained `.ocmodel`.
+5. For map context, open a source map, return to the authored model, and choose **Preview on last map**.
+
+Standalone **Import C3** accepts a mesh file. Catalog character import supplies actual textures;
+raw files without texture bindings show untextured geometry. Original files remain unchanged.
 
 [Usage](docs/studio/README.md) · [Asset and map plan](docs/studio/asset-platform-plan.md) ·
 [Ownership and extraction](docs/studio/architecture.md)

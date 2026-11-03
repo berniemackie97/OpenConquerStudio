@@ -1,18 +1,18 @@
-# C3 checkpoint, November 3, 2026
+# C3 authoring checkpoint, November 3, 2026
 
-Client PR [#216](https://github.com/berniemackie97/OpenConquerClient/pull/216) contains the
-Content/Rendering C3 compatibility resource foundation and removes the tracked local content set.
-The Studio source snapshot now matches that PR commit; `source.json` records every included hash.
+The public standalone repository owns the Studio desktop workflow. Client remains unchanged by
+this slice. The Content/Rendering source copies record their original commit plus Studio-owned
+changes in `dependencies/OpenConquerClient/source.json`.
 
-Studio's local authoring/runtime changes add model import, timing edits, revision save/reopen,
-undo/redo, deterministic compilation and compiled model loading APIs. These changes remain local
-to this standalone repository. The existing desktop client connection is unchanged: character
-import controls, bone inspection and animation playback UI are not connected yet.
+Implemented: catalog body/hair import, standalone C3 mesh import, clip timing and repeat edits,
+compatible additional motion import, play/scrub, matrix-channel inspection, standalone/map GPU
+preview, revision save/reopen, undo/redo and deterministic self-contained compilation/loading.
+Original source bytes remain intact. The README contains the normal user workflow.
 
-The resource loader now references Content for model decoding. It still excludes the editor,
-game application, networking and GPU assemblies.
+Native contracts: WORLD-021/022 and `20_notes/Rendering/c3_core_dll/05_phy.md`,
+`12_motion_load_formats.md`, `13_motion_sampling_and_blend.md`, and
+`role3d_dll/12_linked_motion_chain_resolution.md`. No new native finding was made by this slice.
 
-Continue in the Studio repository. Use the existing Content model readers and Rendering preview
-host; do not add another shared assembly. Keep native formats, matrix sampling and linked-part
-semantics tied to `20_notes`. Source retention does not claim full render parity or freeze the
-future native mesh/rig/material authoring schema.
+Remaining: mesh/bone/keyframe editing, complete equipment and role variants, material/key/effect
+playback, map authoring, private asset provisioning and automatic game adoption of compiled builds.
+This checkpoint does not claim final production certification or complete native rendering parity.

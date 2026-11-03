@@ -75,10 +75,44 @@ dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- migra
 7. Save, reopen, and build. The dependency inspector shows resources used and resources affected by changes.
    Deleting a referenced resource is blocked; fix its dependents first.
 
+## C3 models, clips and bone channels
+
+The client connection recognizes supported base body entries when `ini/c3.wdb` is available.
+Select **character** in the browser. Choose body 1–4, optionally set the native hair-style suffix,
+then preview and import. Hair uses the recorded `armet`/`v_armet` link, not an inferred skeleton.
+Missing catalog records fail explicitly. Optional body/headwear catalog-ID overrides select primary
+armor and headwear directly. Weapons, full material/effect playback and all role variants remain incomplete.
+
+Use **Import C3** for a standalone geometry file. A motion-only file belongs in **Add C3 motion**
+on an existing model. Track counts and ordinal bindings must match; no automatic retargeting occurs.
+A C3 file alone does not identify every catalog texture, so raw imports can be untextured.
+
+The model inspector selects embedded pose or an imported clip. Edit milliseconds per frame,
+repeat and the model name with **Apply model edits**. Play/pause, stop and scrub operate on the
+selected clip. Choose a submesh track and bone channel to inspect its full sampled 4×4 matrix.
+**Show bone channel origins** marks channel translations; it does not draw an invented joint hierarchy.
+View rotation and zoom are inspection settings. Bone matrices and vertex geometry are not editable yet.
+
+For world context, open a map in **Client content**, select an authored model, then use
+**Preview on last map**. The source camera tile anchors the preview character. Drawing uses the
+existing map camera, scenery ordering and geometric shadows. This placement is not a saved map edit.
+
+Saved models keep exact original source bytes, material IDs, virtual submesh names, part-local
+matrices, ancestor links, per-part motion bindings and clip timing. Reopen or load a compiled
+build without the original client installation. See [C3 format](c3-assets.md) for supported fields
+and remaining native-rendering boundaries.
+
+CLI equivalents:
+
+```sh
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- import-character my-game /path/to/OpenConquerClient 2 335
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- model-clip my-game MODEL_GUID "Actor" 0 66 true
+```
+
 ## Use with OpenConquerClient or another game
 
 Keep each game's Studio project in its own content directory. Builds contain `.octex`,
-`.ocatlas`, `.ocanim`, and `content.json`. Do not load the editable project from a shipping game.
+`.ocatlas`, `.ocanim`, `.ocmodel`, and `content.json`. Do not load the editable project from a shipping game.
 
 A .NET game references `src/OpenConquerStudio.Runtime/OpenConquerStudio.Runtime.csproj`.
 Use `ContentPackage.Load(buildDirectory)` to validate and load the complete resource graph.
@@ -113,8 +147,7 @@ Hashes check integrity, not publisher authenticity. Signing and publishing remai
 
 Details: [formats and safety](formats.md), [architecture](architecture.md), [audit](audit.md).
 
-The Studio CI matrix builds, tests, and publishes on Windows, macOS, and Linux. Linux also
-checks actual client images and maps through Mesa OpenGL framebuffer readback. Hosted macOS
+The Studio CI matrix builds, tests, and publishes on Windows, macOS, and Linux. Actual image/map/C3 OpenGL gates run locally with a supplied client content set. Source-only CI reports missing integration assets as skipped. Hosted macOS
 provides no GPU interop; run `dotnet run --project tools/OpenConquerStudio.RenderCheck -c Release`
 on a graphics-capable Mac for that separate hardware gate. A skipped hardware gate is not a
 claim of GPU validation on the hosted runner.

@@ -4,6 +4,14 @@ namespace OpenConquerStudio.Authoring;
 
 public sealed partial class StudioProject
 {
+    public Guid ImportModelFile(string path, string name, CancellationToken token = default)
+    {
+        ThrowIfDisposed();
+        byte[] bytes = ProjectFiles.Read(path, C3MeshFile.MaximumFileBytes);
+        token.ThrowIfCancellationRequested();
+        return ImportModel(name, C3ModelImporter.File(Guid.NewGuid(), Path.GetFileName(path), bytes));
+    }
+
     public Guid ImportModel(string name, C3ModelData model)
     {
         ThrowIfDisposed();
@@ -52,7 +60,8 @@ public sealed partial class StudioProject
         Dictionary<string, byte[]> files = model.Definition.Sources.ToDictionary(f => f.Path, f => model.Source(f.Path).ToArray(), StringComparer.Ordinal);
         files[sourcePath] = bytes;
         C3ModelData replacement = C3ModelData.Create(id, model.Definition.Parts,
-            [.. model.Definition.Clips, new C3ModelClip(name, sourcePath, 66, true)], model.Definition.VirtualMeshNames, files);
+            [.. model.Definition.Clips, new C3ModelClip(name, sourcePath, 66, true)
+            { PartMotions = model.Definition.Clips.FirstOrDefault()?.PartMotions ?? [] }], model.Definition.VirtualMeshNames, files, model.Definition.Bindings, model.Definition.CharacterSource);
         for (int part = 0; part < model.Definition.Parts.Length; part++)
         {
             _ = replacement.DecodePart(part, replacement.Definition.Clips.Length - 1);

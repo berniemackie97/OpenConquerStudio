@@ -36,6 +36,21 @@ internal static class StudioDialogs
         return selected[0].TryGetLocalPath() ?? throw new IOException("Select a local filesystem file.");
     }
 
+    public static async Task<string?> PickC3(Window owner, string title)
+    {
+        IReadOnlyList<IStorageFile> selected = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = title,
+            AllowMultiple = false,
+            FileTypeFilter = [new FilePickerFileType("C3 mesh or motion") { Patterns = ["*.c3", "*.C3"] }],
+        });
+        if (selected.Count == 0)
+        {
+            return null;
+        }
+        return selected[0].TryGetLocalPath() ?? throw new IOException("Select a local filesystem file.");
+    }
+
     public static async Task<string> ConfirmChanges(Window owner)
     {
         Window dialog = Dialog("Unsaved changes", 410, 180);
