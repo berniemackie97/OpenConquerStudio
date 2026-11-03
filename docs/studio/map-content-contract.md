@@ -13,7 +13,7 @@ world editing or compiled map outputs. Client and server retain game execution a
 | `.ocbt` v1, magic `OCBT` | Server base-terrain reader, writer and fingerprint | Ground grid plus ordered exit markers for a MapDataId. Cells contain surface, raw passability and signed elevation. Not a full visual map. |
 | `.ocmc` v1, magic `OCMC` | Server collision composer, reader and writer | Ordered sparse static-cell overrides bound to the exact base-terrain fingerprint. Includes the effect of supported scenery composition. Required even when the override list is empty. |
 | Map definitions and transitions | Server-owned, versioned catalogs | World mapId/flags and terrain bindings; resolved or explicitly unresolved portal destinations. Do not infer destinations from visual layers or another world using the same terrain. |
-| `project.ocstudio`, `.ocasset.json`, pixel inputs | Studio Authoring | Current editable texture/atlas/sprite-animation graph. No authored terrain/map resource yet. |
+| `project.ocstudio`, `.ocasset.json`, immutable inputs | Studio Authoring | Editable textures, sprite animation, meshes and bounded terrain-cell revisions. World/scene graphs and paired compiled maps are not yet authored. |
 
 The source inspection used client `78d752c2da39ca8f9f45f64377844efacce42d17` and server
 `a16cae6a2942dc2883131645b766b89e73ae145e`. Server tooling verified all 185 required base
