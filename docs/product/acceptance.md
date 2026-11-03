@@ -1,0 +1,36 @@
+# Product acceptance ledger
+
+Baseline: November 3, 2026. This records the repository's implemented scope and the outstanding gates, not a declaration of production readiness. The authoritative product direction and numbered work items are in [roadmap.md](roadmap.md).
+
+Status definitions: **Implemented** means code exists; **Verified** means the named tests were run; **Accepted** requires the full milestone exit gate. A partially implemented feature can have verified sub-workflows without being accepted as a whole.
+
+| Capability | Current assessment | Existing evidence | Next acceptance gate |
+| --- | --- | --- | --- |
+| Product ownership | Inconsistent documentation | [Architecture](../studio/architecture.md) and [asset plan](../studio/asset-platform-plan.md) describe an earlier content-only boundary | M0.1: align product contract and preserve concrete execution/authority boundaries |
+| Project create/open/save and revision history | Implemented; automated workflows verified | [Usage](../studio/README.md), [project tests](../../tests/OpenConquerStudio.Tests/ProjectWorkflowTests.cs), [PR #8](https://github.com/berniemackie97/OpenConquerStudio/pull/8) | M0.3–M0.4: complete desktop failure/navigation/recovery matrix |
+| Inspector edits, selection and workspace navigation | Implemented with known integration verification gap | [App workflow tests](../../tests/OpenConquerStudio.App.Tests/StudioWorkflowTests.cs), [PR #8](https://github.com/berniemackie97/OpenConquerStudio/pull/8) | M0.4–M0.5: re-audit actual UI interactions on supported systems |
+| Source browsing and previews | Implemented for supported input families | [Client content browser](../../src/OpenConquerStudio/ClientContentPanel.cs), [usage](../studio/README.md) | M0.5: verify selection, stale previews, invalid inputs and missing content |
+| Textures, atlases and sprite animation | Implemented; source/build/runtime tests exist | [Sprite tests](../../tests/OpenConquerStudio.Tests/SpriteWorkflowTests.cs), [runtime](../../src/OpenConquerStudio.Runtime), [format contract](../studio/formats.md) | M1: reimport identity, large libraries and independent target consumption |
+| C3 import, clip timing and preview | Partially implemented; selected workflows verified | [C3 checkpoint](../studio/c3-checkpoint.md), [model tests](../../tests/OpenConquerStudio.Tests/ModelWorkflowTests.cs) | M3: full composition, equipment, rig/action behavior and compiled in-world use |
+| Source map inspection and world preview | Implemented for supported source content; partial fidelity | [Map contract](../studio/map-content-contract.md), [validation record](../studio/validation-2026-11-03.md) | M2: complete source coverage, scrolling/overlays and compiled equivalents |
+| Map/terrain editing | Not implemented | [Map contract](../studio/map-content-contract.md) | M2: new world creation, editing, persistence and paired target builds |
+| Server terrain/collision authoring from Studio | Not implemented | [Map contract](../studio/map-content-contract.md) | M2: consume authoritative server contracts and validate paired outputs |
+| Scene/prefab editing, effects and materials | Not implemented as complete authoring workflows | [Asset requirements](../studio/asset-platform-plan.md) | M4: edit, save, compile and render using real consumers |
+| UI/font/audio authoring | Not implemented as complete authoring workflows | [Asset requirements](../studio/asset-platform-plan.md) | M5: full authored interface and audio in the game |
+| Deterministic project content builds | Implemented for supported assets; broader outputs pending | [Compiler](../../src/OpenConquerStudio.Authoring/StudioCompiler.cs), [formats](../studio/formats.md) | M1/M7: incremental, cross-process, clean-clone and paired-target acceptance |
+| Runtime compiled-asset loading | Implemented for supported asset families; game adoption incomplete | [Runtime](../../src/OpenConquerStudio.Runtime), [architecture](../studio/architecture.md) | M6: actual client/server adoption and standalone authored-scene execution |
+| Signing, distribution and rollback | Existing game-side contracts; no integrated Studio release workflow | [Architecture](../studio/architecture.md), [asset plan](../studio/asset-platform-plan.md) | M7: authenticated build/install/update/repair/rollback |
+| Graphics and desktop certification | Partial hardware and automated evidence | [Validation history](../studio/validation-2026-11-03.md), [render check](../../tools/OpenConquerStudio.RenderCheck), [PR #8](https://github.com/berniemackie97/OpenConquerStudio/pull/8) | M0.6/M8.4: actual interactive Windows/macOS/Linux and GPU context tests |
+| Production performance budgets | Foundation limits documented; workload targets not certified | [Asset limits](../studio/formats.md), [asset plan](../studio/asset-platform-plan.md) | M0.7/M8.3: measured workloads, hardware and budgets |
+
+## Validation history versus release evidence
+
+PR #8 was merged on November 3, 2026. Its recorded CI included Release build and tests on Ubuntu, macOS and Windows, along with dependency and static analysis; the Ubuntu run reported 102 passed and five asset-dependent tests skipped. These runs validate the checked code paths but do not establish interactive graphics or all real-content behaviors.
+
+The [November 3 validation record](../studio/validation-2026-11-03.md) also contains earlier Apple Silicon graphics checks and source-content import evidence. Its older build/test counts are historical checkpoints. Do not reclassify those checks as verification of later changes without rerunning them.
+
+## Required evidence when closing work
+
+Every accepted micro-goal records the relevant PR/commit, supported format features, focused automated tests, clean build/format status, a representative real-content or independent-runtime test where applicable, and an explicit list of remaining limitations. Hardware-specific workflows additionally record the operating system, graphics device, context behavior and test result. Performance gates name the workload, hardware, measurements and thresholds.
+
+No open item is marked complete by this baseline document. The first implementation slice after product alignment is M0.3–M0.5: editing, project lifecycle and preview state in the actual desktop, followed by M0.6's platform-specific acceptance.
