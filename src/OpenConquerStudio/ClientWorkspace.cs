@@ -20,7 +20,7 @@ internal sealed class ClientWorkspace
     {
         _owner = owner;
         _preview = preview;
-        _clientContent = new ClientContentPanel(PreviewAsset, ImportAsset, MoveCamera);
+        _clientContent = new ClientContentPanel(PreviewAsset, ImportAsset, MoveCamera, _owner.ClearSourcePreview);
     }
 
     private void MoveCamera(int x, int y)
@@ -51,8 +51,7 @@ internal sealed class ClientWorkspace
     {
         _connection = null;
         _sourceMap = null;
-        _clientContent.IsVisible = false;
-        _clientContent.Inspector.IsVisible = false;
+        _clientContent.Reset();
     }
 
     public async Task ChangeContentFolder(CancellationToken token)
@@ -84,8 +83,9 @@ internal sealed class ClientWorkspace
         _owner.Diagnostic = "Character preview uses the map's native camera, scenery depth order and geometric shadow. Placement is a preview, not a saved map edit.";
     }
 
-    private Task PreviewAsset(ClientAssetEntry entry, ClientAssetOptions options) => _owner.ExecuteAsync(async token =>
+    private Task PreviewAsset(ClientAssetEntry entry, Func<ClientAssetOptions> readOptions) => _owner.ExecuteAsync(async token =>
     {
+        ClientAssetOptions options = readOptions();
         string? section = options.Section;
         int duration = options.FrameMilliseconds;
         ClientProjectConnection connection = _connection ?? throw new InvalidOperationException("Open a client project first.");
@@ -169,8 +169,9 @@ internal sealed class ClientWorkspace
         _owner.Diagnostic = "Previewing actual client source content. Import an editable copy to save and compile changes.";
     });
 
-    private Task ImportAsset(ClientAssetEntry entry, ClientAssetOptions options, bool replace) => _owner.ExecuteAsync(async token =>
+    private Task ImportAsset(ClientAssetEntry entry, Func<ClientAssetOptions> readOptions, bool replace) => _owner.ExecuteAsync(async token =>
     {
+        ClientAssetOptions options = readOptions();
         string? section = options.Section;
         int duration = options.FrameMilliseconds;
         ClientProjectConnection connection = _connection ?? throw new InvalidOperationException("Open a client project first.");

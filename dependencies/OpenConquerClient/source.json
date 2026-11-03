@@ -2572,7 +2572,7 @@
     },
     {
       "path": "src/OpenConquer.Content/Mesh/C3ModelPreview.cs",
-      "sha256": "aeccb235b7b1dce479d3d7967d5a4a29476773874a284a935384cf0fc643bbeb",
+      "sha256": "b0b5789c815427be1f0c1da2e7e8c1549fdf7e3a2a695b7f88bce5e3f546bb6d",
       "upstreamSha256": "0163221b5f0abb9cc989d83eaf8b6b6e277fa38465da1be19f4fef6447acaab3"
     },
     {
@@ -3053,7 +3053,7 @@
     },
     {
       "path": "src/OpenConquer.Rendering/World/C3ModelPreviewRenderer.cs",
-      "sha256": "6d33eb5973b3fd18f6afe5347bf35117effa54837081c4270090d753d9ad4c1a",
+      "sha256": "33136885c6286774a77440e203e7fddab888ee2f7d323f2fcf78d0a8081950f3",
       "upstreamSha256": "d984b1f2549325f8522dc9b034002536dc8a71cc2e1676a93fb7a1c57d450a45"
     },
     {

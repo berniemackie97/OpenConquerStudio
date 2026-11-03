@@ -6,6 +6,8 @@ using OpenConquer.Content.Mesh;
 namespace OpenConquerStudio;
 
 /// <summary>Edits model playback metadata and inspects the native matrix channels without inventing a skeleton hierarchy.</summary>
+internal sealed record ModelEdit(string Name, int Clip, int Milliseconds, bool Repeat);
+
 internal sealed class ModelEditor : StackPanel
 {
     private readonly TextBox _name = new() { Name = "ModelName" };
@@ -21,6 +23,36 @@ internal sealed class ModelEditor : StackPanel
     private C3ModelTrack[] _allTracks = [];
     private bool _loading;
     private int _frame;
+    private ModelEdit? _loaded;
+    public event Action? PendingChanged;
+    public int ActiveClip => _loaded?.Clip ?? -1;
+    public bool HasPending
+    {
+        get
+        {
+            if (_loaded is null)
+            {
+                return false;
+            }
+            try
+            {
+                return ReadChanges() != _loaded;
+            }
+            catch (InvalidDataException) { return true; }
+        }
+    }
+    public ModelEdit ReadChanges() => new(_name.Text ?? "", _loaded?.Clip ?? -1,
+        _loaded?.Clip >= 0 ? EditorInput.Integer(_milliseconds, "milliseconds per frame") : 66, _loaded?.Clip < 0 || _repeat.IsChecked == true);
+    public void RestoreClipSelection()
+    {
+        _loading = true;
+        try
+        {
+            _clips.SelectedIndex = (_loaded?.Clip ?? -1) + 1;
+        }
+        finally { _loading = false; }
+    }
+    public void AcceptPending() => _loaded = ReadChanges();
 
     public ModelEditor(Func<string, int, int, bool, Task> apply, Func<int, Task> selectClip, Func<Task> addMotion, Action<bool, float> view, Func<Task> previewMap)
     {
@@ -39,6 +71,9 @@ internal sealed class ModelEditor : StackPanel
             Name = "AddModelMotion"
         };
         motion.Click += async (_, _) => await addMotion();
+        _name.TextChanged += (_, _) => Changed();
+        _repeat.IsCheckedChanged += (_, _) => Changed();
+        _milliseconds.PropertyChanged += (_, e) => { if (e.Property == NumericUpDown.TextProperty) { Changed(); } };
         Button map = new()
         {
             Content = "Preview on last map",
@@ -54,7 +89,7 @@ internal sealed class ModelEditor : StackPanel
         foreach (Control control in new Control[]
         {
             new TextBlock { Text = "Model" }, _name, _details,
-            new TextBlock { Text = "Clip (embedded pose uses the model's MOTI data)" }, _clips,
+            new TextBlock { Text = "Animation clip" }, _clips,
             new TextBlock { Text = "Milliseconds per frame" }, _milliseconds, _repeat, save, motion,
             _bones, new TextBlock { Text = "View rotation (degrees)" }, _rotation,
             new TextBlock { Text = "Submesh / matrix track" }, _tracks,
@@ -83,19 +118,29 @@ internal sealed class ModelEditor : StackPanel
             _tracks.SelectedIndex = _allTracks.Length == 0 ? -1 : 0;
             _details.Text = $"{preview.Model.Definition.Parts.Length} part(s), {_allTracks.Length} tracks, {preview.FrameCount} frames\n" +
                 $"{preview.Model.Definition.Sources.Length} preserved source files · {preview.Model.PayloadBytes:N0} bytes\n" +
-                "Full matrix sampling; source files preserved. Material key effects and complete equipment variants remain unsupported.";
+                "Source files preserved. Material effects and full equipment variants remain incomplete.";
             if (preview.Model.Definition.CharacterSource is { } source)
             {
                 _details.Text += $"\nBody catalog ID: {source.BodyModelId} · Headwear: {source.ArmetModelId}";
             }
+            _loaded = new ModelEdit(name, preview.ClipIndex, preview.Clip?.FrameMilliseconds ?? 66, preview.Clip?.Repeat ?? true);
             DescribeTrack();
         }
         finally { _loading = false; }
     }
 
+    private void Changed()
+    {
+        if (!_loading)
+        {
+            PendingChanged?.Invoke();
+        }
+    }
+
     private void DescribeTrack()
     {
         C3ModelTrack? track = _tracks.SelectedIndex < 0 || _tracks.SelectedIndex >= _allTracks.Length ? null : _allTracks[_tracks.SelectedIndex];
+        _bone.IsEnabled = track?.Motion?.BoneCount > 0;
         _bone.Maximum = Math.Max(0, (track?.Motion?.BoneCount ?? 0) - 1L);
         _bone.Value = 0;
         UpdateFrame(_frame);

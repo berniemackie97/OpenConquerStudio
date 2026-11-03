@@ -45,9 +45,10 @@ public sealed partial class StudioProject : IDisposable
         ProjectDocument document = new(ProjectDocument.CurrentVersion, Guid.NewGuid(), name, [], [], []);
         document.Validate();
         root = ProjectFiles.RequireSafePath(root);
-        if (!Directory.Exists(root) || Directory.EnumerateFileSystemEntries(root).Any())
+        Directory.CreateDirectory(root);
+        if (Directory.EnumerateFileSystemEntries(root).Any())
         {
-            throw new IOException("Choose an existing empty directory for the new project.");
+            throw new IOException("Choose an empty directory for the new project.");
         }
 
         FileStream lease = AcquireLease(root);

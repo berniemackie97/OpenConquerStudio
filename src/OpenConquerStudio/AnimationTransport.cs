@@ -110,6 +110,7 @@ internal sealed class AnimationTransport : StackPanel
         Pause();
         _animation = animation;
         _modelFrameCount = 0;
+        _play.IsEnabled = (animation?.Frames.Length ?? 0) > 1;
         IsVisible = animation is not null;
         _position.Maximum = Math.Max(1, (animation?.DurationTicks ?? 1) - 1);
         _position.Value = 0;
@@ -126,6 +127,7 @@ internal sealed class AnimationTransport : StackPanel
         _modelFrameMilliseconds = frameMilliseconds;
         _modelRepeat = repeat;
         IsVisible = true;
+        _play.IsEnabled = frameCount > 1;
         _position.Maximum = DurationTicks - 1;
         _position.Value = 0;
         _label.Text = $"Frame 1/{FrameCount} · 0/{DurationTicks} milliseconds";

@@ -51,7 +51,7 @@ public sealed class C3ModelPreviewRenderer : IDisposable
     public void Draw(OpenGLRenderer renderer, int frame, float zoom, float rotationDegrees, bool showBones)
     {
         Matrix4x4 clip = Matrix4x4.CreateTranslation(-_center) * Matrix4x4.CreateRotationZ(rotationDegrees * MathF.PI / 180f) *
-            Matrix4x4.CreateRotationX(-MathF.PI / 2f) * Matrix4x4.CreateScale(1.8f * zoom / _extent) *
+            Matrix4x4.CreateRotationX(MathF.PI / 2f) * Matrix4x4.CreateScale(1.8f * zoom / _extent) *
             Matrix4x4.CreateScale(1, 1, 0.25f) * Matrix4x4.CreateTranslation(0, 0, 0.5f);
         foreach ((WorldRoleMesh mesh, OpenGLTexture2D texture, int partIndex) in _meshes)
         {

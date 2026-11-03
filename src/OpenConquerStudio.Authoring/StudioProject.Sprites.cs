@@ -113,6 +113,11 @@ public sealed partial class StudioProject
             throw new InvalidDataException("Select an existing atlas to edit.");
         }
 
+        AtlasAsset original = Document.Atlases.Single(a => a.Id == atlas.Id);
+        if (original.Name == atlas.Name && original.TextureId == atlas.TextureId && original.Sprites.SequenceEqual(atlas.Sprites))
+        {
+            return;
+        }
         Apply(Document with
         {
             Atlases = Document.Atlases.Select(a => a.Id == atlas.Id ? atlas : a).ToImmutableArray()
@@ -141,6 +146,11 @@ public sealed partial class StudioProject
             throw new InvalidDataException("Select an existing animation to edit.");
         }
 
+        AnimationAsset original = Document.Animations.Single(a => a.Id == animation.Id);
+        if (original.Name == animation.Name && original.TicksPerSecond == animation.TicksPerSecond && original.Repeat == animation.Repeat && original.Frames.SequenceEqual(animation.Frames))
+        {
+            return;
+        }
         Apply(Document with
         {
             Animations = Document.Animations.Select(a => a.Id == animation.Id ? animation : a).ToImmutableArray()

@@ -11,6 +11,23 @@ public sealed class ProjectWorkflowTests
     private static readonly JsonSerializerOptions s_json = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     [Fact]
+    public void Create_CreatesNamedProjectDirectoryAndReopens()
+    {
+        using ProjectDirectory directory = new();
+        string root = directory.PathFor("Named project");
+        Assert.False(Directory.Exists(root));
+
+        using (StudioProject created = StudioProject.Create(root, "Named project"))
+        {
+            Assert.Equal("Named project", created.Document.Name);
+            Assert.True(File.Exists(Path.Combine(root, "project.ocstudio")));
+        }
+
+        using StudioProject reopened = StudioProject.Open(root, TestContext.Current.CancellationToken);
+        Assert.Equal("Named project", reopened.Document.Name);
+    }
+
+    [Fact]
     public void DisposedSession_RejectsEditingAndCompilation()
     {
         using ProjectDirectory directory = new();
