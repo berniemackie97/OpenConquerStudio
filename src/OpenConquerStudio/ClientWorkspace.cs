@@ -43,6 +43,7 @@ internal sealed class ClientWorkspace
 
     public void Attach(ClientProjectConnection connection, ImmutableArray<ClientAssetEntry> inventory)
     {
+        _sourceMap = null;
         _connection = connection;
         _clientContent.Load(inventory, connection.ContentRoot);
     }
@@ -67,8 +68,13 @@ internal sealed class ClientWorkspace
         {
             ClientProjectConnection connection = await Task.Run(() => ClientProjectConnection.Attach(_owner.Project, repository, source, token), token);
             ImmutableArray<ClientAssetEntry> inventory = await Task.Run(() => connection.Inventory(token), token);
-            _connection = connection;
-            _clientContent.Load(inventory, connection.ContentRoot);
+            bool worldPreview = _preview.IsWorldModelActive;
+            Attach(connection, inventory);
+            if (worldPreview && _owner.SelectedAsset is { Kind: "model" } selected)
+            {
+                _preview.Clear();
+                await _owner.SelectAsset(selected.Id, token);
+            }
             _owner.Diagnostic = $"Connected client content: {connection.ContentRoot}\n{inventory.Length} source entries.";
         }
     }
