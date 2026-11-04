@@ -64,10 +64,11 @@ The current authoring budget is 262,144 cells per project, with width and height
 1–1,024 cells each. This is a foundation safety limit, not a target-world performance budget.
 The `export-base-terrain` command emits the server tool's supported version 1 source JSON:
 `formatVersion`, `mapDataId`, `width`, `height`, ordered `cells` containing `surfaceId`,
-`passabilityFlag`, and `elevation`, followed by `exits: []`. It omits Studio resource
-IDs, display names, absolute paths and timestamps. Export requires a saved project and a
-new destination. Separate processes produce identical output bytes for the same cell data.
-The source export is not a binary writer; exits cannot yet be authored.
+`passabilityFlag`, and `elevation`, followed by ordered `exits` containing signed
+`x`/`y` and unsigned `passwayIndex`. It omits Studio resource IDs (including marker
+GUIDs), display names, absolute paths and timestamps. Export requires a saved project and
+a new destination. Independent processes produce identical bytes for unchanged terrain and
+marker revisions. The source export does not encode portal destination maps.
 
 `build-terrain` invokes an explicitly selected server tool through a bounded external process,
 using one temporary source revision. The server produces and validates `.ocbt` and an empty-override
