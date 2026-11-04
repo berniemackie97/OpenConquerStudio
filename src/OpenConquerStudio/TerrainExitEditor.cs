@@ -112,12 +112,20 @@ internal sealed class TerrainExitEditor : StackPanel
         }
 
         Guid requested = _asset.Exits[_markers.SelectedIndex].Id;
-        if (requested != _activeMarker && await _commitForNavigation())
+        if (requested == _activeMarker)
         {
-            _activeMarker = requested;
-            _markers.SelectedIndex = IndexOf(_asset.Exits, requested);
-            LoadFields();
+            return;
         }
+
+        if (!await _commitForNavigation())
+        {
+            _markers.SelectedIndex = IndexOf(_asset.Exits, _activeMarker);
+            return;
+        }
+
+        _activeMarker = requested;
+        _markers.SelectedIndex = IndexOf(_asset.Exits, requested);
+        LoadFields();
     }
 
     private async Task AddMarker()
