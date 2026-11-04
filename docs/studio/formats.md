@@ -24,7 +24,7 @@ own parent assets. Resource revisions are immutable; edits publish a new revisio
 | `texture` | `id`, `name`, `width`, `height`, `pixelDigest`, `sourceFormat`, `sourceDigest`, `flipHorizontal`, `clockwiseQuarterTurns`, optional `sourceKey` |
 | `atlas` | `id`, `name`, `textureId`, ordered `sprites`: `id`, `name`, `x`, `y`, `width`, `height`, `pivotX`, `pivotY` |
 | `animation` | `id`, `name`, `ticksPerSecond`, `repeat`, ordered `frames`: `id`, `atlasId`, `spriteId`, `durationTicks` |
-| `terrain` | `id`, `name`, `mapDataId`, `width`, `height`, `cellDigest`; the digest selects immutable cell data |
+| `terrain` | `id`, `name`, `mapDataId`, `width`, `height`, `cellDigest`; ordered `exits` with stable `id`, signed `x`/`y`, unsigned `passwayIndex` |
 
 Coordinates use the transformed texture's top-left pixel origin. Pivots are signed pixel
 offsets from a sprite's top-left corner. Flip precedes clockwise rotation. Changing texture
