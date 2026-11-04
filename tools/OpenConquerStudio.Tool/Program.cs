@@ -271,6 +271,48 @@ try
             }
 
             break;
+        case ["terrain-exit", string root, string terrainId, string markerId, string x, string y, string passwayIndex, string position]:
+            using (StudioProject project = StudioProject.Open(root, cancellation.Token))
+            {
+                Guid terrainGuid = Guid.Parse(terrainId);
+                TerrainAsset terrain = project.Document.Terrains.Single(a => a.Id == terrainGuid);
+                Guid id = markerId == "new" ? Guid.NewGuid() : Guid.Parse(markerId);
+                if (markerId != "new" && !terrain.Exits.Any(e => e.Id == id))
+                {
+                    throw new InvalidDataException("Terrain exit marker does not exist; use 'new' to add one.");
+                }
+
+                TerrainExitMarker marker = new(id, Number(x), Number(y),
+                    uint.Parse(passwayIndex, CultureInfo.InvariantCulture));
+                ImmutableArray<TerrainExitMarker> remaining = [.. terrain.Exits.Where(e => e.Id != id)];
+                int index = Number(position);
+                if (index < 0 || index > remaining.Length)
+                {
+                    throw new InvalidDataException("Terrain exit position is outside the ordered marker list.");
+                }
+
+                project.EditTerrainExits(terrainGuid, remaining.Insert(index, marker));
+                project.Save(cancellation.Token);
+                Console.WriteLine(id);
+            }
+
+            break;
+        case ["remove-terrain-exit", string root, string terrainId, string markerId]:
+            using (StudioProject project = StudioProject.Open(root, cancellation.Token))
+            {
+                Guid terrainGuid = Guid.Parse(terrainId);
+                Guid id = Guid.Parse(markerId);
+                TerrainAsset terrain = project.Document.Terrains.Single(a => a.Id == terrainGuid);
+                if (!terrain.Exits.Any(e => e.Id == id))
+                {
+                    throw new InvalidDataException("Terrain exit marker does not exist.");
+                }
+
+                project.EditTerrainExits(terrainGuid, [.. terrain.Exits.Where(e => e.Id != id)]);
+                project.Save(cancellation.Token);
+            }
+
+            break;
         case ["export-base-terrain", string root, string id, string destination]:
             using (StudioProject project = StudioProject.Open(root, cancellation.Token))
             {
@@ -319,7 +361,7 @@ try
             break;
         default:
             Console.Error.WriteLine("Usage:\n  create <empty-directory> <name>\n  list-artwork\n  import-artwork <project-directory> <artwork-key>\n  import <project-directory> <source.tga|source.dds> <name>\n  new-texture <project-directory> <name> <width> <height> <red> <green> <blue>\n  edit <project-directory> <asset-id> <name> <flip-horizontal:true|false> <clockwise-quarter-turns:0..3>\n  replace <project-directory> <asset-id> <source.tga|source.dds>\n  build <project-directory> <new-output-directory>\n  verify <output-directory>");
-            Console.Error.WriteLine("  new-terrain <project> <name> <map-data-id> <width> <height> <surface> <passability> <elevation>\n  terrain-cell <project> <terrain-id> <x> <y> <surface> <passability> <elevation>\n  export-base-terrain <project> <terrain-id> <new-source.json>\n  build-terrain <project> <terrain-id> <server-tool.dll> <new-output-directory>");
+            Console.Error.WriteLine("  new-terrain <project> <name> <map-data-id> <width> <height> <surface> <passability> <elevation>\n  terrain-cell <project> <terrain-id> <x> <y> <surface> <passability> <elevation>\n  export-base-terrain <project> <terrain-id> <new-source.json>\n  terrain-exit <project> <terrain-id> <marker-id|new> <x> <y> <passway-index> <zero-based-position>\n  remove-terrain-exit <project> <terrain-id> <marker-id>\n  build-terrain <project> <terrain-id> <server-tool.dll> <new-output-directory>");
             Console.Error.WriteLine("  migrate <source-project> <empty-destination>\n  list <project>\n  new-atlas <project> <texture-id> <name>\n  sprite <project> <atlas-id> <sprite-id|new> <name> <x> <y> <width> <height> <pivot-x> <pivot-y>\n  new-animation <project> <atlas-id> <name> <ticks-per-second> <frame-duration>\n  clip <project> <animation-id> <name> <ticks-per-second> <repeat:true|false>\n  frame <project> <animation-id> <frame-id|new> <atlas-id> <sprite-id> <duration> <zero-based-position>\n  delete <project> <resource-id>");
             Console.Error.WriteLine("  connect-client <repository>\n  client-assets <project> <all|map|animation|texture|puzzle> <filter>\n  import-client-image <project> <virtual-path>\n  import-client-animation <project> <ani-path> <section> <frame-milliseconds>\n  inspect-client-map <project> <map-data-id>");
             Console.Error.WriteLine("  import-c3 <project> <mesh.c3> <name>\n  import-character <project> <client-repository> <body-appearance> <hair-style>\n  model-clip <project> <id> <name> <zero-based-clip> <milliseconds> <repeat>\n  add-model-motion <project> <id> <name> <motion.c3>");
