@@ -22,7 +22,7 @@ public sealed class TerrainExitWorkflowTests
             ProjectDocument saved = project.Document;
 
             project.EditTerrainExits(terrainId, new[] { second, moved });
-            Assert.Equal(new[] { second, moved }, project.Document.Terrains.Single().Exits);
+            Assert.Equal(new[] { second, moved }, project.Document.Terrains.Single().Exits.ToArray());
             project.Undo();
             Assert.Same(saved, project.Document);
             Assert.False(project.IsModified);
@@ -33,7 +33,7 @@ public sealed class TerrainExitWorkflowTests
         using StudioProject reopened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken);
         TerrainAsset terrain = Assert.Single(reopened.Document.Terrains);
         Assert.Equal(terrainId, terrain.Id);
-        Assert.Equal(new[] { second, moved }, terrain.Exits);
+        Assert.Equal(new[] { second, moved }, terrain.Exits.ToArray());
         string output = directory.PathFor("source.json");
         TerrainSourceExporter.Export(reopened, terrainId, output, TestContext.Current.CancellationToken);
         using JsonDocument json = JsonDocument.Parse(File.ReadAllBytes(output));
@@ -92,6 +92,6 @@ public sealed class TerrainExitWorkflowTests
 
         Assert.Same(saved, project.Document);
         Assert.False(project.IsModified);
-        Assert.Equal(new[] { marker }, project.Document.Terrains.Single(a => a.Id == first).Exits);
+        Assert.Equal(new[] { marker }, project.Document.Terrains.Single(a => a.Id == first).Exits.ToArray());
     }
 }
