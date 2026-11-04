@@ -140,7 +140,8 @@ internal sealed class TerrainExitEditor : StackPanel
     public void Accept(TerrainAsset asset)
     {
         _asset = asset;
-        _original = asset.Exits.FirstOrDefault(marker => marker.Id == _activeMarker);
+        TerrainExitMarker marker = asset.Exits.FirstOrDefault(entry => entry.Id == _activeMarker);
+        _original = marker.Id == Guid.Empty ? null : marker;
     }
 
     public void Load(TerrainAsset asset)
