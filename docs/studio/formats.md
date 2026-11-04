@@ -24,7 +24,7 @@ own parent assets. Resource revisions are immutable; edits publish a new revisio
 | `texture` | `id`, `name`, `width`, `height`, `pixelDigest`, `sourceFormat`, `sourceDigest`, `flipHorizontal`, `clockwiseQuarterTurns`, optional `sourceKey` |
 | `atlas` | `id`, `name`, `textureId`, ordered `sprites`: `id`, `name`, `x`, `y`, `width`, `height`, `pivotX`, `pivotY` |
 | `animation` | `id`, `name`, `ticksPerSecond`, `repeat`, ordered `frames`: `id`, `atlasId`, `spriteId`, `durationTicks` |
-| `terrain` | `id`, `name`, `mapDataId`, `width`, `height`, `cellDigest`; the digest selects immutable cell data |
+| `terrain` | `id`, `name`, `mapDataId`, `width`, `height`, `cellDigest`; ordered `exits` with stable `id`, signed `x`/`y`, unsigned `passwayIndex` |
 
 Coordinates use the transformed texture's top-left pixel origin. Pivots are signed pixel
 offsets from a sprite's top-left corner. Flip precedes clockwise rotation. Changing texture
@@ -56,17 +56,20 @@ A terrain uses a stable resource GUID and a separate positive, project-unique Ma
 Its cell payload contains row-major, top-left-origin cells: six little-endian bytes per cell,
 encoding unsigned 16-bit surface ID, unsigned 16-bit raw passability flag and signed 16-bit
 elevation. The payload's SHA-256 is verified on reopen; edits create immutable revisions and
-participate in project undo/redo and atomic save. Source map exit markers, scenery, animation
-layers, world bindings and authored terrain visualizations are not represented yet.
+participate in project undo/redo and atomic save. Terrain exit markers are ordered and may lie outside the grid; they are not portal
+destination links. Scenery, animation layers, world bindings and authored terrain
+visualizations are not represented yet.
 
 The current authoring budget is 262,144 cells per project, with width and height limited to
-1–1,024 cells each. This is a foundation safety limit, not a target-world performance budget.
+1–1,024 cells each, and at most 4,096 exit markers per terrain or 8,192 per project.
+These are bounded Studio editing limits, not target-world gameplay constraints.
 The `export-base-terrain` command emits the server tool's supported version 1 source JSON:
 `formatVersion`, `mapDataId`, `width`, `height`, ordered `cells` containing `surfaceId`,
-`passabilityFlag`, and `elevation`, followed by `exits: []`. It omits Studio resource
-IDs, display names, absolute paths and timestamps. Export requires a saved project and a
-new destination. Separate processes produce identical output bytes for the same cell data.
-The source export is not a binary writer; exits cannot yet be authored.
+`passabilityFlag`, and `elevation`, followed by ordered `exits` containing signed
+`x`/`y` and unsigned `passwayIndex`. It omits Studio resource IDs (including marker
+GUIDs), display names, absolute paths and timestamps. Export requires a saved project and
+a new destination. Independent processes produce identical bytes for unchanged terrain and
+marker revisions. The source export does not encode portal destination maps.
 
 `build-terrain` invokes an explicitly selected server tool through a bounded external process,
 using one temporary source revision. The server produces and validates `.ocbt` and an empty-override

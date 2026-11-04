@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Globalization;
 using Avalonia.Controls;
 using OpenConquerStudio.Authoring;
@@ -14,6 +15,7 @@ internal sealed class TerrainEditor : StackPanel
     private readonly NumericUpDown _elevation = Number("TerrainElevation", short.MinValue, short.MaxValue);
     private readonly TextBlock _location = new() { TextWrapping = Avalonia.Media.TextWrapping.Wrap };
     private readonly Func<Guid, int, int, TerrainCell> _read;
+    private readonly TerrainExitEditor _exitEditor;
     private TerrainAsset? _asset;
     private TerrainCell _selectedCell;
     private int _selectedX;
@@ -22,9 +24,12 @@ internal sealed class TerrainEditor : StackPanel
 
     public event Action? PendingChanged;
 
-    public TerrainEditor(Func<Task> apply, Func<Task<bool>> navigate, Func<Guid, int, int, TerrainCell> read)
+    public TerrainEditor(Func<Task> apply, Func<Task<bool>> navigate, Func<Guid, int, int, TerrainCell> read,
+        Func<Guid, ImmutableArray<TerrainExitMarker>, Task> replaceExits)
     {
         _read = read;
+        _exitEditor = new TerrainExitEditor(apply, navigate, replaceExits);
+        _exitEditor.PendingChanged += Changed;
         Spacing = 8;
         Children.Add(new TextBlock { Text = "Terrain", FontSize = 16 });
         Children.Add(new TextBlock { Text = "Name" });
@@ -71,6 +76,7 @@ internal sealed class TerrainEditor : StackPanel
         };
         save.Click += async (_, _) => { if (_asset is not null) { await apply(); } };
         Children.Add(save);
+        Children.Add(_exitEditor);
 
         _name.TextChanged += (_, _) => Changed();
         foreach (NumericUpDown input in new[] { _surface, _passability, _elevation })
@@ -91,25 +97,34 @@ internal sealed class TerrainEditor : StackPanel
             {
                 return false;
             }
+            if (_exitEditor.HasPending)
+            {
+                return true;
+            }
             try
             {
-                (string name, TerrainCell cell) = ReadChanges();
-                return name != _asset.Name || cell != _selectedCell;
+                var changes = ReadChanges();
+                return changes.Name != _asset.Name || changes.Cell != _selectedCell;
             }
             catch (InvalidDataException) { return true; }
         }
     }
 
-    public (string Name, TerrainCell Cell) ReadChanges() =>
-        (_name.Text ?? "", new TerrainCell(
+    public (string Name, TerrainCell Cell, ImmutableArray<TerrainExitMarker> Exits) ReadChanges()
+    {
+        TerrainAsset asset = _asset ?? throw new InvalidOperationException("Select a terrain before editing its cells.");
+        return (_name.Text ?? "", new TerrainCell(
             checked((ushort)EditorInput.Integer(_surface, "surface ID")),
             checked((ushort)EditorInput.Integer(_passability, "passability flag")),
-            checked((short)EditorInput.Integer(_elevation, "elevation"))));
+            checked((short)EditorInput.Integer(_elevation, "elevation"))),
+            _exitEditor.ReadChanges(asset));
+    }
 
     public void Accept(TerrainAsset asset)
     {
         _asset = asset;
         _selectedCell = _read(asset.Id, _selectedX, _selectedY);
+        _exitEditor.Accept(asset);
     }
 
     public void Load(TerrainAsset asset)
@@ -127,6 +142,7 @@ internal sealed class TerrainEditor : StackPanel
             _y.Maximum = asset.Height - 1;
             _name.Text = asset.Name;
             LoadCell();
+            _exitEditor.Load(asset);
         }
         finally { _loading = false; }
     }

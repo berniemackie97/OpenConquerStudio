@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace OpenConquerStudio.Authoring;
 
 public sealed partial class StudioProject
@@ -17,6 +19,26 @@ public sealed partial class StudioProject
         return terrain.Id;
     }
 
+    public void EditTerrainExits(Guid id, ImmutableArray<TerrainExitMarker> exits)
+    {
+        ThrowIfDisposed();
+        TerrainAsset terrain = Document.Terrains.Single(a => a.Id == id);
+        if (exits.IsDefault)
+        {
+            throw new InvalidDataException("Terrain exit markers must be initialized.");
+        }
+        if (terrain.Exits.SequenceEqual(exits))
+        {
+            return;
+        }
+
+        ProjectDocument edited = Document with
+        {
+            Terrains = [.. Document.Terrains.Select(a => a.Id == id ? terrain with { Exits = exits } : a)]
+        };
+        Apply(edited);
+    }
+
     public TerrainCell ReadTerrainCell(Guid id, int x, int y)
     {
         ThrowIfDisposed();
@@ -31,7 +53,8 @@ public sealed partial class StudioProject
         return _terrainCells[terrain.CellDigest];
     }
 
-    public void EditTerrainCell(Guid id, int x, int y, TerrainCell cell, string name)
+    public void EditTerrainCell(Guid id, int x, int y, TerrainCell cell, string name,
+        ImmutableArray<TerrainExitMarker> exits = default)
     {
         ThrowIfDisposed();
         TerrainAsset terrain = Document.Terrains.Single(a => a.Id == id);
@@ -46,7 +69,8 @@ public sealed partial class StudioProject
         TerrainAsset edited = terrain with
         {
             Name = name,
-            CellDigest = ReferenceEquals(changed, previous) ? terrain.CellDigest : ProjectFiles.Hash(changed)
+            CellDigest = ReferenceEquals(changed, previous) ? terrain.CellDigest : ProjectFiles.Hash(changed),
+            Exits = exits.IsDefault || terrain.Exits.SequenceEqual(exits) ? terrain.Exits : exits
         };
         if (edited == terrain)
         {

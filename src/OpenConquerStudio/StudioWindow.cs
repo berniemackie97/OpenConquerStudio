@@ -123,7 +123,12 @@ public sealed partial class StudioWindow : Window
             await UpdatePreview(selected.Id, token, lastClip);
         }), _preview.ModelView, PreviewModelOnMap);
         _terrainEditor = new TerrainEditor(() => ExecuteAsync(_ => Task.CompletedTask), CommitForNavigation,
-            (id, x, y) => Project.ReadTerrainCell(id, x, y));
+            (id, x, y) => Project.ReadTerrainCell(id, x, y),
+            (id, exits) => ExecuteAsync(async token =>
+            {
+                Project.EditTerrainExits(id, exits);
+                await UpdatePreview(id, token);
+            }));
         _terrainEditor.PendingChanged += PendingEditsChanged;
         _projectName.TextChanged += (_, _) => PendingEditsChanged();
         _assetName.TextChanged += (_, _) => PendingEditsChanged();

@@ -160,6 +160,35 @@ class StudioCliTests(unittest.TestCase):
             self.run_tool("build", project, root / "incomplete", expected=1)
             self.assertFalse((root / "incomplete").exists())
 
+    def test_ordered_terrain_exit_authoring_persists_across_independent_processes(self):
+        with tempfile.TemporaryDirectory(prefix="studio-exits-") as temporary:
+            root = Path(temporary).resolve()
+            project = root / "project"
+            project.mkdir()
+            self.run_tool("create", project, "World")
+            terrain = self.run_tool("new-terrain", project, "Ground", 9700, 2, 1, 0, 0, 0).stdout.strip()
+            first = self.run_tool("terrain-exit", project, terrain, "new", -50, 1000, 4294967295, 0).stdout.strip()
+            second = self.run_tool("terrain-exit", project, terrain, "new", 6, -9, 3, 1).stdout.strip()
+            self.run_tool("terrain-exit", project, terrain, first, -40, 1200, 4294967295, 1)
+
+            output = root / "source.json"
+            self.run_tool("export-base-terrain", project, terrain, output)
+            authored = json.loads(output.read_bytes())
+            self.assertEqual(
+                [{"x": 6, "y": -9, "passwayIndex": 3},
+                 {"x": -40, "y": 1200, "passwayIndex": 4294967295}],
+                authored["exits"],
+            )
+            self.run_tool("terrain-exit", project, terrain, "missing", 1, 2, 3, 0, expected=1)
+            self.run_tool("remove-terrain-exit", project, terrain, second)
+            after = root / "after.json"
+            self.run_tool("export-base-terrain", project, terrain, after)
+            self.assertEqual(
+                [{"x": -40, "y": 1200, "passwayIndex": 4294967295}],
+                json.loads(after.read_bytes())["exits"],
+            )
+            self.run_tool("remove-terrain-exit", project, terrain, second, expected=1)
+
     def test_process_termination_during_save_preserves_a_complete_committed_project(self):
         with tempfile.TemporaryDirectory(prefix="studio-crash-") as temporary:
             root = Path(temporary).resolve()

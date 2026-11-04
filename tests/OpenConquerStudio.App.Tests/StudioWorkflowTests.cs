@@ -525,4 +525,94 @@ public sealed partial class StudioWindowTests
     }, TestContext.Current.CancellationToken);
 
 
+
+    [Fact]
+    public Task TerrainExitDraftAndCellEditCommitTogetherAndSurviveReopen() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        Guid terrainId;
+        using (StudioProject project = StudioProject.Create(directory.Project, "World"))
+        {
+            terrainId = project.CreateTerrain("Ground", 9800, 2, 1, new TerrainCell(1, 0, 0));
+            project.Save(TestContext.Current.CancellationToken);
+        }
+
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            Find<ListBox>(window, "AssetBrowser").SelectedIndex = 0;
+            await window.PendingOperation;
+            Find<Button>(window, "AddTerrainExit").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            TerrainExitMarker created = Assert.Single(window.Project.Document.Terrains.Single().Exits);
+            Assert.Equal((0, 0, 0u), (created.X, created.Y, created.PasswayIndex));
+
+            Find<NumericUpDown>(window, "TerrainExitX").Value = -50;
+            Find<NumericUpDown>(window, "TerrainExitY").Value = 500;
+            Find<NumericUpDown>(window, "TerrainExitPassway").Value = uint.MaxValue;
+            Find<NumericUpDown>(window, "TerrainSurface").Value = 77;
+            Find<Button>(window, "ApplyTerrainExit").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+
+            TerrainExitMarker edited = Assert.Single(window.Project.Document.Terrains.Single().Exits);
+            Assert.Equal(created.Id, edited.Id);
+            Assert.Equal((-50, 500, uint.MaxValue), (edited.X, edited.Y, edited.PasswayIndex));
+            Assert.Equal(new TerrainCell(77, 0, 0), window.Project.ReadTerrainCell(terrainId, 0, 0));
+
+            window.Project.Undo();
+            Assert.Equal(created, Assert.Single(window.Project.Document.Terrains.Single().Exits));
+            Assert.Equal(new TerrainCell(1, 0, 0), window.Project.ReadTerrainCell(terrainId, 0, 0));
+            window.Project.Redo();
+            window.Project.Save(TestContext.Current.CancellationToken);
+        }
+        finally { window.Close(); }
+
+        using StudioProject reopened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken);
+        TerrainExitMarker saved = Assert.Single(reopened.Document.Terrains.Single().Exits);
+        Assert.Equal((-50, 500, uint.MaxValue), (saved.X, saved.Y, saved.PasswayIndex));
+        Assert.Equal(new TerrainCell(77, 0, 0), reopened.ReadTerrainCell(terrainId, 0, 0));
+    }, TestContext.Current.CancellationToken);
+
+    [Fact]
+    public Task InvalidExitDraftBlocksMarkerNavigationAndPreservesEditableValues() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        Guid terrainId;
+        using (StudioProject project = StudioProject.Create(directory.Project, "World"))
+        {
+            terrainId = project.CreateTerrain("Ground", 9900, 2, 1, new TerrainCell(0, 0, 0));
+            project.EditTerrainExits(terrainId, [
+                new TerrainExitMarker(Guid.NewGuid(), 3, 4, 5),
+                new TerrainExitMarker(Guid.NewGuid(), -8, -9, 10)
+            ]);
+            project.Save(TestContext.Current.CancellationToken);
+        }
+
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            Find<ListBox>(window, "AssetBrowser").SelectedIndex = 0;
+            await window.PendingOperation;
+            Find<NumericUpDown>(window, "TerrainExitX").Text = "invalid";
+            Find<ListBox>(window, "TerrainExitMarkers").SelectedIndex = 1;
+            Find<Button>(window, "InspectTerrainExit").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.Equal("invalid", Find<NumericUpDown>(window, "TerrainExitX").Text);
+            Assert.Equal(0, Find<ListBox>(window, "TerrainExitMarkers").SelectedIndex);
+            Assert.False(window.Project.IsModified);
+
+            Find<NumericUpDown>(window, "TerrainExitX").Value = -12;
+            Find<ListBox>(window, "TerrainExitMarkers").SelectedIndex = 1;
+            Find<Button>(window, "InspectTerrainExit").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.Equal(-12, window.Project.Document.Terrains.Single().Exits[0].X);
+            Assert.Equal(-8m, Find<NumericUpDown>(window, "TerrainExitX").Value);
+        }
+        finally { window.Close(); }
+    }, TestContext.Current.CancellationToken);
+
 }

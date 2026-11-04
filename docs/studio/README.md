@@ -100,13 +100,19 @@ output names, and publishes a new directory containing `terrains/<MapDataId>.ocb
 own production readers. Tool failures, cancellation, and invalid output do not publish a build.
 The tool assembly must come from a trusted server build; Studio does not authenticate it.
 
-The export contains ordered cells and an empty exit list because exit authoring is not yet
-available. The generated collision has zero overrides and does not account for authored scenery.
+Terrain inspectors can also add, inspect, edit, remove, and reorder **exit markers**.
+Select a marker, then choose **Inspect selected marker** before changing its signed X/Y and
+unsigned passway index. Apply edits, Save, and navigation use the same pending-draft and undo
+workflow as terrain cells. Markers retain stable IDs across edits and moves. They may lie outside
+the base grid; their order and raw values are preserved in the server's source JSON and
+compiled terrain. They are not world portal destinations.
+
+The generated collision has zero overrides and does not account for authored scenery.
 This is not a complete client/server world build.
 
-This is the first terrain-authoring foundation, not a finished world editor. It does not yet
-display painted terrain in the viewport, author exits or scenery, or compile paired client/server
-map outputs. **Save and build** rejects projects containing terrain rather than publishing an
+This is the terrain-authoring foundation, not a finished world editor. It does not yet
+display painted terrain in the viewport, author portal destinations or scenery, or compile
+paired client/server map outputs. **Save and build** rejects projects containing terrain rather than publishing an
 incomplete game build. Actual desktop/GPU world validation remains a separate gate.
 
 ## Author sprites and animation
