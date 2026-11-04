@@ -115,6 +115,33 @@ display painted terrain in the viewport, author portal destinations or scenery, 
 paired client/server map outputs. **Save and build** rejects projects containing terrain rather than publishing an
 incomplete game build. Actual desktop/GPU world validation remains a separate gate.
 
+## Author world definitions
+
+Create a terrain first, then choose **Assets → New world**. Enter a unique positive world
+MapId, select the existing terrain resource, and enter the complete 64-bit flags value
+explicitly (unsigned decimal or `0x` hexadecimal). A world MapId is not a MapDataId.
+Several authored worlds may reference one terrain. The world inspector can rename a world,
+change its map ID, choose a different terrain, and edit its full flags value; Apply, Save,
+Undo, and Redo preserve resource identity. Deleting a referenced terrain is blocked.
+
+The CLI has equivalent actions:
+
+```sh
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- new-world /path/to/project "New world" 1002 <terrain-guid> 0x4000000000
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- export-map-definitions /path/to/project /path/to/new-world-source.json
+```
+
+The source JSON follows the version 1 `generate-map-definitions` input contract of
+`OpenConquer.GameData.Tool`. It exports ordered world entries with MapId, the linked
+terrain's MapDataId, and exact 64-bit flags, without embedding display names, resource GUIDs
+or guesses about historical assignments. The server tool may compile that source into its
+canonical `map-definitions.json`, which its game server consumes. Studio CI verifies this
+interface against a pinned server revision.
+
+World definitions do not author transition destinations, game-state flags beyond the
+supplied raw mask, scenery, or client visual maps. The ordinary full-content build remains
+blocked when authored terrain is present, pending complete paired release integration.
+
 ## Author sprites and animation
 
 1. Select a texture, then **Assets → New atlas**. The initial sprite covers the whole texture.
