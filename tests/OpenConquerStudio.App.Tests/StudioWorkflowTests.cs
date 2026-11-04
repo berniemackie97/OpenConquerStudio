@@ -615,4 +615,94 @@ public sealed partial class StudioWindowTests
         finally { window.Close(); }
     }, TestContext.Current.CancellationToken);
 
+
+    [Fact]
+    public Task WorldCreationRequiresExplicitIdentityAndFlagsThenPersistsInspectorEdits() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        Guid terrainId;
+        using (StudioProject project = StudioProject.Create(directory.Project, "World"))
+        {
+            terrainId = project.CreateTerrain("Ground", 1010, 2, 2, new TerrainCell(1, 0, 0));
+            project.Save(TestContext.Current.CancellationToken);
+        }
+
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            window.GetLogicalDescendants().OfType<MenuItem>().Single(item => Equals(item.Header, "New world"))
+                .RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { });
+            Window dialog = Assert.Single(window.OwnedWindows);
+            Find<ComboBox>(dialog, "NewWorldTerrain").SelectedIndex = 0;
+            Button create = Find<Button>(dialog, "CreateWorld");
+            create.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Assert.Contains("MapId", dialog.GetLogicalDescendants().OfType<TextBlock>().Select(text => text.Text)
+                .FirstOrDefault(value => value?.Contains("nonzero unsigned", StringComparison.Ordinal) == true));
+            Find<TextBox>(dialog, "NewWorldMapId").Text = "1002";
+            create.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Assert.Contains("64-bit", dialog.GetLogicalDescendants().OfType<TextBlock>().Select(text => text.Text)
+                .FirstOrDefault(value => value?.Contains("explicit", StringComparison.Ordinal) == true));
+            Find<TextBox>(dialog, "NewWorldFlags").Text = "18446744073709551615";
+            create.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+
+            WorldAsset world = Assert.Single(window.Project.Document.Worlds);
+            Assert.Equal(1002u, world.MapId);
+            Assert.Equal(terrainId, world.TerrainId);
+            Assert.Equal(ulong.MaxValue, world.Flags);
+            Assert.True(Find<TextBox>(window, "WorldName").IsEffectivelyVisible);
+
+            Find<TextBox>(window, "WorldName").Text = "Renamed world";
+            Find<TextBox>(window, "WorldMapId").Text = "1003";
+            Find<TextBox>(window, "WorldFlags").Text = "0x4000000000";
+            Find<Button>(window, "ApplyWorldEdits").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.Equal(274877906944ul, window.Project.Document.Worlds.Single().Flags);
+            window.Project.Save(TestContext.Current.CancellationToken);
+            Assert.False(window.Project.IsModified);
+        }
+        finally { window.Close(); }
+
+        using StudioProject reopened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken);
+        WorldAsset saved = Assert.Single(reopened.Document.Worlds);
+        Assert.Equal(1003u, saved.MapId);
+        Assert.Equal("Renamed world", saved.Name);
+        Assert.Equal(terrainId, saved.TerrainId);
+        Assert.Equal(274877906944ul, saved.Flags);
+    }, TestContext.Current.CancellationToken);
+
+    [Fact]
+    public Task InvalidWorldFlagsDraftPreventsNavigationAndPreservesSavedData() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        Guid id;
+        using (StudioProject project = StudioProject.Create(directory.Project, "World"))
+        {
+            Guid terrain = project.CreateTerrain("Ground", 1010, 1, 1, new TerrainCell(0, 0, 0));
+            id = project.CreateWorld("Map", 1002, terrain, ulong.MaxValue);
+            project.Save(TestContext.Current.CancellationToken);
+        }
+
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            ListBox browser = Find<ListBox>(window, "AssetBrowser");
+            browser.SelectedItem = browser.Items.OfType<ResourceInfo>().Single(row => row.Id == id);
+            await window.PendingOperation;
+            Find<TextBox>(window, "WorldFlags").Text = "0x10000000000000000";
+            browser.SelectedIndex = 0;
+            await window.PendingOperation;
+            Assert.True(Find<TextBox>(window, "WorldFlags").IsEffectivelyVisible);
+            Assert.Equal("0x10000000000000000", Find<TextBox>(window, "WorldFlags").Text);
+            Assert.False(window.Project.IsModified);
+            Assert.Equal(ulong.MaxValue, Assert.Single(window.Project.Document.Worlds).Flags);
+        }
+        finally { window.Close(); }
+    }, TestContext.Current.CancellationToken);
+
 }
