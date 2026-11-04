@@ -26,7 +26,12 @@ public sealed class WorldDefinitionWorkflowTests
             project.Save(TestContext.Current.CancellationToken);
 
             WorldAsset originalRecord = project.Document.Worlds.Single(a => a.Id == original);
-            project.EditWorld(originalRecord with { Name = "First renamed", TerrainId = other, Flags = 1UL << 40 });
+            project.EditWorld(originalRecord with
+            {
+                Name = "First renamed",
+                TerrainId = other,
+                Flags = 1UL << 40
+            });
             Assert.True(project.IsModified);
             project.Undo();
             Assert.False(project.IsModified);
@@ -119,7 +124,10 @@ public sealed class WorldDefinitionWorkflowTests
         Assert.Equal((2003u, 1010u, ulong.MaxValue), (maps[1].GetProperty("mapId").GetUInt32(),
             maps[1].GetProperty("mapDataId").GetUInt32(), maps[1].GetProperty("flags").GetUInt64()));
         Assert.DoesNotContain(first.ToString(), File.ReadAllText(directory.PathFor("first.json")), StringComparison.Ordinal);
-        reopened.EditWorld(reopened.Document.Worlds.Single(world => world.Id == first) with { Name = "Display only" });
+        reopened.EditWorld(reopened.Document.Worlds.Single(world => world.Id == first) with
+        {
+            Name = "Display only"
+        });
         reopened.Save(TestContext.Current.CancellationToken);
         WorldDefinitionSourceExporter.Export(reopened, directory.PathFor("third.json"), TestContext.Current.CancellationToken);
         Assert.Equal(original, File.ReadAllBytes(directory.PathFor("third.json")));
@@ -131,10 +139,10 @@ public sealed class WorldDefinitionWorkflowTests
         using ProjectDirectory directory = new();
         using StudioProject project = StudioProject.Create(directory.Project, "Worlds");
         string destination = directory.PathFor("source.json");
-        Assert.Throws<InvalidDataException>(() => WorldDefinitionSourceExporter.Export(project, destination));
+        Assert.Throws<InvalidDataException>(() => WorldDefinitionSourceExporter.Export(project, destination, TestContext.Current.CancellationToken));
         Guid terrain = project.CreateTerrain("Ground", 1010, 1, 1, new TerrainCell(0, 0, 0));
         project.CreateWorld("World", 1002, terrain, 0);
-        Assert.Throws<InvalidOperationException>(() => WorldDefinitionSourceExporter.Export(project, destination));
+        Assert.Throws<InvalidOperationException>(() => WorldDefinitionSourceExporter.Export(project, destination, TestContext.Current.CancellationToken));
         project.Save(TestContext.Current.CancellationToken);
         using CancellationTokenSource canceled = new();
         canceled.Cancel();
@@ -142,7 +150,7 @@ public sealed class WorldDefinitionWorkflowTests
         Assert.False(File.Exists(destination));
         WorldDefinitionSourceExporter.Export(project, destination, TestContext.Current.CancellationToken);
         byte[] saved = File.ReadAllBytes(destination);
-        Assert.Throws<IOException>(() => WorldDefinitionSourceExporter.Export(project, destination));
+        Assert.Throws<IOException>(() => WorldDefinitionSourceExporter.Export(project, destination, TestContext.Current.CancellationToken));
         Assert.Equal(saved, File.ReadAllBytes(destination));
     }
 
