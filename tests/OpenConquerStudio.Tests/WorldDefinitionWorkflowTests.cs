@@ -42,7 +42,7 @@ public sealed class WorldDefinitionWorkflowTests
 
         using StudioProject reopened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken);
         Assert.Equal(2, reopened.Document.Worlds.Length);
-        Assert.Equal(new[] { 1002u, 1003u }, reopened.Document.Worlds.Select(world => world.MapId).Order().ToArray());
+        Assert.Equal([1002u, 1003u], reopened.Document.Worlds.Select(world => world.MapId).Order().ToArray());
         WorldAsset first = reopened.Document.Worlds.Single(world => world.Id == original);
         Assert.Equal("First renamed", first.Name);
         Assert.Equal(other, first.TerrainId);
@@ -114,11 +114,11 @@ public sealed class WorldDefinitionWorkflowTests
         Assert.Equal(original, File.ReadAllBytes(directory.PathFor("second.json")));
         using JsonDocument parsed = JsonDocument.Parse(original);
         JsonElement root = parsed.RootElement;
-        Assert.Equal(new[] { "formatVersion", "maps" }, root.EnumerateObject().Select(property => property.Name).ToArray());
+        Assert.Equal(["formatVersion", "maps"], root.EnumerateObject().Select(property => property.Name).ToArray());
         Assert.Equal(1, root.GetProperty("formatVersion").GetInt32());
         JsonElement[] maps = root.GetProperty("maps").EnumerateArray().ToArray();
         Assert.Equal(2, maps.Length);
-        Assert.Equal(new[] { "mapId", "mapDataId", "flags" }, maps[0].EnumerateObject().Select(property => property.Name).ToArray());
+        Assert.Equal(["mapId", "mapDataId", "flags"], maps[0].EnumerateObject().Select(property => property.Name).ToArray());
         Assert.Equal((2002u, 1010u, 274877906960ul), (maps[0].GetProperty("mapId").GetUInt32(),
             maps[0].GetProperty("mapDataId").GetUInt32(), maps[0].GetProperty("flags").GetUInt64()));
         Assert.Equal((2003u, 1010u, ulong.MaxValue), (maps[1].GetProperty("mapId").GetUInt32(),
