@@ -68,7 +68,7 @@ internal sealed class WorldCreationDialog : Window
             }
 
             Close(new WorldCreation(name, WorldInput.ReadMapId(_mapId.Text),
-                _terrains[_terrain.SelectedIndex].Id, WorldInput.ReadFlags(_flags.Text)));
+                _terrains[_terrain.SelectedIndex].Id, WorldFlagValue.Parse(_flags.Text)));
         }
         catch (InvalidDataException exception) { _error.Text = exception.Message; }
     }

@@ -78,7 +78,7 @@ internal sealed class WorldEditor : StackPanel
             Name = _name.Text ?? "",
             MapId = WorldInput.ReadMapId(_mapId.Text),
             TerrainId = _terrains[_terrain.SelectedIndex].Id,
-            Flags = WorldInput.ReadFlags(_flags.Text)
+            Flags = WorldFlagValue.Parse(_flags.Text)
         };
     }
 

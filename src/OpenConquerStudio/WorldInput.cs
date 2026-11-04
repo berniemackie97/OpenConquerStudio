@@ -14,6 +14,4 @@ internal static class WorldInput
         return mapId;
     }
 
-    internal static ulong ReadFlags(string? text) =>
-        OpenConquerStudio.Authoring.WorldFlagValue.Parse(text);
 }
