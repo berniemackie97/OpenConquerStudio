@@ -56,8 +56,9 @@ A terrain uses a stable resource GUID and a separate positive, project-unique Ma
 Its cell payload contains row-major, top-left-origin cells: six little-endian bytes per cell,
 encoding unsigned 16-bit surface ID, unsigned 16-bit raw passability flag and signed 16-bit
 elevation. The payload's SHA-256 is verified on reopen; edits create immutable revisions and
-participate in project undo/redo and atomic save. Source map exit markers, scenery, animation
-layers, world bindings and authored terrain visualizations are not represented yet.
+participate in project undo/redo and atomic save. Terrain exit markers are ordered and may lie outside the grid; they are not portal
+destination links. Scenery, animation layers, world bindings and authored terrain
+visualizations are not represented yet.
 
 The current authoring budget is 262,144 cells per project, with width and height limited to
 1–1,024 cells each. This is a foundation safety limit, not a target-world performance budget.
