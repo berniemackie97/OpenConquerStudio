@@ -120,9 +120,16 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
                 throw new InvalidDataException("Terrain exit marker count is invalid.");
             }
             terrainExitMarkers += terrain.Exits.Length;
-            if (terrainExitMarkers > MaximumTotalTerrainExitMarkers || terrain.Exits.Any(exit => exit.Id == Guid.Empty || !ids.Add(exit.Id)))
+            if (terrainExitMarkers > MaximumTotalTerrainExitMarkers)
             {
-                throw new InvalidDataException("Terrain exit marker identities must be unique and within the project budget.");
+                throw new InvalidDataException("The project exceeds its terrain exit marker budget.");
+            }
+            foreach (TerrainExitMarker marker in terrain.Exits)
+            {
+                if (marker.Id == Guid.Empty || !ids.Add(marker.Id))
+                {
+                    throw new InvalidDataException("Terrain exit marker identities must be nonempty and unique.");
+                }
             }
 
             terrainCells += TerrainGrid.CellCount(terrain.Width, terrain.Height);
