@@ -26,6 +26,23 @@ internal sealed class TerrainExitEditor : StackPanel
         _commitForNavigation = commitForNavigation;
         _replace = replace;
         Spacing = 6;
+        AddSelectionControls();
+        AddEditingControls(apply);
+        AddMarkerCommands();
+        foreach (NumericUpDown input in new[] { _x, _y, _passway })
+        {
+            input.PropertyChanged += (_, change) =>
+            {
+                if (!_loading && change.Property == NumericUpDown.TextProperty)
+                {
+                    PendingChanged?.Invoke();
+                }
+            };
+        }
+    }
+
+    private void AddSelectionControls()
+    {
         Children.Add(new TextBlock { Text = "Ordered exit markers", FontSize = 16 });
         Children.Add(new TextBlock { Text = "Raw terrain markers; destinations belong to world map definitions." });
         Children.Add(_markers);
@@ -34,22 +51,12 @@ internal sealed class TerrainExitEditor : StackPanel
             Name = "InspectTerrainExit",
             Content = "Inspect selected marker"
         };
-        inspect.Click += async (_, _) =>
-        {
-            if (_asset is null || _markers.SelectedIndex < 0)
-            {
-                return;
-            }
-
-            Guid requested = _asset.Exits[_markers.SelectedIndex].Id;
-            if (requested != _activeMarker && await _commitForNavigation())
-            {
-                _activeMarker = requested;
-                _markers.SelectedIndex = IndexOf(_asset.Exits, requested);
-                LoadFields();
-            }
-        };
+        inspect.Click += async (_, _) => await InspectSelected();
         Children.Add(inspect);
+    }
+
+    private void AddEditingControls(Func<Task> apply)
+    {
         Children.Add(new TextBlock { Text = "Marker X (signed)" });
         Children.Add(_x);
         Children.Add(new TextBlock { Text = "Marker Y (signed)" });
@@ -63,42 +70,23 @@ internal sealed class TerrainExitEditor : StackPanel
         };
         applyMarker.Click += async (_, _) => await apply();
         Children.Add(applyMarker);
+    }
+
+    private void AddMarkerCommands()
+    {
         Button add = new()
         {
             Name = "AddTerrainExit",
             Content = "Add marker"
         };
-        add.Click += async (_, _) =>
-        {
-            if (_asset is null || !await _commitForNavigation())
-            {
-                return;
-            }
-
-            Guid added = Guid.NewGuid();
-            await _replace(_asset.Id, [.. _asset.Exits, new TerrainExitMarker(added, 0, 0, 0)]);
-            if (_asset.Exits.Any(marker => marker.Id == added))
-            {
-                _activeMarker = added;
-                _markers.SelectedIndex = IndexOf(_asset.Exits, added);
-                LoadFields();
-            }
-        };
+        add.Click += async (_, _) => await AddMarker();
         Children.Add(add);
         Button remove = new()
         {
             Name = "RemoveTerrainExit",
             Content = "Remove inspected marker"
         };
-        remove.Click += async (_, _) =>
-        {
-            if (_asset is null || _activeMarker is not Guid id || !await _commitForNavigation())
-            {
-                return;
-            }
-
-            await _replace(_asset.Id, [.. _asset.Exits.Where(marker => marker.Id != id)]);
-        };
+        remove.Click += async (_, _) => await RemoveMarker();
         Children.Add(remove);
         Button up = new()
         {
@@ -114,17 +102,49 @@ internal sealed class TerrainExitEditor : StackPanel
         down.Click += async (_, _) => await Move(1);
         Children.Add(up);
         Children.Add(down);
+    }
 
-        foreach (NumericUpDown input in new[] { _x, _y, _passway })
+    private async Task InspectSelected()
+    {
+        if (_asset is null || _markers.SelectedIndex < 0)
         {
-            input.PropertyChanged += (_, change) =>
-            {
-                if (!_loading && change.Property == NumericUpDown.TextProperty)
-                {
-                    PendingChanged?.Invoke();
-                }
-            };
+            return;
         }
+
+        Guid requested = _asset.Exits[_markers.SelectedIndex].Id;
+        if (requested != _activeMarker && await _commitForNavigation())
+        {
+            _activeMarker = requested;
+            _markers.SelectedIndex = IndexOf(_asset.Exits, requested);
+            LoadFields();
+        }
+    }
+
+    private async Task AddMarker()
+    {
+        if (_asset is null || !await _commitForNavigation())
+        {
+            return;
+        }
+
+        Guid added = Guid.NewGuid();
+        await _replace(_asset.Id, [.. _asset.Exits, new TerrainExitMarker(added, 0, 0, 0)]);
+        if (_asset.Exits.Any(marker => marker.Id == added))
+        {
+            _activeMarker = added;
+            _markers.SelectedIndex = IndexOf(_asset.Exits, added);
+            LoadFields();
+        }
+    }
+
+    private async Task RemoveMarker()
+    {
+        if (_asset is null || _activeMarker is not Guid id || !await _commitForNavigation())
+        {
+            return;
+        }
+
+        await _replace(_asset.Id, [.. _asset.Exits.Where(marker => marker.Id != id)]);
     }
 
     public bool HasPending
