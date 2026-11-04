@@ -13,5 +13,4 @@ internal static class WorldInput
 
         return mapId;
     }
-
 }
