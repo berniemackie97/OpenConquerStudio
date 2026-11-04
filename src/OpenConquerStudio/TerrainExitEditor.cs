@@ -45,6 +45,7 @@ internal sealed class TerrainExitEditor : StackPanel
             if (requested != _activeMarker && await _commitForNavigation())
             {
                 _activeMarker = requested;
+                _markers.SelectedIndex = _asset.Exits.FindIndex(marker => marker.Id == requested);
                 LoadFields();
             }
         };
