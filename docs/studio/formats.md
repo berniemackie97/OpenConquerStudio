@@ -85,6 +85,23 @@ Studio's existing full content `build` still rejects projects containing terrain
 server/client content compilation exists. The `.octerrain` payload is authoring data, **not**
 the server's `.ocbt` artifact.
 
+### Authored world definitions
+
+Each world has a stable Studio resource ID and a separate positive world MapId. The terrain
+reference must resolve within the same project, and every world MapId is unique in that
+project. World IDs need not equal the terrain's MapDataId; multiple worlds may reuse a terrain.
+The editor never derives flags from terrain bytes or invents historical values. Flags are
+explicit unsigned 64-bit values, not truncated to a 32-bit mask.
+
+`export-map-definitions` exports all saved worlds as the server's version 1 source JSON:
+`formatVersion: 1`, followed by `maps` sorted by world MapId, each with `mapId`,
+`mapDataId` resolved from the referenced terrain, and `flags` written as an exact JSON
+unsigned integer. Names and Studio GUIDs are excluded. Identical authored data yields
+identical source bytes across processes. The server-owned `generate-map-definitions` command
+writes the canonical map catalog; CI invokes that command using a pinned server revision.
+This does not create portal-transition destinations, per-world visual assets, or a paired
+game content release.
+
 ### Budgets and validation
 
 - 256 resources, including at most 64 textures; 64 MiB aggregate source pixels.
