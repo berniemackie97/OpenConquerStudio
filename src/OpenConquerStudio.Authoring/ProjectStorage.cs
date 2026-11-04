@@ -37,6 +37,7 @@ internal static class ProjectStorage
 
         List<ModelAsset> models = [];
         List<TerrainAsset> terrains = [];
+        List<WorldAsset> worlds = [];
         List<TextureAsset> textures = [];
         List<AtlasAsset> atlases = [];
         List<AnimationAsset> animations = [];
@@ -72,6 +73,11 @@ internal static class ProjectStorage
                     terrains.Add(terrain);
                     id = terrain.Id;
                     break;
+                case "world":
+                    WorldAsset world = Decode<WorldAsset>(assetBytes);
+                    worlds.Add(world);
+                    id = world.Id;
+                    break;
                 case "texture":
                     TextureAsset texture = Decode<TextureAsset>(assetBytes);
                     textures.Add(texture);
@@ -100,7 +106,8 @@ internal static class ProjectStorage
         ProjectDocument document = new(index.SchemaVersion, index.Id, index.Name, [.. textures], [.. atlases], [.. animations])
         {
             Models = [.. models],
-            Terrains = [.. terrains]
+            Terrains = [.. terrains],
+            Worlds = [.. worlds]
         };
         document.Validate();
         Dictionary<string, byte[]> payloads = [];
@@ -212,6 +219,7 @@ internal static class ProjectStorage
             {
                 "model" => ProjectFiles.Serialize(new ResourceDocument<ModelAsset>(1, document.Models.Single(a => a.Id == info.Id))),
                 "terrain" => ProjectFiles.Serialize(new ResourceDocument<TerrainAsset>(1, document.Terrains.Single(a => a.Id == info.Id))),
+                "world" => ProjectFiles.Serialize(new ResourceDocument<WorldAsset>(1, document.Worlds.Single(a => a.Id == info.Id))),
                 "texture" => ProjectFiles.Serialize(new ResourceDocument<TextureAsset>(1, document.Assets.Single(a => a.Id == info.Id))),
                 "atlas" => ProjectFiles.Serialize(new ResourceDocument<AtlasAsset>(1, document.Atlases.Single(a => a.Id == info.Id))),
                 "animation" => ProjectFiles.Serialize(new ResourceDocument<AnimationAsset>(1, document.Animations.Single(a => a.Id == info.Id))),
