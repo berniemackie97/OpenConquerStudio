@@ -86,10 +86,23 @@ The Studio CLI can export saved terrain as source JSON for the server's existing
 dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- export-base-terrain /path/to/project <terrain-guid> /path/to/new-terrain.json
 ```
 
-This source can be passed to the server-owned
-`OpenConquer.GameData.Tool generate-base-terrain <source.json> <terrain.ocbt>` command.
+With the versioned server tool built, Studio can also generate the **validated base-terrain
+and static-collision pair** directly:
+
+```sh
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- build-terrain /path/to/project <terrain-guid> /path/to/OpenConquer.GameData.Tool.dll /path/to/new-output-directory
+```
+
+Studio invokes only the explicitly supplied server tool. It exports a saved terrain revision
+to a temporary source, runs the server's `build-authored-terrain` command, checks the required
+output names, and publishes a new directory containing `terrains/<MapDataId>.ocbt` and
+`collisions/<MapDataId>.ocmc`. The server tool writes and validates both artifacts using its
+own production readers. Tool failures, cancellation, and invalid output do not publish a build.
+The tool assembly must come from a trusted server build; Studio does not authenticate it.
+
 The export contains ordered cells and an empty exit list because exit authoring is not yet
-available. It is not a complete client/server world build.
+available. The generated collision has zero overrides and does not account for authored scenery.
+This is not a complete client/server world build.
 
 This is the first terrain-authoring foundation, not a finished world editor. It does not yet
 display painted terrain in the viewport, author exits or scenery, or compile paired client/server
