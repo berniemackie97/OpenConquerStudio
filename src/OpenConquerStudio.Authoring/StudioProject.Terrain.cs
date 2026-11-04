@@ -17,6 +17,26 @@ public sealed partial class StudioProject
         return terrain.Id;
     }
 
+    public void EditTerrainExits(Guid id, ImmutableArray<TerrainExitMarker> exits)
+    {
+        ThrowIfDisposed();
+        TerrainAsset terrain = Document.Terrains.Single(a => a.Id == id);
+        if (exits.IsDefault)
+        {
+            throw new InvalidDataException("Terrain exit markers must be initialized.");
+        }
+        if (terrain.Exits.SequenceEqual(exits))
+        {
+            return;
+        }
+
+        ProjectDocument edited = Document with
+        {
+            Terrains = [.. Document.Terrains.Select(a => a.Id == id ? terrain with { Exits = exits } : a)]
+        };
+        Apply(edited);
+    }
+
     public TerrainCell ReadTerrainCell(Guid id, int x, int y)
     {
         ThrowIfDisposed();

@@ -8,7 +8,12 @@ public sealed record TextureAsset(Guid Id, string Name, int Width, int Height, s
 
 public sealed record ModelAsset(Guid Id, string Name, string DataDigest, int ByteLength);
 
-public sealed record TerrainAsset(Guid Id, string Name, uint MapDataId, int Width, int Height, string CellDigest);
+public readonly record struct TerrainExitMarker(Guid Id, int X, int Y, uint PasswayIndex);
+
+public sealed record TerrainAsset(Guid Id, string Name, uint MapDataId, int Width, int Height, string CellDigest)
+{
+    public ImmutableArray<TerrainExitMarker> Exits { get; init; } = [];
+}
 
 public sealed record AtlasAsset(Guid Id, string Name, Guid TextureId, ImmutableArray<SpriteRegion> Sprites);
 public sealed record AnimationAsset(Guid Id, string Name, int TicksPerSecond, bool Repeat, ImmutableArray<AnimationFrame> Frames);
@@ -23,6 +28,8 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
     public ImmutableArray<ModelAsset> Models { get; init; } = [];
     public ImmutableArray<TerrainAsset> Terrains { get; init; } = [];
     public const int MaximumTotalTerrainCells = 262_144;
+    public const int MaximumTerrainExitMarkers = 4_096;
+    public const int MaximumTotalTerrainExitMarkers = 8_192;
     public const int MaximumModelBytes = 128 * 1024 * 1024;
     public const int CurrentVersion = 2;
     public const int MaximumAssets = 64;
@@ -96,6 +103,7 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
         }
 
         long terrainCells = 0;
+        int terrainExitMarkers = 0;
         HashSet<uint> mapDataIds = [];
         foreach (TerrainAsset terrain in Terrains)
         {
@@ -107,6 +115,16 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
 
             ValidateName(terrain.Name);
             ValidateDigest(terrain.CellDigest);
+            if (terrain.Exits.IsDefault || terrain.Exits.Length > MaximumTerrainExitMarkers)
+            {
+                throw new InvalidDataException("Terrain exit marker count is invalid.");
+            }
+            terrainExitMarkers += terrain.Exits.Length;
+            if (terrainExitMarkers > MaximumTotalTerrainExitMarkers || terrain.Exits.Any(exit => exit.Id == Guid.Empty || !ids.Add(exit.Id)))
+            {
+                throw new InvalidDataException("Terrain exit marker identities must be unique and within the project budget.");
+            }
+
             terrainCells += TerrainGrid.CellCount(terrain.Width, terrain.Height);
             if (terrainCells > MaximumTotalTerrainCells)
             {

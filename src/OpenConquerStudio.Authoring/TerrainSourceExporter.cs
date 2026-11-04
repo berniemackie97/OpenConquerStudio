@@ -48,6 +48,15 @@ public static class TerrainSourceExporter
 
             writer.WriteEndArray();
             writer.WriteStartArray("exits");
+            foreach (TerrainExitMarker marker in terrain.Exits)
+            {
+                token.ThrowIfCancellationRequested();
+                writer.WriteStartObject();
+                writer.WriteNumber("x", marker.X);
+                writer.WriteNumber("y", marker.Y);
+                writer.WriteNumber("passwayIndex", marker.PasswayIndex);
+                writer.WriteEndObject();
+            }
             writer.WriteEndArray();
             writer.WriteEndObject();
         }
