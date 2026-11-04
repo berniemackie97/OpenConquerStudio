@@ -45,7 +45,7 @@ internal sealed class TerrainExitEditor : StackPanel
             if (requested != _activeMarker && await _commitForNavigation())
             {
                 _activeMarker = requested;
-                _markers.SelectedIndex = _asset.Exits.FindIndex(marker => marker.Id == requested);
+                _markers.SelectedIndex = IndexOf(_asset.Exits, requested);
                 LoadFields();
             }
         };
@@ -80,7 +80,7 @@ internal sealed class TerrainExitEditor : StackPanel
             if (_asset.Exits.Any(marker => marker.Id == added))
             {
                 _activeMarker = added;
-                _markers.SelectedIndex = _asset.Exits.FindIndex(marker => marker.Id == added);
+                _markers.SelectedIndex = IndexOf(_asset.Exits, added);
                 LoadFields();
             }
         };
@@ -157,7 +157,7 @@ internal sealed class TerrainExitEditor : StackPanel
             return asset.Exits;
         }
 
-        int index = asset.Exits.FindIndex(marker => marker.Id == original.Id);
+        int index = IndexOf(asset.Exits, original.Id);
         if (index < 0)
         {
             throw new InvalidDataException("The selected exit marker no longer exists.");
@@ -191,7 +191,7 @@ internal sealed class TerrainExitEditor : StackPanel
         {
             _markers.ItemsSource = asset.Exits.Select((marker, index) =>
                 $"{index + 1}: ({marker.X}, {marker.Y}) · passway {marker.PasswayIndex}").ToArray();
-            _markers.SelectedIndex = asset.Exits.FindIndex(marker => marker.Id == _activeMarker);
+            _markers.SelectedIndex = IndexOf(asset.Exits, _activeMarker);
             LoadFields();
         }
         finally { _loading = false; }
@@ -230,7 +230,7 @@ internal sealed class TerrainExitEditor : StackPanel
             return;
         }
 
-        int index = _asset.Exits.FindIndex(marker => marker.Id == id);
+        int index = IndexOf(_asset.Exits, id);
         int destination = index + step;
         if (index < 0 || destination < 0 || destination >= _asset.Exits.Length)
         {
@@ -239,6 +239,19 @@ internal sealed class TerrainExitEditor : StackPanel
 
         TerrainExitMarker marker = _asset.Exits[index];
         await _replace(_asset.Id, _asset.Exits.RemoveAt(index).Insert(destination, marker));
+    }
+
+    private static int IndexOf(ImmutableArray<TerrainExitMarker> markers, Guid? id)
+    {
+        for (int index = 0; index < markers.Length; index++)
+        {
+            if (markers[index].Id == id)
+            {
+                return index;
+            }
+        }
+
+        return -1;
     }
 
     private static NumericUpDown Number(string name, decimal minimum, decimal maximum) => new()
