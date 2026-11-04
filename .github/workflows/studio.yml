@@ -18,6 +18,48 @@ env:
   DOTNET_NOLOGO: 'true'
 
 jobs:
+  world-definitions:
+    name: World-definition server contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Studio
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Checkout supported server compiler
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: berniemackie97/OpenConquerServer
+          ref: a16cae6a2942dc2883131645b766b89e73ae145e
+          path: server
+          persist-credentials: false
+
+      - name: Set up pinned .NET SDKs
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: |
+            10.0.400
+            10.0.401
+
+      - name: Build Studio tool
+        run: |
+          dotnet restore tools/OpenConquerStudio.Tool/OpenConquerStudio.Tool.csproj --locked-mode
+          dotnet build tools/OpenConquerStudio.Tool/OpenConquerStudio.Tool.csproj -c Release --no-restore
+
+      - name: Build server definition compiler
+        working-directory: server
+        run: |
+          dotnet restore tools/OpenConquer.GameData.Tool/OpenConquer.GameData.Tool.csproj --locked-mode
+          dotnet build tools/OpenConquer.GameData.Tool/OpenConquer.GameData.Tool.csproj -c Release --no-restore
+
+      - name: Check world definition generation across processes
+        run: |
+          python3 tests/integration/world_definitions.py \
+            tools/OpenConquerStudio.Tool/bin/Release/net10.0/OpenConquerStudio.Tool.dll \
+            server/tools/OpenConquer.GameData.Tool/bin/Release/net10.0/OpenConquer.GameData.Tool.dll
+
   studio:
     name: Studio (${{ matrix.runner }})
     runs-on: ${{ matrix.runner }}
