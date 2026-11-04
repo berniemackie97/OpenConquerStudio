@@ -68,9 +68,17 @@ IDs, display names, absolute paths and timestamps. Export requires a saved proje
 new destination. Separate processes produce identical output bytes for the same cell data.
 The source export is not a binary writer; exits cannot yet be authored.
 
-Terrain cells are not compiled into complete game releases yet: Studio explicitly rejects
-builds containing terrain until the authoritative server terrain/collision and client map
-consumers are integrated. The cell payload is authoring data, **not** the server's `.ocbt` artifact.
+`build-terrain` invokes an explicitly selected server tool through a bounded external process,
+using one temporary source revision. The server produces and validates `.ocbt` and an empty-override
+`.ocmc`, and Studio publishes their containing directory only after successful completion and
+expected-output checks. The temporary source and failed output are removed. A successful build
+contains `terrains/<MapDataId>.ocbt` and `collisions/<MapDataId>.ocmc`; it is not a
+complete world catalog or client visual-map build. This integration requires a trusted built
+server tool whose `build-authored-terrain` command supports the source contract.
+
+Studio's existing full content `build` still rejects projects containing terrain until paired
+server/client content compilation exists. The `.octerrain` payload is authoring data, **not**
+the server's `.ocbt` artifact.
 
 ### Budgets and validation
 
