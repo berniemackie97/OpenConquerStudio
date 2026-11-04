@@ -29,7 +29,11 @@ internal sealed class TerrainExitEditor : StackPanel
         Children.Add(new TextBlock { Text = "Ordered exit markers", FontSize = 16 });
         Children.Add(new TextBlock { Text = "Raw terrain markers; destinations belong to world map definitions." });
         Children.Add(_markers);
-        Button inspect = new() { Name = "InspectTerrainExit", Content = "Inspect selected marker" };
+        Button inspect = new()
+        {
+            Name = "InspectTerrainExit",
+            Content = "Inspect selected marker"
+        };
         inspect.Click += async (_, _) =>
         {
             if (_asset is null || _markers.SelectedIndex < 0)
@@ -51,10 +55,18 @@ internal sealed class TerrainExitEditor : StackPanel
         Children.Add(_y);
         Children.Add(new TextBlock { Text = "Passway index (unsigned)" });
         Children.Add(_passway);
-        Button applyMarker = new() { Name = "ApplyTerrainExit", Content = "Apply marker edits" };
+        Button applyMarker = new()
+        {
+            Name = "ApplyTerrainExit",
+            Content = "Apply marker edits"
+        };
         applyMarker.Click += async (_, _) => await apply();
         Children.Add(applyMarker);
-        Button add = new() { Name = "AddTerrainExit", Content = "Add marker" };
+        Button add = new()
+        {
+            Name = "AddTerrainExit",
+            Content = "Add marker"
+        };
         add.Click += async (_, _) =>
         {
             if (_asset is null || !await _commitForNavigation())
@@ -63,11 +75,20 @@ internal sealed class TerrainExitEditor : StackPanel
             }
 
             Guid added = Guid.NewGuid();
-            _activeMarker = added;
             await _replace(_asset.Id, [.. _asset.Exits, new TerrainExitMarker(added, 0, 0, 0)]);
+            if (_asset.Exits.Any(marker => marker.Id == added))
+            {
+                _activeMarker = added;
+                _markers.SelectedIndex = _asset.Exits.FindIndex(marker => marker.Id == added);
+                LoadFields();
+            }
         };
         Children.Add(add);
-        Button remove = new() { Name = "RemoveTerrainExit", Content = "Remove selected marker" };
+        Button remove = new()
+        {
+            Name = "RemoveTerrainExit",
+            Content = "Remove inspected marker"
+        };
         remove.Click += async (_, _) =>
         {
             if (_asset is null || _activeMarker is not Guid id || !await _commitForNavigation())
@@ -75,12 +96,19 @@ internal sealed class TerrainExitEditor : StackPanel
                 return;
             }
 
-            _activeMarker = null;
             await _replace(_asset.Id, [.. _asset.Exits.Where(marker => marker.Id != id)]);
         };
         Children.Add(remove);
-        Button up = new() { Name = "RaiseTerrainExit", Content = "Move marker earlier" };
-        Button down = new() { Name = "LowerTerrainExit", Content = "Move marker later" };
+        Button up = new()
+        {
+            Name = "RaiseTerrainExit",
+            Content = "Move marker earlier"
+        };
+        Button down = new()
+        {
+            Name = "LowerTerrainExit",
+            Content = "Move marker later"
+        };
         up.Click += async (_, _) => await Move(-1);
         down.Click += async (_, _) => await Move(1);
         Children.Add(up);
