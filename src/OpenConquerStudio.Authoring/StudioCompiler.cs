@@ -19,18 +19,7 @@ public static class StudioCompiler
             throw new InvalidOperationException("Authored terrain cannot be built until the server terrain and collision output contract is integrated.");
         }
 
-        destination = ProjectFiles.RequireSafePath(destination);
-        string relative = Path.GetRelativePath(project.Root, destination).Replace('\\', '/');
-        if (relative != ".." && !relative.StartsWith("../", StringComparison.Ordinal) &&
-            !Path.IsPathRooted(relative) && !relative.StartsWith("Builds/", StringComparison.Ordinal))
-        {
-            throw new IOException("Builds inside a project must use the Builds directory.");
-        }
-
-        if (Directory.Exists(destination) || File.Exists(destination))
-        {
-            throw new IOException("The build destination already exists. Choose a new directory.");
-        }
+        destination = RequireBuildDestination(project, destination);
 
         string parent = Path.GetDirectoryName(destination) ?? throw new IOException("A build destination requires a parent directory.");
         ProjectFiles.RequireSafePath(parent);
@@ -96,6 +85,24 @@ public static class StudioCompiler
                 Directory.Delete(stage, recursive: true);
             }
         }
+    }
+
+    internal static string RequireBuildDestination(StudioProject project, string destination)
+    {
+        destination = ProjectFiles.RequireSafePath(destination);
+        string relative = Path.GetRelativePath(project.Root, destination).Replace('\\', '/');
+        if (relative != ".." && !relative.StartsWith("../", StringComparison.Ordinal) &&
+            !Path.IsPathRooted(relative) && !relative.StartsWith("Builds/", StringComparison.Ordinal))
+        {
+            throw new IOException("Builds inside a project must use the Builds directory.");
+        }
+
+        if (Directory.Exists(destination) || File.Exists(destination))
+        {
+            throw new IOException("The build destination already exists. Choose a new directory.");
+        }
+
+        return destination;
     }
 
     public static ContentBuild Validate(string directory, CancellationToken cancellationToken = default) =>
