@@ -602,9 +602,11 @@ public sealed partial class StudioWindowTests
             Find<Button>(window, "InspectTerrainExit").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             await window.PendingOperation;
             Assert.Equal("invalid", Find<NumericUpDown>(window, "TerrainExitX").Text);
+            Assert.Equal(0, Find<ListBox>(window, "TerrainExitMarkers").SelectedIndex);
             Assert.False(window.Project.IsModified);
 
             Find<NumericUpDown>(window, "TerrainExitX").Value = -12;
+            Find<ListBox>(window, "TerrainExitMarkers").SelectedIndex = 1;
             Find<Button>(window, "InspectTerrainExit").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             await window.PendingOperation;
             Assert.Equal(-12, window.Project.Document.Terrains.Single().Exits[0].X);
