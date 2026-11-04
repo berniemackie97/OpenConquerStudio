@@ -21,7 +21,7 @@ public sealed class TerrainExitWorkflowTests
             project.Save(TestContext.Current.CancellationToken);
             ProjectDocument saved = project.Document;
 
-            project.EditTerrainExits(terrainId, new[] { second, moved });
+            project.EditTerrainExits(terrainId, [second, moved]);
             Assert.Equal(new[] { second, moved }, project.Document.Terrains.Single().Exits.ToArray());
             project.Undo();
             Assert.Same(saved, project.Document);
@@ -85,7 +85,7 @@ public sealed class TerrainExitWorkflowTests
         Assert.Throws<InvalidDataException>(() => project.EditTerrainExits(first, default(ImmutableArray<TerrainExitMarker>)));
         Assert.Throws<InvalidDataException>(() => project.EditTerrainExits(first, [marker, marker]));
         Assert.Throws<InvalidDataException>(() => project.EditTerrainExits(second, [marker]));
-        Assert.Throws<InvalidDataException>(() => project.EditTerrainExits(first, [marker with { Id = Guid.Empty }]));
+        Assert.Throws<InvalidDataException>(() => project.EditTerrainExits(first, [new TerrainExitMarker(Guid.Empty, 0, 0, 1)]));
         ImmutableArray<TerrainExitMarker> large = [.. Enumerable.Range(0, ProjectDocument.MaximumTerrainExitMarkers + 1)
             .Select(index => new TerrainExitMarker(Guid.NewGuid(), index, -index, (uint)index))];
         Assert.Throws<InvalidDataException>(() => project.EditTerrainExits(first, large));
