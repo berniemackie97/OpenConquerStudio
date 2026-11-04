@@ -19,8 +19,9 @@ public sealed class WorldDefinitionWorkflowTests
             original = project.CreateWorld("First", 1002, terrainId, ulong.MaxValue);
             shared = project.CreateWorld("Second", 1003, terrainId, 0);
             other = project.CreateTerrain("Second terrain", 1079, 1, 1, new TerrainCell(0, 0, 0));
-            Assert.Equal([original, shared], project.Document.Dependents(terrainId).Select(info => info.Id).Order().ToArray().Order());
-            Assert.Equal([terrainId], project.Document.Dependencies(original));
+            Assert.Equal(new[] { original, shared }.Order().ToArray(),
+                project.Document.Dependents(terrainId).Select(info => info.Id).Order().ToArray());
+            Assert.Equal(new[] { terrainId }, project.Document.Dependencies(original).ToArray());
             Assert.Throws<InvalidDataException>(() => project.Delete(terrainId));
             project.Save(TestContext.Current.CancellationToken);
 
