@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace OpenConquerStudio.Authoring;
 
 public sealed partial class StudioProject
@@ -51,7 +53,8 @@ public sealed partial class StudioProject
         return _terrainCells[terrain.CellDigest];
     }
 
-    public void EditTerrainCell(Guid id, int x, int y, TerrainCell cell, string name)
+    public void EditTerrainCell(Guid id, int x, int y, TerrainCell cell, string name,
+        ImmutableArray<TerrainExitMarker> exits = default)
     {
         ThrowIfDisposed();
         TerrainAsset terrain = Document.Terrains.Single(a => a.Id == id);
@@ -66,7 +69,8 @@ public sealed partial class StudioProject
         TerrainAsset edited = terrain with
         {
             Name = name,
-            CellDigest = ReferenceEquals(changed, previous) ? terrain.CellDigest : ProjectFiles.Hash(changed)
+            CellDigest = ReferenceEquals(changed, previous) ? terrain.CellDigest : ProjectFiles.Hash(changed),
+            Exits = exits.IsDefault || terrain.Exits.SequenceEqual(exits) ? terrain.Exits : exits
         };
         if (edited == terrain)
         {
