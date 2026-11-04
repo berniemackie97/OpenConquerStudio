@@ -75,10 +75,10 @@ public sealed partial class StudioWindow
                 apply = () => project.EditModel(info.Id, model.Name, model.Clip, model.Milliseconds, model.Repeat);
                 break;
             case "terrain":
-                (string terrainName, TerrainCell cell) = _terrainEditor.ReadChanges();
+                (string terrainName, TerrainCell cell, var exits) = _terrainEditor.ReadChanges();
                 int x = _terrainEditor.SelectedX;
                 int y = _terrainEditor.SelectedY;
-                apply = () => project.EditTerrainCell(info.Id, x, y, cell, terrainName);
+                apply = () => project.EditTerrainCell(info.Id, x, y, cell, terrainName, exits);
                 break;
         }
         await Task.Run(() => { token.ThrowIfCancellationRequested(); apply?.Invoke(); project.Rename(name); }, token);
