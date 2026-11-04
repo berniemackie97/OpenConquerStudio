@@ -608,7 +608,7 @@ public sealed partial class StudioWindowTests
             Find<Button>(window, "InspectTerrainExit").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             await window.PendingOperation;
             Assert.Equal(-12, window.Project.Document.Terrains.Single().Exits[0].X);
-            Assert.Equal(-8, Find<NumericUpDown>(window, "TerrainExitX").Value);
+            Assert.Equal(-8m, Find<NumericUpDown>(window, "TerrainExitX").Value);
         }
         finally { window.Close(); }
     }, TestContext.Current.CancellationToken);
