@@ -103,8 +103,8 @@ internal sealed class TerrainEditor : StackPanel
             }
             try
             {
-                (string name, TerrainCell cell, _) = ReadChanges();
-                return name != _asset.Name || cell != _selectedCell;
+                var changes = ReadChanges();
+                return changes.Name != _asset.Name || changes.Cell != _selectedCell;
             }
             catch (InvalidDataException) { return true; }
         }
