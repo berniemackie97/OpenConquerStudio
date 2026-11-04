@@ -13,6 +13,7 @@ public sealed class TerrainExitWorkflowTests
         Guid terrainId;
         TerrainExitMarker first = new(Guid.NewGuid(), -240, int.MaxValue, uint.MaxValue);
         TerrainExitMarker second = new(Guid.NewGuid(), 900, -700, 7);
+        TerrainExitMarker moved = new(first.Id, int.MinValue, int.MaxValue, uint.MaxValue);
         using (StudioProject project = StudioProject.Create(directory.Project, "World"))
         {
             terrainId = project.CreateTerrain("Ground", 9500, 2, 1, new TerrainCell(1, 0, 0));
@@ -20,8 +21,8 @@ public sealed class TerrainExitWorkflowTests
             project.Save(TestContext.Current.CancellationToken);
             ProjectDocument saved = project.Document;
 
-            project.EditTerrainExits(terrainId, [second, first with { X = int.MinValue }]);
-            Assert.Equal([second, first with { X = int.MinValue }], project.Document.Terrains.Single().Exits);
+            project.EditTerrainExits(terrainId, new[] { second, moved });
+            Assert.Equal(new[] { second, moved }, project.Document.Terrains.Single().Exits);
             project.Undo();
             Assert.Same(saved, project.Document);
             Assert.False(project.IsModified);
@@ -32,7 +33,7 @@ public sealed class TerrainExitWorkflowTests
         using StudioProject reopened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken);
         TerrainAsset terrain = Assert.Single(reopened.Document.Terrains);
         Assert.Equal(terrainId, terrain.Id);
-        Assert.Equal([second, first with { X = int.MinValue }], terrain.Exits);
+        Assert.Equal(new[] { second, moved }, terrain.Exits);
         string output = directory.PathFor("source.json");
         TerrainSourceExporter.Export(reopened, terrainId, output, TestContext.Current.CancellationToken);
         using JsonDocument json = JsonDocument.Parse(File.ReadAllBytes(output));
@@ -91,6 +92,6 @@ public sealed class TerrainExitWorkflowTests
 
         Assert.Same(saved, project.Document);
         Assert.False(project.IsModified);
-        Assert.Equal([marker], project.Document.Terrains.Single(a => a.Id == first).Exits);
+        Assert.Equal(new[] { marker }, project.Document.Terrains.Single(a => a.Id == first).Exits);
     }
 }
