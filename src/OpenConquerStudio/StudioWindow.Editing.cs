@@ -35,6 +35,7 @@ public sealed partial class StudioWindow
                 "animation" => _animationEditor.HasPending,
                 "model" => _modelEditor.HasPending,
                 "terrain" => _terrainEditor.HasPending,
+                "world" => _worldEditor.HasPending,
                 _ => false,
             };
         }
@@ -81,6 +82,10 @@ public sealed partial class StudioWindow
                 int y = _terrainEditor.SelectedY;
                 apply = () => project.EditTerrainCell(info.Id, x, y, cell, terrainName, exits);
                 break;
+            case "world":
+                WorldAsset world = _worldEditor.ReadChanges();
+                apply = () => project.EditWorld(world);
+                break;
         }
         await Task.Run(() => { token.ThrowIfCancellationRequested(); apply?.Invoke(); project.Rename(name); }, token);
         _previewInvalidated = apply is not null;
@@ -99,6 +104,10 @@ public sealed partial class StudioWindow
         if (info?.Kind == "terrain")
         {
             _terrainEditor.Accept(project.Document.Terrains.Single(a => a.Id == info.Id));
+        }
+        if (info?.Kind == "world")
+        {
+            _worldEditor.Accept(project.Document.Worlds.Single(a => a.Id == info.Id));
         }
     }
 

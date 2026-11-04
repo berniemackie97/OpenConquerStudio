@@ -33,7 +33,7 @@ public sealed partial class StudioWindow
                     spriteId = atlas.Sprites[0].Id;
                 }
             }
-            if (info.Kind != "terrain")
+            if (info.Kind is not ("terrain" or "world"))
             {
                 frames = await Task.Run(() => MakePreview(info, spriteId, token), token);
             }
@@ -54,8 +54,18 @@ public sealed partial class StudioWindow
             _animationEditor.IsVisible = info.Kind == "animation";
             _modelEditor.IsVisible = info.Kind == "model";
             _terrainEditor.IsVisible = info.Kind == "terrain";
+            _worldEditor.IsVisible = info.Kind == "world";
             _dependencies.Text = "Uses: " + string.Join(", ", document.Dependencies(id).Select(dependency => document.Resources.Single(a => a.Id == dependency).Name)) +
                 "\nUsed by: " + string.Join(", ", document.Dependents(id).Select(a => a.Name));
+            if (info.Kind == "world")
+            {
+                _preview.Clear();
+                _preview.IsVisible = false;
+                _emptyPreview.Text = "World definitions bind map identity, terrain, and server flags. Visual maps are authored separately.";
+                _emptyPreview.IsVisible = true;
+                _worldEditor.Load(document.Worlds.Single(a => a.Id == id), document);
+                return;
+            }
             if (info.Kind == "terrain")
             {
                 _preview.Clear();
@@ -150,6 +160,7 @@ public sealed partial class StudioWindow
         _animationEditor.IsVisible = false;
         _modelEditor.IsVisible = false;
         _terrainEditor.IsVisible = false;
+        _worldEditor.IsVisible = false;
         _dependencies.Text = "Select an asset to inspect its dependencies.";
         _emptyPreview.Text = _project is null ? "Open a Studio project or connect your client checkout." : "Use Assets to import or create editable content.\nConnected client sources are available in Client content.";
         _emptyPreview.IsVisible = true;

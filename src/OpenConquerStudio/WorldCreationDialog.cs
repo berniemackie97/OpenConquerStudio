@@ -9,8 +9,8 @@ internal sealed record WorldCreation(string Name, uint MapId, Guid TerrainId, ul
 internal sealed class WorldCreationDialog : Window
 {
     private readonly TextBox _name = new() { Name = "NewWorldName", Text = "World" };
-    private readonly TextBox _mapId = new() { Name = "NewWorldMapId", Watermark = "Required world MapId" };
-    private readonly TextBox _flags = new() { Name = "NewWorldFlags", Watermark = "Required flags: decimal or 0x hex" };
+    private readonly TextBox _mapId = new() { Name = "NewWorldMapId", PlaceholderText = "Required world MapId" };
+    private readonly TextBox _flags = new() { Name = "NewWorldFlags", PlaceholderText = "Required flags: decimal or 0x hex" };
     private readonly ComboBox _terrain = new() { Name = "NewWorldTerrain" };
     private readonly TextBlock _error = new() { TextWrapping = Avalonia.Media.TextWrapping.Wrap };
     private readonly TerrainAsset[] _terrains;
