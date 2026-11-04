@@ -61,7 +61,8 @@ destination links. Scenery, animation layers, world bindings and authored terrai
 visualizations are not represented yet.
 
 The current authoring budget is 262,144 cells per project, with width and height limited to
-1–1,024 cells each. This is a foundation safety limit, not a target-world performance budget.
+1–1,024 cells each, and at most 4,096 exit markers per terrain or 8,192 per project.
+These are bounded Studio editing limits, not target-world gameplay constraints.
 The `export-base-terrain` command emits the server tool's supported version 1 source JSON:
 `formatVersion`, `mapDataId`, `width`, `height`, ordered `cells` containing `surfaceId`,
 `passabilityFlag`, and `elevation`, followed by ordered `exits` containing signed
