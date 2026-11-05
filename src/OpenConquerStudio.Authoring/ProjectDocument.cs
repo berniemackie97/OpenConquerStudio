@@ -22,11 +22,12 @@ public sealed record ResourceInfo(Guid Id, string Name, string Kind)
     public override string ToString() => $"{Name} ({Kind})";
 }
 
-public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, ImmutableArray<TextureAsset> Assets,
+public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string Name, ImmutableArray<TextureAsset> Assets,
     ImmutableArray<AtlasAsset> Atlases, ImmutableArray<AnimationAsset> Animations)
 {
     public ImmutableArray<ModelAsset> Models { get; init; } = [];
     public ImmutableArray<TerrainAsset> Terrains { get; init; } = [];
+    public ImmutableArray<WorldAsset> Worlds { get; init; } = [];
     public const int MaximumTotalTerrainCells = 262_144;
     public const int MaximumTerrainExitMarkers = 4_096;
     public const int MaximumTotalTerrainExitMarkers = 8_192;
@@ -40,6 +41,7 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
         .Concat(Atlases.Select(a => new ResourceInfo(a.Id, a.Name, "atlas")))
         .Concat(Models.Select(a => new ResourceInfo(a.Id, a.Name, "model")))
         .Concat(Terrains.Select(a => new ResourceInfo(a.Id, a.Name, "terrain")))
+        .Concat(Worlds.Select(a => new ResourceInfo(a.Id, a.Name, "world")))
         .Concat(Animations.Select(a => new ResourceInfo(a.Id, a.Name, "animation"))).OrderBy(a => a.Id);
 
     public void Validate()
@@ -51,7 +53,8 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
 
         ValidateName(Name);
         if (Id == Guid.Empty || Assets.IsDefault || Atlases.IsDefault || Animations.IsDefault || Assets.Length > MaximumAssets ||
-            Models.IsDefault || Terrains.IsDefault || Assets.Length + Atlases.Length + Animations.Length + Models.Length + Terrains.Length > MaximumResources)
+            Models.IsDefault || Terrains.IsDefault || Worlds.IsDefault ||
+            Assets.Length + Atlases.Length + Animations.Length + Models.Length + Terrains.Length + Worlds.Length > MaximumResources)
         {
             throw new InvalidDataException("Project identity or asset count is invalid.");
         }
@@ -139,6 +142,8 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
             }
         }
 
+        ValidateWorlds(ids);
+
         Dictionary<Guid, TextureAsset> textures = Assets.ToDictionary(a => a.Id);
         Dictionary<Guid, SpriteAtlas> atlases = [];
         int spriteCount = 0;
@@ -201,6 +206,11 @@ public sealed record ProjectDocument(int SchemaVersion, Guid Id, string Name, Im
         if (Animations.FirstOrDefault(a => a.Id == id) is { } animation)
         {
             return [.. animation.Frames.Select(f => f.AtlasId).Distinct().Order()];
+        }
+
+        if (Worlds.FirstOrDefault(a => a.Id == id) is { } world)
+        {
+            return [world.TerrainId];
         }
 
         if (Assets.Any(a => a.Id == id) || Models.Any(a => a.Id == id) || Terrains.Any(a => a.Id == id))

@@ -25,6 +25,7 @@ own parent assets. Resource revisions are immutable; edits publish a new revisio
 | `atlas` | `id`, `name`, `textureId`, ordered `sprites`: `id`, `name`, `x`, `y`, `width`, `height`, `pivotX`, `pivotY` |
 | `animation` | `id`, `name`, `ticksPerSecond`, `repeat`, ordered `frames`: `id`, `atlasId`, `spriteId`, `durationTicks` |
 | `terrain` | `id`, `name`, `mapDataId`, `width`, `height`, `cellDigest`; ordered `exits` with stable `id`, signed `x`/`y`, unsigned `passwayIndex` |
+| `world` | `id`, `name`, `mapId`, `terrainId`, `flags`; separate world identity, authored terrain reference and full unsigned 64-bit mask |
 
 Coordinates use the transformed texture's top-left pixel origin. Pivots are signed pixel
 offsets from a sprite's top-left corner. Flip precedes clockwise rotation. Changing texture
@@ -57,8 +58,9 @@ Its cell payload contains row-major, top-left-origin cells: six little-endian by
 encoding unsigned 16-bit surface ID, unsigned 16-bit raw passability flag and signed 16-bit
 elevation. The payload's SHA-256 is verified on reopen; edits create immutable revisions and
 participate in project undo/redo and atomic save. Terrain exit markers are ordered and may lie outside the grid; they are not portal
-destination links. Scenery, animation layers, world bindings and authored terrain
-visualizations are not represented yet.
+destination links. Authored world definitions bind unique world MapIds to terrain resources
+and explicit full 64-bit flags; multiple world IDs may share the same terrain data ID.
+Scenery, animation layers, portal destinations and visual map compilation remain outstanding.
 
 The current authoring budget is 262,144 cells per project, with width and height limited to
 1–1,024 cells each, and at most 4,096 exit markers per terrain or 8,192 per project.
@@ -82,6 +84,23 @@ server tool whose `build-authored-terrain` command supports the source contract.
 Studio's existing full content `build` still rejects projects containing terrain until paired
 server/client content compilation exists. The `.octerrain` payload is authoring data, **not**
 the server's `.ocbt` artifact.
+
+### Authored world definitions
+
+Each world has a stable Studio resource ID and a separate positive world MapId. The terrain
+reference must resolve within the same project, and every world MapId is unique in that
+project. World IDs need not equal the terrain's MapDataId; multiple worlds may reuse a terrain.
+The editor never derives flags from terrain bytes or invents historical values. Flags are
+explicit unsigned 64-bit values, not truncated to a 32-bit mask.
+
+`export-map-definitions` exports all saved worlds as the server's version 1 source JSON:
+`formatVersion: 1`, followed by `maps` sorted by world MapId, each with `mapId`,
+`mapDataId` resolved from the referenced terrain, and `flags` written as an exact JSON
+unsigned integer. Names and Studio GUIDs are excluded. Identical authored data yields
+identical source bytes across processes. The server-owned `generate-map-definitions` command
+writes the canonical map catalog; CI invokes that command using a pinned server revision.
+This does not create portal-transition destinations, per-world visual assets, or a paired
+game content release.
 
 ### Budgets and validation
 

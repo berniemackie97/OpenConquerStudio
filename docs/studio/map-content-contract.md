@@ -43,7 +43,7 @@ Keep these identities distinct:
 
 - **Asset GUID:** stable across rename, move and reimport; includes a project/resource namespace.
 - **Terrain/MapDataId:** numeric compatibility binding for the existing game; several worlds may use it.
-- **World mapId:** authoritative location/instance definition, flags and transition source identity.
+- **World mapId:** authoritative location/instance definition, flags and transition source identity. Studio now authors its explicit binding to one terrain resource and full raw flags value; transition destinations are separate.
 - **Revision digest:** exact content version; changes when relevant data or build inputs change.
 - **Source identity:** original path, package member and source digest retained by the importer; never silently used as a universal authored ID.
 

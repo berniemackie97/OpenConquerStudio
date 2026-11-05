@@ -189,6 +189,37 @@ class StudioCliTests(unittest.TestCase):
             )
             self.run_tool("remove-terrain-exit", project, terrain, second, expected=1)
 
+    def test_world_definitions_preserve_shared_terrain_bindings_and_full_flags(self):
+        with tempfile.TemporaryDirectory(prefix="studio-worlds-") as temporary:
+            root = Path(temporary).resolve()
+            project = root / "project"
+            project.mkdir()
+            self.run_tool("create", project, "Worlds")
+            terrain = self.run_tool("new-terrain", project, "Ground", 1010, 2, 1, 1, 0, 0).stdout.strip()
+            later = self.run_tool("new-world", project, "Later", 2003, terrain, "0xFFFFFFFFFFFFFFFF").stdout.strip()
+            earlier = self.run_tool("new-world", project, "Earlier", 2002, terrain, 0).stdout.strip()
+            self.run_tool("edit-world", project, later, "Later renamed", 2003, terrain, "18446744073709551615")
+            first = root / "first.json"
+            second = root / "second.json"
+            self.run_tool("export-map-definitions", project, first)
+            self.run_tool("export-map-definitions", project, second)
+            self.assertEqual(first.read_bytes(), second.read_bytes())
+
+            payload = json.loads(first.read_bytes())
+            self.assertEqual(["formatVersion", "maps"], list(payload))
+            self.assertEqual(1, payload["formatVersion"])
+            self.assertEqual([
+                {"mapId": 2002, "mapDataId": 1010, "flags": 0},
+                {"mapId": 2003, "mapDataId": 1010, "flags": 18446744073709551615},
+            ], payload["maps"])
+            self.assertNotIn(earlier, first.read_text())
+            self.assertNotIn(later, first.read_text())
+            self.run_tool("delete", project, terrain, expected=1)
+            self.run_tool("new-world", project, "Duplicate", 2002, terrain, 1, expected=1)
+            self.run_tool("edit-world", project, earlier, "Earlier", 2002, terrain, "-1", expected=1)
+            self.run_tool("export-map-definitions", project, first, expected=1)
+            self.assertEqual(payload, json.loads(first.read_bytes()))
+
     def test_process_termination_during_save_preserves_a_complete_committed_project(self):
         with tempfile.TemporaryDirectory(prefix="studio-crash-") as temporary:
             root = Path(temporary).resolve()
