@@ -1,0 +1,39 @@
+name: Technical investigation
+description: Resolve a bounded evidence, performance or architecture question before design.
+title: "[Spike] "
+body:
+  - type: input
+    id: parent
+    attributes:
+      label: Parent epic and decision gate
+      placeholder: "#23 / M2.7"
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Decision to make
+      description: State exactly which unresolved question blocks implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Evidence and measurements required
+      description: Existing implementation, consumer tests, independent reference inputs and reproducible measurements.
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options and constraints
+      description: Include compatibility, ownership, memory, security and migration impacts.
+    validations:
+      required: true
+  - type: textarea
+    id: exit
+    attributes:
+      label: Exit criteria
+      value: "- [ ] Decision recorded with source evidence and remaining uncertainty\n- [ ] Implementation and test issues updated if needed"
+    validations:
+      required: true
