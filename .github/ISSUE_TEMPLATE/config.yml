@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Product milestones and scope
+    url: https://github.com/berniemackie97/OpenConquerStudio/blob/main/docs/product/roadmap.md
+    about: Check the planned M0–M8 outcomes before opening work.
+  - name: Acceptance evidence
+    url: https://github.com/berniemackie97/OpenConquerStudio/blob/main/docs/product/acceptance.md
+    about: Review implementation, verification and release gates.

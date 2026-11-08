@@ -1,0 +1,64 @@
+name: Bug report
+description: Report a reproduced Studio/Engine defect with enough evidence to fix and verify it.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "Search existing issues first. Do not post secrets, credentials or exploit details in public issues."
+  - type: input
+    id: version
+    attributes:
+      label: Version and revision
+      description: Release version or commit SHA where the behavior was observed.
+      placeholder: "main @ <commit>"
+    validations:
+      required: true
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Observed impact
+      options:
+        - Data loss or corruption
+        - Crash or unrecoverable failure
+        - Incorrect authored or compiled output
+        - Editor interaction or presentation defect
+        - Performance regression
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: Provide exact actions, inputs and starting state; use redacted or redistributable fixtures.
+      placeholder: "1. Open project ...\n2. Edit ...\n3. Observe ..."
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: Attach stack traces, logs, screenshots or captures with sensitive material removed.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Describe the established contract or acceptance criterion.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment and coverage
+      description: OS, architecture, GPU/driver, DPI, source content and affected target consumers if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: regression
+    attributes:
+      label: Regression and validation plan
+      description: Smallest reliable automated or hardware validation proving the fix.
+    validations:
+      required: false

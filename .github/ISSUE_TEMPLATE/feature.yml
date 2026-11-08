@@ -1,0 +1,50 @@
+name: Product capability
+description: Plan a verified vertical-slice feature or engineering task against the existing M0–M8 gates.
+title: "[Feature] "
+body:
+  - type: markdown
+    attributes:
+      value: "Read the product roadmap and acceptance ledger. Avoid duplicate tickets for completed or planned work."
+  - type: input
+    id: parent
+    attributes:
+      label: Parent epic and milestone
+      placeholder: "#23, M2"
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Author or game outcome
+      description: State the user-observable result, not an implementation mechanism.
+    validations:
+      required: true
+  - type: textarea
+    id: audit
+    attributes:
+      label: Current implementation and evidence
+      description: Cite source files, tests, previous PRs, supported formats and explicitly unknown behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and ownership
+      description: Identify Studio, runtime, client or server responsibilities and out-of-scope changes.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Provide testable functional, failure, compatibility and operational gates.
+      value: "- [ ] "
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and verification
+      description: Link blocking issues and required independent consumers, hardware or cross-process tests.
+    validations:
+      required: false
