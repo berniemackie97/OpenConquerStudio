@@ -54,22 +54,35 @@ public sealed partial class StudioProject
     }
 
     public void EditTerrainCell(Guid id, int x, int y, TerrainCell cell, string name,
+        ImmutableArray<TerrainExitMarker> exits = default) =>
+        PaintTerrainRegion(id, new TerrainRegion(x, y, x, y), cell, name, exits);
+
+    public void PaintTerrainRegion(Guid id, TerrainRegion region, TerrainCell cell, string name,
         ImmutableArray<TerrainExitMarker> exits = default)
     {
         ThrowIfDisposed();
         TerrainAsset terrain = Document.Terrains.Single(a => a.Id == id);
-        byte[] previous = _terrainCells[terrain.CellDigest];
-        byte[] changed = previous;
-        if (TerrainGrid.GetCell(previous, terrain.Width, terrain.Height, x, y) != cell)
+        region.Validate(terrain.Width, terrain.Height);
+        byte[] original = _terrainCells[terrain.CellDigest];
+        byte[]? painted = null;
+        for (int y = region.StartY; y <= region.EndY; y++)
         {
-            changed = (byte[])previous.Clone();
-            TerrainGrid.SetCell(changed, terrain.Width, terrain.Height, x, y, cell);
+            for (int x = region.StartX; x <= region.EndX; x++)
+            {
+                if (TerrainGrid.GetCell(original, terrain.Width, terrain.Height, x, y) == cell)
+                {
+                    continue;
+                }
+
+                painted ??= (byte[])original.Clone();
+                TerrainGrid.SetCell(painted, terrain.Width, terrain.Height, x, y, cell);
+            }
         }
 
         TerrainAsset edited = terrain with
         {
             Name = name,
-            CellDigest = ReferenceEquals(changed, previous) ? terrain.CellDigest : ProjectFiles.Hash(changed),
+            CellDigest = painted is null ? terrain.CellDigest : ProjectFiles.Hash(painted),
             Exits = exits.IsDefault || terrain.Exits.SequenceEqual(exits) ? terrain.Exits : exits
         };
         if (edited == terrain)
@@ -82,7 +95,10 @@ public sealed partial class StudioProject
             Terrains = [.. Document.Terrains.Select(a => a.Id == id ? edited : a)]
         };
         document.Validate();
-        _terrainCells.TryAdd(edited.CellDigest, changed);
+        if (painted is not null)
+        {
+            _terrainCells.TryAdd(edited.CellDigest, painted);
+        }
         Apply(document);
     }
 }
