@@ -597,14 +597,28 @@ public sealed partial class StudioWindow : Window
         await ExecuteAsync(async token =>
         {
             Guid? id = (_assets.SelectedItem as ResourceInfo)?.Id;
-            if (HasPendingEdits)
+            bool pendingDraft = HasPendingEdits;
+            if (!pendingDraft)
             {
-                _loadingInspector = true;
-                try
+                if (undo)
                 {
-                    _projectName.Text = Project.Document.Name;
+                    _project!.Undo();
                 }
-                finally { _loadingInspector = false; }
+                else
+                {
+                    _project!.Redo();
+                }
+            }
+
+            _loadingInspector = true;
+            try
+            {
+                _projectName.Text = Project.Document.Name;
+            }
+            finally { _loadingInspector = false; }
+
+            if (pendingDraft)
+            {
                 if (id is Guid dirty && _activeWorkspaceTab == 0)
                 {
                     await UpdatePreview(dirty, token);
@@ -612,20 +626,7 @@ public sealed partial class StudioWindow : Window
                 _output.Text = "Pending edits reverted.";
                 return;
             }
-            if (undo)
-            {
-                _project!.Undo();
-            }
-            else
-            {
-                _project!.Redo();
-            }
-            _loadingInspector = true;
-            try
-            {
-                _projectName.Text = Project.Document.Name;
-            }
-            finally { _loadingInspector = false; }
+
             RefreshAssets(id);
             if (id is Guid selected && _project.Document.Resources.Any(a => a.Id == selected))
             {
