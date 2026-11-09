@@ -14,8 +14,15 @@ internal sealed class TerrainEditor : StackPanel
     private readonly NumericUpDown _passability = Number("TerrainPassability", 0, ushort.MaxValue);
     private readonly NumericUpDown _elevation = Number("TerrainElevation", short.MinValue, short.MaxValue);
     private readonly TextBlock _location = new() { TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+    private readonly ListBox _sourceFrames = new()
+    {
+        Name = "TerrainSourceFrameSelection",
+        Height = 150,
+        SelectionMode = SelectionMode.Multiple
+    };
     private readonly Func<Guid, int, int, TerrainCell> _read;
     private readonly TerrainExitEditor _exitEditor;
+    private readonly Func<Guid, ImmutableArray<string>, Task> _promoteFrames;
     private TerrainAsset? _asset;
     private TerrainCell _selectedCell;
     private int _selectedX;
@@ -25,9 +32,11 @@ internal sealed class TerrainEditor : StackPanel
     public event Action? PendingChanged;
 
     public TerrainEditor(Func<Task> apply, Func<Task<bool>> navigate, Func<Guid, int, int, TerrainCell> read,
-        Func<Guid, ImmutableArray<TerrainExitMarker>, Task> replaceExits)
+        Func<Guid, ImmutableArray<TerrainExitMarker>, Task> replaceExits,
+        Func<Guid, ImmutableArray<string>, Task> promoteFrames)
     {
         _read = read;
+        _promoteFrames = promoteFrames;
         _exitEditor = new TerrainExitEditor(apply, navigate, replaceExits);
         _exitEditor.PendingChanged += Changed;
         Spacing = 8;
@@ -35,6 +44,26 @@ internal sealed class TerrainEditor : StackPanel
         Children.Add(new TextBlock { Text = "Name" });
         Children.Add(_name);
         Children.Add(_location);
+        Children.Add(new TextBlock { Text = "Captured image frames" });
+        Children.Add(_sourceFrames);
+        Button promote = new()
+        {
+            Name = "PromoteTerrainFrames",
+            Content = "Create editable textures from selected frames"
+        };
+        promote.Click += async (_, _) =>
+        {
+            if (_asset is not null)
+            {
+                ImmutableArray<string> paths = [.. _sourceFrames.SelectedItems
+                    .OfType<SourceFrameOption>().Select(item => item.Path)];
+                if (!paths.IsEmpty)
+                {
+                    await _promoteFrames(_asset.Id, paths);
+                }
+            }
+        };
+        Children.Add(promote);
         Children.Add(new TextBlock { Text = "Cell X / Y" });
         Children.Add(_x);
         Children.Add(_y);
@@ -146,6 +175,9 @@ internal sealed class TerrainEditor : StackPanel
             _x.Maximum = asset.Width - 1;
             _y.Maximum = asset.Height - 1;
             _name.Text = asset.Name;
+            _sourceFrames.ItemsSource = asset.Source?.Frames.Select(frame =>
+                new SourceFrameOption(frame.Path, frame.TextureId)).ToArray() ?? [];
+            _sourceFrames.IsVisible = asset.Source?.Frames.IsEmpty == false;
             LoadCell();
             _exitEditor.Load(asset);
         }
@@ -202,6 +234,13 @@ internal sealed class TerrainEditor : StackPanel
         {
             PendingChanged?.Invoke();
         }
+    }
+
+    private sealed record SourceFrameOption(string Path, Guid? TextureId)
+    {
+        public override string ToString() => TextureId is Guid
+            ? $"{Path} · linked"
+            : Path;
     }
 
     private static NumericUpDown Number(string name, decimal minimum, decimal maximum) => new()
