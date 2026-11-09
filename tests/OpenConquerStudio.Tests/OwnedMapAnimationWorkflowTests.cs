@@ -64,12 +64,12 @@ public sealed class OwnedMapAnimationWorkflowTests
             project.Rename("Temporary");
             project.Undo();
             Assert.True(project.CanRedo);
-    
+
             project.RefreshTerrain(id, Input(map));
             Assert.Same(saved, project.Document);
             Assert.False(project.IsModified);
             Assert.True(project.CanRedo);
-    
+
             byte[] changed = Encoding.Latin1.GetBytes(Encoding.Latin1.GetString(Indexes())
                 .Replace("textures/2b.dds", "textures/new.dds", StringComparison.Ordinal));
             TerrainImport next = Input(map) with
