@@ -179,7 +179,42 @@ longer replace it. Authored frame textures use the existing texture build path. 
 still rejects projects containing authored terrain, rather than silently publishing a
 partial world package. Standalone textures can be built after unlinking and removing
 the source terrain; complete visual-world compilation remains a separate milestone.
-This does not yet produce authored puzzle/scenery placement layers or a compiled client map.
+This does not yet produce authored puzzle layers or a compiled client map. Source-backed
+scenery coordinate authoring is available separately, without a client scene renderer.
+
+## Edit source-backed scenery coordinates
+
+After extracting a map, the **Source-backed scenery placements** panel exposes the
+verified signed X/Y coordinates for scenery records of types 1 and 4. Each editable
+placement receives an authored GUID; its source record index, resource path, type,
+animation section and original coordinates remain separate and immutable.
+Scenery types 10 and 15, empty animation placeholders and positioned overlay
+records stay preserved in the captured source snapshot but are not silently made
+editable. The panel shows source order and resource names. Select a row, choose
+**Inspect selected scenery**, edit its signed coordinates, then Apply or Save.
+The changes share the same terrain project revision as pending cell, name and
+exit-marker changes; Undo/Redo and reopening preserve the edits.
+
+On explicit map refresh, Studio matches existing placements by verified type,
+resource path and section in source occurrence order. Matching entries preserve
+their authored GUIDs and deliberate coordinate overrides; unmodified coordinates
+adopt the refreshed source values. Removed references do not survive as
+unresolved authored instances. Repeated indistinguishable references are matched
+by occurrence, so reordering duplicates requires review. Source-map bytes remain
+unchanged and continue to be verified by digest.
+
+The CLI can inspect or change a placement without requiring a client-content
+connection after the source map was saved:
+
+```sh
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- list-map-scenery /path/to/project <terrain-guid>
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- move-map-scenery /path/to/project <terrain-guid> <placement-guid> -40 27
+```
+
+The exported source-map inventory includes both the original ordered raw scenery
+records and the edited placement coordinates. Only the verified coordinate fields
+are authorable in this checkpoint. This does not yet generate visual puzzle/scenery
+layers, apply terrain-collision overrides, or compile a complete game map.
 
 ## Author terrain cells
 
@@ -238,7 +273,8 @@ This is not a complete client/server world build.
 
 This remains a terrain-data editor, not a complete world scene editor. The grid shows raw
 surface values and selected cells, not game scenery or puzzle layers. Portal destinations,
-scenery placement, client visuals and paired client/server map builds are still unimplemented.
+scenery rendering and authored placement composition, client visual-map output and
+paired client/server map builds are still unimplemented.
 **Save and build** rejects projects containing terrain rather than publishing incomplete game
 content. Actual desktop/GPU world validation remains a separate gate.
 
