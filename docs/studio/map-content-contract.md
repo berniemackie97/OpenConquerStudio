@@ -1,8 +1,9 @@
 # Map content contract and migration plan
 
 Status: target design and migration gates, November 3, 2026. This does not freeze a new compiled
-map schema. Studio/Engine now includes bounded authored terrain cells and ordered exit markers, with
-an explicit server tool bridge for terrain/collision pair generation. World portal destinations,
+map schema. Studio/Engine includes bounded authored terrain cells, single-revision region painting
+and ordered exit markers, with an explicit server tool bridge for terrain/collision pair generation.
+The terrain grid is a raw-data editing view, not a game visual scene. World portal destinations,
 visual maps and fully paired game content outputs remain outstanding. Client and server retain
 game execution and authority.
 
