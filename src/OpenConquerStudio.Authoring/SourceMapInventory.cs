@@ -97,12 +97,7 @@ public sealed record SourceMapInventory(int FormatVersion, uint MapDataId, strin
         ImmutableArray<SourceMapReference> ordered = references.ToImmutable();
         if (!authoredScenery.IsDefaultOrEmpty)
         {
-            TerrainAsset authored = new(Guid.NewGuid(), "Captured", id, grid.Width, grid.Height, digest)
-            {
-                Source = source,
-                SceneryPlacements = authoredScenery
-            };
-            SourceSceneryPlacements.ValidateAgainstSource(authored, decoded);
+            SourceSceneryPlacements.ValidateAgainstSource(authoredScenery, decoded);
         }
         if (!source.Puzzles.IsEmpty)
         {
