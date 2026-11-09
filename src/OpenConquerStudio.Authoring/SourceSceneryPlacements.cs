@@ -56,7 +56,7 @@ public static class SourceSceneryPlacements
                 throw new InvalidDataException("Scenery placements exceed the terrain authoring budget.");
             }
         }
-        return result.MoveToImmutable();
+        return result.ToImmutable();
     }
 
     public static ImmutableArray<TerrainSceneryPlacement> Reconcile(
