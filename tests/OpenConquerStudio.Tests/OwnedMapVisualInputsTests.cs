@@ -19,7 +19,8 @@ public sealed class OwnedMapVisualInputsTests
         {
             id = project.ImportTerrain(input, "Ground");
             SourceMapInventory inventory = project.ReadSourceMapInventory(id);
-            Assert.Equal(4, inventory.FormatVersion);
+            Assert.Equal(5, inventory.FormatVersion);
+            Assert.Equal(17, Assert.Single(inventory.AuthoredSceneryPlacements).X);
             SourceSceneInput scene = Assert.Single(inventory.Scenes);
             Assert.Equal("scenes/terrain.scene", scene.Path);
             Assert.Equal("ani/scenery.ani", Assert.Single(scene.Objects).AnimationPath);
@@ -49,7 +50,9 @@ public sealed class OwnedMapVisualInputsTests
         string inventoryPath = directory.PathFor("inventory.json");
         SourceMapInventory.Export(reopened, id, inventoryPath, TestContext.Current.CancellationToken);
         using JsonDocument json = JsonDocument.Parse(File.ReadAllBytes(inventoryPath));
-        Assert.Equal(4, json.RootElement.GetProperty("formatVersion").GetInt32());
+        Assert.Equal(5, json.RootElement.GetProperty("formatVersion").GetInt32());
+        Assert.Equal(29, json.RootElement.GetProperty("authoredSceneryPlacements")[0]
+            .GetProperty("y").GetInt32());
         Assert.Equal("SceneTile", json.RootElement.GetProperty("scenes")[0].GetProperty("objects")[0]
             .GetProperty("sectionName").GetString());
         Assert.Equal("images/scene.tga",
