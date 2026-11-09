@@ -152,7 +152,8 @@ internal static class ProjectStorage
 
     private static int TerrainResourceVersion(TerrainAsset terrain) =>
         terrain.Source is null ? 1 : terrain.Source.SnapshotDigest is null ? 2 :
-            terrain.Source.Puzzles.IsEmpty ? 3 : terrain.Source.AnimationIndexes.IsEmpty ? 4 : 5;
+            terrain.Source.Puzzles.IsEmpty ? 3 : !terrain.Source.Scenes.IsEmpty || !terrain.Source.Frames.IsEmpty ? 6 :
+            terrain.Source.AnimationIndexes.IsEmpty ? 4 : 5;
 
     private static Dictionary<string, byte[]> ReadSourceInputs(string root, ProjectDocument document, CancellationToken token)
     {
@@ -203,6 +204,46 @@ internal static class ProjectStorage
                     throw new InvalidDataException("Owned puzzle metadata differs from its decoded input.");
                 }
             }
+            ImmutableArray<SourceSceneCapture> scenes = default;
+            if (!source.Scenes.IsEmpty || !source.Frames.IsEmpty)
+            {
+                GameMapCellGrid grid = GameMapCellGrid.Parse(inputs[source.SnapshotDigest!]);
+                GameMapSceneSections parsed = GameMapSceneSections.Parse(inputs[source.SnapshotDigest!],
+                    grid.BytesConsumed, grid.HeaderField0);
+                ImmutableArray<string> requiredScenes = SourceSceneDependencies.Collect(parsed);
+                if (requiredScenes.Length != source.Scenes.Length)
+                {
+                    throw new InvalidDataException("Captured scenery files do not cover the original map references.");
+                }
+                ImmutableArray<SourceSceneCapture>.Builder captures =
+                    ImmutableArray.CreateBuilder<SourceSceneCapture>(requiredScenes.Length);
+                for (int i = 0; i < requiredScenes.Length; i++)
+                {
+                    token.ThrowIfCancellationRequested();
+                    SourceSceneInput recorded = source.Scenes[i];
+                    if (!string.Equals(recorded.Path, requiredScenes[i], StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidDataException("Scenery file order differs from the original map.");
+                    }
+                    if (!inputs.TryGetValue(recorded.Digest, out byte[]? bytes))
+                    {
+                        bytes = ProjectFiles.Read(SceneSourcePath(root, recorded.Digest),
+                            SourceSceneInput.MaximumBytes);
+                        if (bytes.Length != recorded.ByteLength || ProjectFiles.Hash(bytes) != recorded.Digest)
+                        {
+                            throw new InvalidDataException("Stored scenery source failed integrity validation.");
+                        }
+                        inputs.Add(recorded.Digest, bytes);
+                    }
+                    SourceSceneInput parsedScene = SourceSceneDependencies.Read(recorded.Path, bytes);
+                    if (!SourceSceneDependencies.Equivalent([recorded], [parsedScene]))
+                    {
+                        throw new InvalidDataException("Scenery object metadata differs from its stored bytes.");
+                    }
+                    captures.Add(new SourceSceneCapture(recorded.Path, bytes));
+                }
+                scenes = captures.MoveToImmutable();
+            }
             if (!source.AnimationIndexes.IsEmpty)
             {
                 GameMapCellGrid grid = GameMapCellGrid.Parse(inputs[source.SnapshotDigest!]);
@@ -210,7 +251,8 @@ internal static class ProjectStorage
                     grid.BytesConsumed, grid.HeaderField0);
                 ImmutableArray<SourcePuzzleCapture> puzzles = [.. source.Puzzles.Select(puzzle =>
                     new SourcePuzzleCapture(puzzle.Path, puzzle.Digest is null ? null : inputs[puzzle.Digest]))];
-                ImmutableArray<SourceAnimationRequirement> required = SourceAnimationDependencies.Collect(scene, puzzles);
+                ImmutableArray<SourceAnimationRequirement> required =
+                    SourceAnimationDependencies.Collect(scene, puzzles, scenes);
                 if (required.Length != source.AnimationIndexes.Length)
                 {
                     throw new InvalidDataException("Stored animation indexes do not cover source-map dependencies.");
@@ -237,6 +279,37 @@ internal static class ProjectStorage
                     if (!SourceAnimationDependencies.Equivalent([recorded], [parsed]))
                     {
                         throw new InvalidDataException("Captured animation index differs from its required sections.");
+                    }
+                }
+            }
+            if (!source.Frames.IsEmpty)
+            {
+                ImmutableArray<string> requiredFrames = SourceFrameDependencies.Collect(source.AnimationIndexes);
+                if (requiredFrames.Length != source.Frames.Length)
+                {
+                    throw new InvalidDataException("Captured frame images do not cover the ANI references.");
+                }
+                for (int i = 0; i < requiredFrames.Length; i++)
+                {
+                    token.ThrowIfCancellationRequested();
+                    SourceFrameInput recorded = source.Frames[i];
+                    if (!string.Equals(recorded.Path, requiredFrames[i], StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidDataException("Captured frame order differs from its ANI references.");
+                    }
+                    if (!inputs.TryGetValue(recorded.Digest, out byte[]? bytes))
+                    {
+                        bytes = ProjectFiles.Read(FrameSourcePath(root, recorded.Digest),
+                            SourceFrameInput.MaximumBytes);
+                        if (bytes.Length != recorded.ByteLength || ProjectFiles.Hash(bytes) != recorded.Digest)
+                        {
+                            throw new InvalidDataException("Captured image frame failed its digest or byte-length check.");
+                        }
+                        inputs.Add(recorded.Digest, bytes);
+                    }
+                    if (SourceFrameDependencies.Read(recorded.Path, bytes, token) != recorded)
+                    {
+                        throw new InvalidDataException("Captured frame image metadata differs from its original bytes.");
                     }
                 }
             }
@@ -337,6 +410,20 @@ internal static class ProjectStorage
             WriteImmutable(AnimationIndexPath(root, digest), sourceInputs[digest],
                 SourceAnimationIndexInput.MaximumBytes);
         }
+        foreach (string digest in document.Terrains.SelectMany(a => a.Source?.Scenes ?? [])
+            .Select(scene => scene.Digest).Distinct())
+        {
+            token.ThrowIfCancellationRequested();
+            WriteImmutable(SceneSourcePath(root, digest), sourceInputs[digest],
+                SourceSceneInput.MaximumBytes);
+        }
+        foreach (string digest in document.Terrains.SelectMany(a => a.Source?.Frames ?? [])
+            .Select(frame => frame.Digest).Distinct())
+        {
+            token.ThrowIfCancellationRequested();
+            WriteImmutable(FrameSourcePath(root, digest), sourceInputs[digest],
+                SourceFrameInput.MaximumBytes);
+        }
 
         List<ResourceRevision> revisions = [];
         int metadataBytes = 0;
@@ -413,4 +500,8 @@ internal static class ProjectStorage
     private static string PuzzleSourcePath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".ocpuzzle");
 
     private static string AnimationIndexPath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".ocani");
+
+    private static string SceneSourcePath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".ocscene");
+
+    private static string FrameSourcePath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".ocframe");
 }

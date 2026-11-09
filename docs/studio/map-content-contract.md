@@ -69,14 +69,24 @@ immutable, digest-checked inputs; unchanged refreshes preserve the same authored
 terrain revision. Section dependencies remain associated with source paths rather
 than being treated as authored resource identities.
 
-These snapshots do not include ANI frame image bytes, decoded animation textures or
-external scenery image resources, and do not form a complete typed asset graph. It is not an editable
+The importer now also captures all referenced type-1 terrain-scene source files,
+preserving their ordered object records and raw cell grids. Their animation index
+dependencies are included in the exact section resolution. Each distinct referenced
+DDS/TGA animation frame is captured as an immutable source input and validated with
+the established image decoder before project mutation and again on reopen. Missing
+scene files or image frames, invalid section references and source budgets fail the
+import explicitly. Captured images can be decoded offline without the original
+content folder.
+
+These inputs do not constitute independent authored asset identities or a complete
+scene graph, and they do not establish animation timing, ordering, materials, render
+semantics or valid client-side compiled world assets. It is not an editable
 client world: layout semantics, dependency resolution and canonical map compilation
 are still blocked under #39 and #40. Terrain export and the validated server terrain/
 collision pair do not include those visual dependencies. Schema-1 authored terrain
 and schema-2 source-extracted terrain remain readable; map-only snapshots use schema 3,
 projects owning puzzle tile grids use schema-4 terrain revisions, and captured ANI
-indexes use schema-5 terrain revisions.
+indexes use schema-5 terrain revisions. Scene/frame inputs use schema-6 revisions.
 
 ## One authoring source, separate target outputs
 

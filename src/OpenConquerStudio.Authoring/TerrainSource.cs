@@ -8,6 +8,8 @@ public sealed record TerrainSource(string MapPath, string PuzzlePath, uint Catal
 {
     public ImmutableArray<SourcePuzzleInput> Puzzles { get; init; } = [];
     public ImmutableArray<SourceAnimationIndexInput> AnimationIndexes { get; init; } = [];
+    public ImmutableArray<SourceSceneInput> Scenes { get; init; } = [];
+    public ImmutableArray<SourceFrameInput> Frames { get; init; } = [];
 
     public string? SnapshotDigest
     {
@@ -52,6 +54,30 @@ public sealed record TerrainSource(string MapPath, string PuzzlePath, uint Catal
             if (!animationPaths.Add(index.Path))
             {
                 throw new InvalidDataException("Animation index paths must be unique within a terrain source.");
+            }
+        }
+
+        if (Scenes.IsDefault || Scenes.Length > 256 || Frames.IsDefault || Frames.Length > 8192 ||
+            (Frames.Length != 0 && AnimationIndexes.IsEmpty))
+        {
+            throw new InvalidDataException("Scenery and frame inputs require captured animation indexes.");
+        }
+        HashSet<string> scenePaths = new(StringComparer.OrdinalIgnoreCase);
+        foreach (SourceSceneInput scene in Scenes)
+        {
+            scene.Validate();
+            if (!scenePaths.Add(scene.Path))
+            {
+                throw new InvalidDataException("Captured scenery paths must be distinct.");
+            }
+        }
+        HashSet<string> framePaths = new(StringComparer.OrdinalIgnoreCase);
+        foreach (SourceFrameInput frame in Frames)
+        {
+            frame.Validate();
+            if (!framePaths.Add(frame.Path))
+            {
+                throw new InvalidDataException("Captured image frame paths must be distinct.");
             }
         }
 
@@ -102,6 +128,16 @@ public sealed record TerrainImport(uint MapDataId, int Width, int Height,
         get; init;
     }
 
+    public ImmutableArray<SourceSceneCapture> SceneFiles
+    {
+        get; init;
+    }
+
+    public ImmutableArray<SourceFrameCapture> FrameFiles
+    {
+        get; init;
+    }
+
     public byte[]? DecodedSource
     {
         get; init;
@@ -130,6 +166,12 @@ public sealed record TerrainImport(uint MapDataId, int Width, int Height,
             throw new InvalidDataException("Animation capture requires decoded map and puzzle inputs.");
         }
 
+        if (SceneFiles.IsDefault != FrameFiles.IsDefault ||
+            (!SceneFiles.IsDefault &&
+                (DecodedSource is null || PuzzleFiles.IsDefault || AnimationFiles.IsDefault)))
+        {
+            throw new InvalidDataException("Visual source capture requires complete scene and frame inventories, map, puzzles and ANI indexes.");
+        }
         if (DecodedSource is not null)
         {
             if (DecodedSource.Length is < 276 or > TerrainSource.MaximumDecodedSourceBytes)
@@ -202,12 +244,25 @@ public sealed record TerrainImport(uint MapDataId, int Width, int Height,
                     }
                 }
             }
+            if (!SceneFiles.IsDefault)
+            {
+                SourceSceneDependencies.Validate(SourceSceneDependencies.Collect(scene),
+                    SceneFiles, ProjectDocument.MaximumTotalSceneBytes);
+            }
             if (!AnimationFiles.IsDefault)
             {
                 ImmutableArray<SourceAnimationRequirement> required =
-                    SourceAnimationDependencies.Collect(scene, PuzzleFiles);
+                    SourceAnimationDependencies.Collect(scene, PuzzleFiles, SceneFiles);
                 SourceAnimationDependencies.Validate(required, AnimationFiles,
                     ProjectDocument.MaximumTotalAnimationIndexBytes);
+                if (!FrameFiles.IsDefault)
+                {
+                    ImmutableArray<SourceAnimationIndexInput> indexes =
+                        [.. AnimationFiles.Select((capture, index) =>
+                            SourceAnimationDependencies.Read(required[index], capture.Bytes))];
+                    SourceFrameDependencies.Validate(SourceFrameDependencies.Collect(indexes),
+                        FrameFiles, ProjectDocument.MaximumTotalFrameBytes);
+                }
             }
         }
 

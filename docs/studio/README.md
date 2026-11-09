@@ -85,12 +85,16 @@ A missing optional ground `.pul` is reported explicitly; a missing required posi
 puzzle stops the import. Studio also captures every required ANI index referenced by
 puzzle tile sections and explicit scenery/overlay animation sections, resolving their
 exact section names and ordered frame paths. Missing or colliding sections stop extraction.
-Frame image bytes, scenery imagery, transition destinations and the complete game scene
-remain unresolved.
+Studio now also captures each referenced type-1 scenery `.scene` source, parses its
+ordered terrain objects and animation requirements, and captures the exact DDS/TGA
+image frames referenced by the required ANI sections. Missing, corrupt or unsupported
+required images stop the import; it never substitutes placeholder pixels. Authored
+scene placement, destination policy and complete game rendering remain unresolved.
 The terrain record captures the source map path, puzzle paths and metadata, catalog/header
 fields, and the counts of scenery and overlay groups for diagnostics. Referenced puzzle
-tile grids and their required ANI indexes are owned, but referenced frame images and
-scenery resource payloads are not captured by this capability. Do not delete or relocate original source
+tile grids, required ANI indexes, terrain-scene source records, and referenced frame
+images are project-owned. Other scenery record semantics and independent authored
+scene identities are not established by this capability. Do not delete or relocate original source
 content expecting those components to be reconstructible from the terrain resource.
 The editor rejects source grids above the authored 262,144-cell budget.
 
@@ -118,8 +122,10 @@ snapshot is accompanied by captured puzzle bitmap inputs under `Inputs/` when th
 Each retained puzzle can be decoded offline, including its tile indices and scroll velocity.
 Source ANI index bytes are also retained by digest under `Inputs/`, including exact
 referenced sections and ordered frame paths. This covers puzzle tiles and explicit
-animated scenery/overlay records. ANI frame images and scenery imagery remain external;
-these are not yet editable or compiled map-layer resources.
+animated scenery/overlay records. Each referenced type-1 `.scene` file and the
+unique DDS/TGA frame bytes from those ANI sections are also captured as immutable
+SHA-256 inputs. All captured sources can be inspected offline after Save/reopen.
+They are not yet independent authored map-layer resources or a compiled game scene.
 
 To inspect the exact ordered scene references offline after Save and reopen, run:
 
@@ -131,14 +137,17 @@ The inventory includes the ground puzzle, every parsed scenery record type and p
 digest, every positioned overlay group and its insertion metadata, ordered puzzle,
 scene, and animation references, and each puzzle's capture status, byte digest,
 tile-grid dimensions, ANI index path, and scroll velocity. The inventory also includes
-each retained ANI index and its required sections, with exact ordered frame paths.
+each retained ANI index and its required sections, exact ordered frame paths, parsed
+terrain-scene object metadata, and each source frame's path, byte digest and image
+dimensions.
 Repeated source references remain repeated. A missing source snapshot is rejected
 explicitly; the exporter does not reconstruct one from metadata counts or paths.
 
-Captured terrain with required ANI index inputs uses resource-document schema version 5.
-Puzzle-only terrain (schema 4), captured maps (schema 3), source-extracted terrain
-(schema 2), and manually authored terrain (schema 1) remain readable. Older extraction
-must be refreshed from the source installation to capture ANI indexes and sections. Saving never rewrites the
+Captured terrain with terrain-scene and frame-image inputs uses resource-document schema
+version 6. ANI-index terrain (schema 5), puzzle-only terrain (schema 4), captured
+maps (schema 3), source-extracted terrain (schema 2), and manually authored terrain
+(schema 1) remain readable. Earlier imports must be explicitly refreshed to acquire
+missing source dependencies. Saving never rewrites the
 original map or puzzle files. Terrain/collision builds still use the authoritative server
 tool and do not include the unresolved visual dependencies.
 

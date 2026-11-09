@@ -36,6 +36,8 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
     public const int MaximumTotalSourceMapBytes = 64 * 1024 * 1024;
     public const int MaximumTotalPuzzleBytes = 16 * 1024 * 1024;
     public const int MaximumTotalAnimationIndexBytes = 32 * 1024 * 1024;
+    public const int MaximumTotalSceneBytes = 16 * 1024 * 1024;
+    public const int MaximumTotalFrameBytes = 64 * 1024 * 1024;
     public const int MaximumTerrainExitMarkers = 4_096;
     public const int MaximumTotalTerrainExitMarkers = 8_192;
     public const int MaximumModelBytes = 128 * 1024 * 1024;
@@ -118,9 +120,13 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
         HashSet<string> sourceDigests = new(StringComparer.Ordinal);
         HashSet<string> puzzleDigests = new(StringComparer.Ordinal);
         HashSet<string> animationDigests = new(StringComparer.Ordinal);
+        HashSet<string> sceneDigests = new(StringComparer.Ordinal);
+        HashSet<string> frameDigests = new(StringComparer.Ordinal);
         long sourceBytes = 0;
         long puzzleBytes = 0;
         long animationBytes = 0;
+        long sceneBytes = 0;
+        long frameBytes = 0;
         foreach (TerrainAsset terrain in Terrains)
         {
             if (terrain is null || terrain.Id == Guid.Empty || !ids.Add(terrain.Id) || terrain.MapDataId == 0 ||
@@ -153,6 +159,28 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
                         if (animationBytes > MaximumTotalAnimationIndexBytes)
                         {
                             throw new InvalidDataException("Project-owned animation indexes exceed their total size budget.");
+                        }
+                    }
+                }
+                foreach (SourceSceneInput scene in source.Scenes)
+                {
+                    if (sceneDigests.Add(scene.Digest))
+                    {
+                        sceneBytes += scene.ByteLength;
+                        if (sceneBytes > MaximumTotalSceneBytes)
+                        {
+                            throw new InvalidDataException("Project-owned scenery files exceed their total size budget.");
+                        }
+                    }
+                }
+                foreach (SourceFrameInput frame in source.Frames)
+                {
+                    if (frameDigests.Add(frame.Digest))
+                    {
+                        frameBytes += frame.ByteLength;
+                        if (frameBytes > MaximumTotalFrameBytes)
+                        {
+                            throw new InvalidDataException("Project-owned image frames exceed their total size budget.");
                         }
                     }
                 }

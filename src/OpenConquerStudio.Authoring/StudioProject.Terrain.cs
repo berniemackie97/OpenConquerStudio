@@ -39,7 +39,7 @@ public sealed partial class StudioProject
         };
         updated.Validate();
         _terrainCells.TryAdd(terrain.CellDigest, bytes);
-        RetainInputs(origin, snapshot, source.PuzzleFiles, source.AnimationFiles);
+        RetainInputs(origin, snapshot, source);
         Apply(updated);
         return terrain.Id;
     }
@@ -70,6 +70,15 @@ public sealed partial class StudioProject
             throw new InvalidDataException("Refreshing captured animation indexes requires their complete source inputs.");
         }
 
+        if (original.Source.Scenes.Length != 0 && source.SceneFiles.IsDefault)
+        {
+            throw new InvalidDataException("Refreshing owned scenery requires the complete original source scene files.");
+        }
+        if (original.Source.Frames.Length != 0 && source.FrameFiles.IsDefault)
+        {
+            throw new InvalidDataException("Refreshing owned animation frames requires the complete referenced images.");
+        }
+
         if (origin.Puzzles.SequenceEqual(original.Source.Puzzles))
         {
             origin = origin with
@@ -84,6 +93,21 @@ public sealed partial class StudioProject
                 AnimationIndexes = original.Source.AnimationIndexes
             };
         }
+        if (SourceSceneDependencies.Equivalent(origin.Scenes, original.Source.Scenes))
+        {
+            origin = origin with
+            {
+                Scenes = original.Source.Scenes
+            };
+        }
+        if (SourceFrameDependencies.Equivalent(origin.Frames, original.Source.Frames))
+        {
+            origin = origin with
+            {
+                Frames = original.Source.Frames
+            };
+        }
+
         Dictionary<(int X, int Y, uint Passway), Queue<Guid>> existing = [];
         foreach (TerrainExitMarker marker in original.Exits)
         {
@@ -126,7 +150,7 @@ public sealed partial class StudioProject
         };
         updated.Validate();
         _terrainCells.TryAdd(refreshed.CellDigest, bytes);
-        RetainInputs(origin, snapshot, source.PuzzleFiles, source.AnimationFiles);
+        RetainInputs(origin, snapshot, source);
         Apply(updated);
     }
 
@@ -148,45 +172,89 @@ public sealed partial class StudioProject
             GameMapCellGrid grid = GameMapCellGrid.Parse(bytes);
             GameMapSceneSections scene = GameMapSceneSections.Parse(bytes, grid.BytesConsumed, grid.HeaderField0);
             ImmutableArray<SourceAnimationRequirement> requirements =
-                SourceAnimationDependencies.Collect(scene, source.PuzzleFiles);
+                SourceAnimationDependencies.Collect(scene, source.PuzzleFiles, source.SceneFiles);
             animationIndexes = [.. source.AnimationFiles.Select((capture, index) =>
                 SourceAnimationDependencies.Read(requirements[index], capture.Bytes))];
         }
+        ImmutableArray<SourceSceneInput> scenes = source.SceneFiles.IsDefault ? [] :
+            [.. source.SceneFiles.Select(capture => SourceSceneDependencies.Read(capture.Path, capture.Bytes))];
+        ImmutableArray<SourceFrameInput> frames = source.FrameFiles.IsDefault ? [] :
+            [.. source.FrameFiles.Select(capture => SourceFrameDependencies.Read(capture.Path, capture.Bytes))];
         return (source.Source with
         {
             SnapshotDigest = ProjectFiles.Hash(bytes),
             SnapshotLength = bytes.Length,
             Puzzles = puzzles,
-            AnimationIndexes = animationIndexes
+            AnimationIndexes = animationIndexes,
+            Scenes = scenes,
+            Frames = frames
         }, bytes);
     }
 
-    private void RetainInputs(TerrainSource source, byte[]? decoded,
-        ImmutableArray<SourcePuzzleCapture> puzzles, ImmutableArray<SourceAnimationIndexCapture> animations)
+    private void RetainInputs(TerrainSource source, byte[]? decoded, TerrainImport capture)
     {
         if (decoded is not null)
         {
             _sourceInputs.TryAdd(source.SnapshotDigest!, decoded);
         }
-        if (!puzzles.IsDefault)
+        void Keep(byte[] bytes)
         {
-            foreach (SourcePuzzleCapture capture in puzzles)
+            byte[] owned = (byte[])bytes.Clone();
+            _sourceInputs.TryAdd(ProjectFiles.Hash(owned), owned);
+        }
+
+        if (!capture.PuzzleFiles.IsDefault)
+        {
+            foreach (SourcePuzzleCapture puzzle in capture.PuzzleFiles)
             {
-                if (capture.Bytes is not null)
+                if (puzzle.Bytes is not null)
                 {
-                    byte[] bytes = (byte[])capture.Bytes.Clone();
-                    _sourceInputs.TryAdd(ProjectFiles.Hash(bytes), bytes);
+                    Keep(puzzle.Bytes);
                 }
             }
         }
-        if (!animations.IsDefault)
+        if (!capture.AnimationFiles.IsDefault)
         {
-            foreach (SourceAnimationIndexCapture capture in animations)
+            foreach (SourceAnimationIndexCapture index in capture.AnimationFiles)
             {
-                byte[] bytes = (byte[])capture.Bytes.Clone();
-                _sourceInputs.TryAdd(ProjectFiles.Hash(bytes), bytes);
+                Keep(index.Bytes);
             }
         }
+        if (!capture.SceneFiles.IsDefault)
+        {
+            foreach (SourceSceneCapture scene in capture.SceneFiles)
+            {
+                Keep(scene.Bytes);
+            }
+        }
+        if (!capture.FrameFiles.IsDefault)
+        {
+            foreach (SourceFrameCapture frame in capture.FrameFiles)
+            {
+                Keep(frame.Bytes);
+            }
+        }
+    }
+
+    public GameMapTerrainSceneFile ReadSourceScene(Guid terrainId, string path)
+    {
+        ThrowIfDisposed();
+        TerrainSource source = Document.Terrains.Single(a => a.Id == terrainId).Source
+            ?? throw new InvalidDataException("Select a source-extracted terrain.");
+        SourceSceneInput scene = source.Scenes.Single(a =>
+            string.Equals(a.Path, path, StringComparison.OrdinalIgnoreCase));
+        return GameMapTerrainSceneFile.Parse(_sourceInputs[scene.Digest]);
+    }
+
+    public OpenConquerStudio.Runtime.TextureData ReadSourceFrame(Guid terrainId, string path,
+        CancellationToken token = default)
+    {
+        ThrowIfDisposed();
+        TerrainSource source = Document.Terrains.Single(a => a.Id == terrainId).Source
+            ?? throw new InvalidDataException("Select a source-extracted terrain.");
+        SourceFrameInput frame = source.Frames.Single(a =>
+            string.Equals(a.Path, path, StringComparison.OrdinalIgnoreCase));
+        return TextureImporter.Decode(_sourceInputs[frame.Digest], frame.Format, token).Texture;
     }
 
     public ImmutableArray<SourceAnimationSection> ReadSourceAnimationIndex(Guid terrainId, string path)

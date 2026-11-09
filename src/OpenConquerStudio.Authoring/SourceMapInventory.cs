@@ -27,6 +27,8 @@ public sealed record SourceMapInventory(int FormatVersion, uint MapDataId, strin
 {
     public ImmutableArray<SourcePuzzleInput> Puzzles { get; init; } = [];
     public ImmutableArray<SourceAnimationIndexInput> AnimationIndexes { get; init; } = [];
+    public ImmutableArray<SourceSceneInput> Scenes { get; init; } = [];
+    public ImmutableArray<SourceFrameInput> Frames { get; init; } = [];
 
     internal static SourceMapInventory Read(uint id, TerrainSource source, byte[] decoded)
     {
@@ -102,13 +104,34 @@ public sealed record SourceMapInventory(int FormatVersion, uint MapDataId, strin
             }
         }
 
-        return new SourceMapInventory(!source.AnimationIndexes.IsEmpty ? 3 : source.Puzzles.IsEmpty ? 1 : 2,
+        if (!source.Scenes.IsEmpty || !source.Frames.IsEmpty)
+        {
+            ImmutableArray<string> requiredScenes = SourceSceneDependencies.Collect(scene);
+            if (requiredScenes.Length != source.Scenes.Length ||
+                requiredScenes.Where((path, index) =>
+                    !string.Equals(path, source.Scenes[index].Path, StringComparison.OrdinalIgnoreCase)).Any())
+            {
+                throw new InvalidDataException("Captured scenery inputs do not match source references.");
+            }
+            ImmutableArray<string> requiredFrames = SourceFrameDependencies.Collect(source.AnimationIndexes);
+            if (requiredFrames.Length != source.Frames.Length ||
+                requiredFrames.Where((path, index) =>
+                    !string.Equals(path, source.Frames[index].Path, StringComparison.OrdinalIgnoreCase)).Any())
+            {
+                throw new InvalidDataException("Captured image frames do not match source ANI references.");
+            }
+        }
+
+        return new SourceMapInventory(!source.Scenes.IsEmpty || !source.Frames.IsEmpty ? 4 :
+            !source.AnimationIndexes.IsEmpty ? 3 : source.Puzzles.IsEmpty ? 1 : 2,
             id, source.MapPath, digest, grid.Width, grid.Height,
             grid.PuzzlePath, scene.ExitMarkers.Count, scenery.MoveToImmutable(),
             overlays.MoveToImmutable(), ordered)
         {
             Puzzles = source.Puzzles,
-            AnimationIndexes = source.AnimationIndexes
+            AnimationIndexes = source.AnimationIndexes,
+            Scenes = source.Scenes,
+            Frames = source.Frames
         };
     }
 

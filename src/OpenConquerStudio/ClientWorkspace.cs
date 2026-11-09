@@ -205,8 +205,9 @@ internal sealed class ClientWorkspace
             int missing = source.PuzzleFiles.Length - captured;
             _owner.Diagnostic = $"Terrain {source.MapDataId} extracted into editable cells and ordered exits. " +
                 $"{captured} puzzle grids captured, {missing} optional ground puzzles unavailable. " +
-                $"{source.Source.SceneryCount} scenery records and {source.Source.OverlayGroupCount} overlay groups remain source-only. " +
-                "ANI frames, scenery content and complete visual-world dependencies remain unresolved.";
+                $"{source.Source.SceneryCount} original scenery records, {source.Source.OverlayGroupCount} overlay groups, " +
+                $"{source.SceneFiles.Length} referenced scene files and {source.FrameFiles.Length} verified image frames captured. " +
+                "Authored placements, scene composition and compiled client map outputs remain outstanding.";
             return;
         }
         if (entry.Kind is "model" or "character")
