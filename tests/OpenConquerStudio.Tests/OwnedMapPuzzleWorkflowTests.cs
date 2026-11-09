@@ -51,10 +51,10 @@ public sealed class OwnedMapPuzzleWorkflowTests
         Assert.Equal("ani/puzzle.ani", reopened.ReadSourcePuzzle(id, "puzzles/layer.pul").TextureIndexPath);
         string inventoryPath = directory.PathFor("inventory.json");
         SourceMapInventory.Export(reopened, id, inventoryPath, TestContext.Current.CancellationToken);
-        using System.Text.Json.JsonDocument inventory = System.Text.Json.JsonDocument.Parse(File.ReadAllBytes(inventoryPath));
-        Assert.Equal(2, inventory.RootElement.GetProperty("formatVersion").GetInt32());
+        using System.Text.Json.JsonDocument inventoryDocument = System.Text.Json.JsonDocument.Parse(File.ReadAllBytes(inventoryPath));
+        Assert.Equal(2, inventoryDocument.RootElement.GetProperty("formatVersion").GetInt32());
         Assert.Equal("ani/puzzle.ani",
-            inventory.RootElement.GetProperty("puzzles")[1].GetProperty("animationIndexPath").GetString());
+            inventoryDocument.RootElement.GetProperty("puzzles")[1].GetProperty("animationIndexPath").GetString());
     }
 
     [Fact]
