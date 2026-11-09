@@ -49,6 +49,32 @@ public sealed class OwnedMapPuzzleWorkflowTests
         Assert.Equal(overlay, File.ReadAllBytes(directory.PathFor("project", "Inputs",
             restored.Source!.Puzzles[1].Digest! + ".ocpuzzle")));
         Assert.Equal("ani/puzzle.ani", reopened.ReadSourcePuzzle(id, "puzzles/layer.pul").TextureIndexPath);
+        string inventoryPath = directory.PathFor("inventory.json");
+        SourceMapInventory.Export(reopened, id, inventoryPath, TestContext.Current.CancellationToken);
+        using System.Text.Json.JsonDocument inventory = System.Text.Json.JsonDocument.Parse(File.ReadAllBytes(inventoryPath));
+        Assert.Equal(2, inventory.RootElement.GetProperty("formatVersion").GetInt32());
+        Assert.Equal("ani/puzzle.ani",
+            inventory.RootElement.GetProperty("puzzles")[1].GetProperty("animationIndexPath").GetString());
+    }
+
+    [Fact]
+    public void GroundPuzzleRequiredByPositionedLayerCannotBeMissing()
+    {
+        using ProjectDirectory directory = new();
+        byte[] map = ClientTerrainImporterTests.MapSource();
+        int index = map.AsSpan().IndexOf("puzzles/layer.pul"u8);
+        Assert.True(index >= 0);
+        map.AsSpan(index, 0x104).Clear();
+        "puzzles/ground.pul"u8.CopyTo(map.AsSpan(index));
+        TerrainImport source = Input(map) with
+        {
+            PuzzleFiles = [new("puzzles/ground.pul", null)]
+        };
+        using StudioProject project = StudioProject.Create(directory.Project, "Game");
+        ProjectDocument before = project.Document;
+        Assert.Throws<InvalidDataException>(() => project.ImportTerrain(source, "Ground"));
+        Assert.Same(before, project.Document);
+        Assert.False(project.IsModified);
     }
 
     [Fact]
