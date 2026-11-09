@@ -16,7 +16,8 @@ internal static class ProjectStorage
     private const int MaximumResourceBytes = 2 * 1024 * 1024;
     private const int MaximumMetadataBytes = 8 * 1024 * 1024;
 
-    internal static (ProjectDocument Document, Dictionary<string, TextureData> Pixels, string Digest, Dictionary<string, byte[]> Models, Dictionary<string, byte[]> Terrains) Read(string root, CancellationToken token)
+    internal static (ProjectDocument Document, Dictionary<string, TextureData> Pixels, string Digest, Dictionary<string, byte[]> Models,
+        Dictionary<string, byte[]> Terrains, Dictionary<string, byte[]> MapSources) Read(string root, CancellationToken token)
     {
         byte[] bytes = ProjectFiles.Read(Path.Combine(root, ProjectStorage.ManifestName), ProjectFiles.MaximumManifestBytes);
         using (JsonDocument json = JsonDocument.Parse(bytes))
@@ -122,7 +123,8 @@ internal static class ProjectStorage
             }
             payloads.TryAdd(model.DataDigest, data);
         }
-        return (document, ReadPixels(root, document, token), ProjectFiles.Hash(bytes), payloads, ReadTerrains(root, document, token));
+        return (document, ReadPixels(root, document, token), ProjectFiles.Hash(bytes), payloads,
+            ReadTerrains(root, document, token), ReadMapSources(root, document, token));
     }
 
     private static T Decode<T>(byte[] bytes) where T : class
@@ -139,12 +141,37 @@ internal static class ProjectStorage
     private static TerrainAsset DecodeTerrain(byte[] bytes)
     {
         ResourceDocument<TerrainAsset> document = ProjectFiles.Deserialize<ResourceDocument<TerrainAsset>>(bytes);
-        if (document.Asset is null || document.SchemaVersion != (document.Asset.Source is null ? 1 : 2))
+        if (document.Asset is null || document.SchemaVersion != TerrainResourceVersion(document.Asset))
         {
             throw new InvalidDataException("Unsupported or inconsistent terrain resource version.");
         }
 
         return document.Asset;
+    }
+
+    private static int TerrainResourceVersion(TerrainAsset terrain) =>
+        terrain.Source is null ? 1 : terrain.Source.SnapshotDigest is null ? 2 : 3;
+
+    private static Dictionary<string, byte[]> ReadMapSources(string root, ProjectDocument document, CancellationToken token)
+    {
+        Dictionary<string, byte[]> snapshots = new(StringComparer.Ordinal);
+        foreach (TerrainAsset terrain in document.Terrains)
+        {
+            token.ThrowIfCancellationRequested();
+            TerrainSource? source = terrain.Source;
+            if (source?.SnapshotDigest is not string digest || snapshots.ContainsKey(digest))
+            {
+                continue;
+            }
+
+            byte[] bytes = ProjectFiles.Read(MapSourcePath(root, digest), TerrainSource.MaximumDecodedSourceBytes);
+            if (bytes.Length != source.SnapshotLength || ProjectFiles.Hash(bytes) != digest)
+            {
+                throw new InvalidDataException("Owned map source does not match its immutable revision.");
+            }
+            snapshots.Add(digest, bytes);
+        }
+        return snapshots;
     }
 
     internal static Dictionary<string, TextureData> ReadPixels(string root, ProjectDocument document, CancellationToken token)
@@ -199,7 +226,8 @@ internal static class ProjectStorage
         return cells;
     }
 
-    internal static string Save(string root, ProjectDocument document, Dictionary<string, TextureData> pixels, Dictionary<string, byte[]> models, Dictionary<string, byte[]> terrains, string? savedDigest, CancellationToken token)
+    internal static string Save(string root, ProjectDocument document, Dictionary<string, TextureData> pixels, Dictionary<string, byte[]> models,
+        Dictionary<string, byte[]> terrains, Dictionary<string, byte[]> mapSources, string? savedDigest, CancellationToken token)
     {
         document.Validate();
         string manifest = Path.Combine(root, ProjectStorage.ManifestName);
@@ -219,6 +247,12 @@ internal static class ProjectStorage
         {
             token.ThrowIfCancellationRequested();
             WriteImmutable(TerrainPath(root, terrain.CellDigest), terrains[terrain.CellDigest], TerrainGrid.MaximumBytes);
+        }
+
+        foreach (string digest in document.Terrains.Select(a => a.Source?.SnapshotDigest).OfType<string>().Distinct())
+        {
+            token.ThrowIfCancellationRequested();
+            WriteImmutable(MapSourcePath(root, digest), mapSources[digest], TerrainSource.MaximumDecodedSourceBytes);
         }
 
         List<ResourceRevision> revisions = [];
@@ -255,7 +289,7 @@ internal static class ProjectStorage
     }
 
     private static byte[] SerializeTerrain(TerrainAsset terrain) =>
-        ProjectFiles.Serialize(new ResourceDocument<TerrainAsset>(terrain.Source is null ? 1 : 2, terrain));
+        ProjectFiles.Serialize(new ResourceDocument<TerrainAsset>(TerrainResourceVersion(terrain), terrain));
 
     private static void CheckUnchanged(string path, string? digest)
     {
@@ -290,4 +324,6 @@ internal static class ProjectStorage
     private static string PixelPath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".rgba");
 
     private static string TerrainPath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".octerrain");
+
+    private static string MapSourcePath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".ocmapsource");
 }
