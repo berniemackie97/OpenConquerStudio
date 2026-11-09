@@ -33,6 +33,22 @@ internal static class TerrainGrid
         return cells;
     }
 
+    internal static byte[] Encode(ReadOnlySpan<TerrainCell> source, int width, int height)
+    {
+        byte[] bytes = new byte[ByteLength(width, height)];
+        if (source.Length != bytes.Length / 6)
+        {
+            throw new InvalidDataException("Terrain extraction cell count does not match the grid dimensions.");
+        }
+
+        for (int index = 0; index < source.Length; index++)
+        {
+            Write(bytes.AsSpan(index * 6, 6), source[index]);
+        }
+
+        return bytes;
+    }
+
     internal static TerrainCell GetCell(ReadOnlySpan<byte> cells, int width, int height, int x, int y)
     {
         int offset = CellOffset(cells.Length, width, height, x, y);
