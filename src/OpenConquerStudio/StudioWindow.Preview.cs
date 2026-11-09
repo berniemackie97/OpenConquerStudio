@@ -44,6 +44,7 @@ public sealed partial class StudioWindow
         {
             _emptyPreview.IsVisible = false;
             _preview.IsVisible = true;
+            _terrainViewport.IsVisible = false;
             ClientContent.Inspector.IsVisible = false;
             _assetTabs.SelectedIndex = 0;
             _activeWorkspaceTab = 0;
@@ -70,11 +71,13 @@ public sealed partial class StudioWindow
             {
                 _preview.Clear();
                 _preview.IsVisible = false;
-                _emptyPreview.Text = "Terrain cells are edited in the inspector. Compiled world previews require the map authoring pipeline.";
-                _emptyPreview.IsVisible = true;
+                _emptyPreview.IsVisible = false;
+                _terrainViewport.Load(document.Terrains.Single(a => a.Id == id), Project.ReadTerrainCell);
+                _terrainViewport.IsVisible = true;
                 _terrainEditor.Load(document.Terrains.Single(a => a.Id == id));
                 return;
             }
+            _terrainViewport.Clear();
             if (model is not null)
             {
                 _modelEditor.Load(info.Name, model);
@@ -153,6 +156,7 @@ public sealed partial class StudioWindow
     {
         _previewInvalidated = false;
         _preview.Clear();
+        _terrainViewport.Clear();
         ClientContent.Inspector.IsVisible = false;
         _inspectedAsset = null;
         _textureInspector.IsVisible = false;

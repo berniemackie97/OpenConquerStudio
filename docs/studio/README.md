@@ -76,8 +76,24 @@ dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- migra
 Choose **Assets → New terrain**, select a unique MapDataId and set dimensions and initial raw
 surface/passability/elevation values. Select the terrain in **Authored**. Its inspector can
 navigate to cell X/Y, edit a cell's three fields, rename the resource, and commit those edits
-with **Apply terrain edits**, navigation or **Save**. Undo and Redo apply to these changes.
-The project stores terrain cells in an immutable, digest-verified payload.
+with **Apply terrain edits**, navigation or **Save**. In the central **Terrain grid**, click or
+drag to select a rectangle; selection coordinates can also be entered directly. Adjust the
+**View X/Y** controls to inspect different parts of large grids and **Cell size** to change
+the view scale. Enter Surface ID, raw passability flag and signed elevation in the inspector,
+then choose **Paint selected cells**. This applies one validated region edit, including any
+pending terrain name or exit-marker changes, as a single undoable revision. Surface colors
+identify groups of raw IDs; they are not map textures or traversal rules. Both single-cell
+and region edits preserve an immutable, digest-verified terrain payload.
+
+The same atomic rectangle operation is available in the CLI for automated project authoring:
+
+```sh
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- terrain-region /path/to/project <terrain-guid> 2 3 8 10 25 1 -5
+```
+
+The coordinates select inclusive corners. The remaining values are the raw surface ID,
+passability flag and signed elevation. The command validates the entire region before
+saving, with one project revision.
 
 The Studio CLI can export saved terrain as source JSON for the server's existing version 1
 `generate-base-terrain` interface:
@@ -110,10 +126,11 @@ compiled terrain. They are not world portal destinations.
 The generated collision has zero overrides and does not account for authored scenery.
 This is not a complete client/server world build.
 
-This is the terrain-authoring foundation, not a finished world editor. It does not yet
-display painted terrain in the viewport, author portal destinations or scenery, or compile
-paired client/server map outputs. **Save and build** rejects projects containing terrain rather than publishing an
-incomplete game build. Actual desktop/GPU world validation remains a separate gate.
+This remains a terrain-data editor, not a complete world scene editor. The grid shows raw
+surface values and selected cells, not game scenery or puzzle layers. Portal destinations,
+scenery placement, client visuals and paired client/server map builds are still unimplemented.
+**Save and build** rejects projects containing terrain rather than publishing incomplete game
+content. Actual desktop/GPU world validation remains a separate gate.
 
 ## Author world definitions
 

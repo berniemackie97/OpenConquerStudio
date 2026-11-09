@@ -19,7 +19,7 @@ env:
 
 jobs:
   world-definitions:
-    name: World-definition server contract
+    name: World and terrain server contracts
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: berniemackie97/OpenConquerServer
-          ref: a16cae6a2942dc2883131645b766b89e73ae145e
+          ref: 6241d611f1ac4be39d6cf0557ebfe4c52b5efe1a
           path: server
           persist-credentials: false
 
@@ -57,6 +57,12 @@ jobs:
       - name: Check world definition generation across processes
         run: |
           python3 tests/integration/world_definitions.py \
+            tools/OpenConquerStudio.Tool/bin/Release/net10.0/OpenConquerStudio.Tool.dll \
+            server/tools/OpenConquer.GameData.Tool/bin/Release/net10.0/OpenConquer.GameData.Tool.dll
+
+      - name: Validate painted terrain through server readers
+        run: |
+          python3 tests/integration/terrain_regions.py \
             tools/OpenConquerStudio.Tool/bin/Release/net10.0/OpenConquerStudio.Tool.dll \
             server/tools/OpenConquer.GameData.Tool/bin/Release/net10.0/OpenConquer.GameData.Tool.dll
 

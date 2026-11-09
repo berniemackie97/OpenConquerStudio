@@ -2,25 +2,10 @@
 
 import json
 from pathlib import Path
-import subprocess
 import sys
 import tempfile
 
-
-def execute(tool, *arguments, expected=0):
-    result = subprocess.run(
-        ["dotnet", str(tool), *map(str, arguments)],
-        capture_output=True,
-        text=True,
-        timeout=90,
-        check=False,
-    )
-    if result.returncode != expected:
-        raise AssertionError(
-            f"{tool.name} returned {result.returncode}, expected {expected}\n"
-            f"{result.stdout}\n{result.stderr}"
-        )
-    return result.stdout.strip()
+from tool_process import execute
 
 
 def main():
