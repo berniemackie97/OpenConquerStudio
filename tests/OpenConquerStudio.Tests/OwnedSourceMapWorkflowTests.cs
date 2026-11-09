@@ -28,7 +28,6 @@ public sealed class OwnedSourceMapWorkflowTests
             Assert.Equal(1, original.FormatVersion);
             Assert.Equal(9100u, original.MapDataId);
             Assert.Equal(1, original.ExitCount);
-            Assert.Equal(1, Assert.Single(original.Scenery).TypeCode);
             Assert.Equal(10, original.Scenery.Single().TypeCode);
             SourceMapOverlayGroup overlay = Assert.Single(original.Overlays);
             Assert.Equal(0, overlay.InsertIndex);
@@ -41,13 +40,13 @@ public sealed class OwnedSourceMapWorkflowTests
             project.Save(TestContext.Current.CancellationToken);
 
             project.EditTerrainCell(id, 1, 0, new TerrainCell(44, 2, -55), "Edited ground");
-            Assert.Equal(original, project.ReadSourceMapInventory(id));
+            Assert.Equal(JsonSerializer.Serialize(original), JsonSerializer.Serialize(project.ReadSourceMapInventory(id)));
             project.Save(TestContext.Current.CancellationToken);
         }
 
         using StudioProject reopened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken);
         Assert.Equal("Edited ground", Assert.Single(reopened.Document.Terrains).Name);
-        Assert.Equal(original, reopened.ReadSourceMapInventory(id));
+        Assert.Equal(JsonSerializer.Serialize(original), JsonSerializer.Serialize(reopened.ReadSourceMapInventory(id)));
         string output = directory.PathFor("inventory.json");
         SourceMapInventory.Export(reopened, id, output, TestContext.Current.CancellationToken);
         using JsonDocument document = JsonDocument.Parse(File.ReadAllBytes(output));
