@@ -299,6 +299,24 @@ try
             }
 
             break;
+        case ["promote-map-frame", string root, string terrainId, string framePath]:
+            using (StudioProject project = StudioProject.Open(root, cancellation.Token))
+            {
+                Guid id = project.PromoteSourceFrames(Guid.Parse(terrainId),
+                    [framePath], cancellation.Token)[0];
+                project.Save(cancellation.Token);
+                Console.WriteLine(id);
+            }
+
+            break;
+        case ["unlink-map-frame", string root, string terrainId, string framePath]:
+            using (StudioProject project = StudioProject.Open(root, cancellation.Token))
+            {
+                project.UnlinkSourceFrame(Guid.Parse(terrainId), framePath);
+                project.Save(cancellation.Token);
+            }
+
+            break;
         case ["new-terrain", string root, string name, string mapDataId, string width, string height, string surface, string passability, string elevation]:
             using (StudioProject project = StudioProject.Open(root, cancellation.Token))
             {
@@ -444,7 +462,7 @@ try
         default:
             Console.Error.WriteLine("Usage:\n  create <empty-directory> <name>\n  list-artwork\n  import-artwork <project-directory> <artwork-key>\n  import <project-directory> <source.tga|source.dds> <name>\n  new-texture <project-directory> <name> <width> <height> <red> <green> <blue>\n  edit <project-directory> <asset-id> <name> <flip-horizontal:true|false> <clockwise-quarter-turns:0..3>\n  replace <project-directory> <asset-id> <source.tga|source.dds>\n  build <project-directory> <new-output-directory>\n  verify <output-directory>");
             Console.Error.WriteLine("  new-world <project> <name> <world-map-id> <terrain-resource-id> <flags-decimal|0x-hex>\n  edit-world <project> <world-id> <name> <world-map-id> <terrain-resource-id> <flags-decimal|0x-hex>\n  export-map-definitions <project> <new-source.json>");
-            Console.Error.WriteLine("  extract-client-terrain <project> <map-data-id>\n  refresh-client-terrain <project> <terrain-id> <map-data-id>\n  new-terrain <project> <name> <map-data-id> <width> <height> <surface> <passability> <elevation>\n  terrain-cell <project> <terrain-id> <x> <y> <surface> <passability> <elevation>\n  terrain-region <project> <terrain-id> <x0> <y0> <x1> <y1> <surface> <passability> <elevation>\n  export-map-source-inventory <project> <terrain-id> <new-inventory.json>\n  export-base-terrain <project> <terrain-id> <new-source.json>\n  terrain-exit <project> <terrain-id> <marker-id|new> <x> <y> <passway-index> <zero-based-position>\n  remove-terrain-exit <project> <terrain-id> <marker-id>\n  build-terrain <project> <terrain-id> <server-tool.dll> <new-output-directory>");
+            Console.Error.WriteLine("  extract-client-terrain <project> <map-data-id>\n  refresh-client-terrain <project> <terrain-id> <map-data-id>\n  new-terrain <project> <name> <map-data-id> <width> <height> <surface> <passability> <elevation>\n  terrain-cell <project> <terrain-id> <x> <y> <surface> <passability> <elevation>\n  terrain-region <project> <terrain-id> <x0> <y0> <x1> <y1> <surface> <passability> <elevation>\n  export-map-source-inventory <project> <terrain-id> <new-inventory.json>\n  promote-map-frame <project> <terrain-id> <captured-frame-path>\n  unlink-map-frame <project> <terrain-id> <captured-frame-path>\n  export-base-terrain <project> <terrain-id> <new-source.json>\n  terrain-exit <project> <terrain-id> <marker-id|new> <x> <y> <passway-index> <zero-based-position>\n  remove-terrain-exit <project> <terrain-id> <marker-id>\n  build-terrain <project> <terrain-id> <server-tool.dll> <new-output-directory>");
             Console.Error.WriteLine("  migrate <source-project> <empty-destination>\n  list <project>\n  new-atlas <project> <texture-id> <name>\n  sprite <project> <atlas-id> <sprite-id|new> <name> <x> <y> <width> <height> <pivot-x> <pivot-y>\n  new-animation <project> <atlas-id> <name> <ticks-per-second> <frame-duration>\n  clip <project> <animation-id> <name> <ticks-per-second> <repeat:true|false>\n  frame <project> <animation-id> <frame-id|new> <atlas-id> <sprite-id> <duration> <zero-based-position>\n  delete <project> <resource-id>");
             Console.Error.WriteLine("  connect-client <repository>\n  client-assets <project> <all|map|animation|texture|puzzle> <filter>\n  import-client-image <project> <virtual-path>\n  import-client-animation <project> <ani-path> <section> <frame-milliseconds>\n  inspect-client-map <project> <map-data-id>");
             Console.Error.WriteLine("  import-c3 <project> <mesh.c3> <name>\n  import-character <project> <client-repository> <body-appearance> <hair-style>\n  model-clip <project> <id> <name> <zero-based-clip> <milliseconds> <repeat>\n  add-model-motion <project> <id> <name> <motion.c3>");
