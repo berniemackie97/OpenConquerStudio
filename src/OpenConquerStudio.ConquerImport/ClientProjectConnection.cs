@@ -258,34 +258,16 @@ public sealed class ClientProjectConnection
         GameMapSceneSections scene = GameMapSceneSections.Parse(decoded, grid.BytesConsumed, grid.HeaderField0);
         TerrainImport extracted = ClientTerrainImporter.Read(id, terrain.Path, terrain.CompanionValue,
             grid, scene, token);
-        List<string> references = [grid.PuzzlePath];
-        foreach (GameMapPositionedOverlayRecord group in scene.PositionedOverlays)
-        {
-            foreach (GameMapPuzzleOverlayEntry entry in group.Entries.OfType<GameMapPuzzleOverlayEntry>())
-            {
-                if (!references.Contains(entry.PuzzlePath, StringComparer.OrdinalIgnoreCase))
-                {
-                    references.Add(entry.PuzzlePath);
-                }
-            }
-        }
-        if (references.Count > 256)
-        {
-            throw new InvalidDataException("Map references more than 256 distinct puzzle inputs.");
-        }
-
-        ImmutableArray<SourcePuzzleCapture>.Builder captures = ImmutableArray.CreateBuilder<SourcePuzzleCapture>(references.Count);
-        for (int i = 0; i < references.Count; i++)
+        ImmutableArray<SourcePuzzleReference> references = SourcePuzzleReferences.Collect(grid, scene);
+        ImmutableArray<SourcePuzzleCapture>.Builder captures = ImmutableArray.CreateBuilder<SourcePuzzleCapture>(references.Length);
+        for (int i = 0; i < references.Length; i++)
         {
             token.ThrowIfCancellationRequested();
-            string path = references[i];
+            SourcePuzzleReference reference = references[i];
+            string path = reference.Path;
             if (!Source.TryOpenRead(path, ContentLookupMode.LooseOnly, out Stream? stream))
             {
-                bool requiredByOverlay = scene.PositionedOverlays.Any(group =>
-                    group.Entries.OfType<GameMapPuzzleOverlayEntry>().Any(entry =>
-                        string.Equals(entry.PuzzlePath, path, StringComparison.OrdinalIgnoreCase)));
-                if (i != 0 || requiredByOverlay ||
-                    !path.EndsWith(".pul", StringComparison.OrdinalIgnoreCase))
+                if (reference.Required)
                 {
                     throw new InvalidDataException($"Required map puzzle '{path}' is missing.");
                 }
