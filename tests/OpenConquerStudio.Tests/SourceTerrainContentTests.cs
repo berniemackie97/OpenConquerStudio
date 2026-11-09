@@ -10,9 +10,8 @@ public sealed class SourceTerrainContentTests
     public void LocalMap1010TerrainExtractMatchesEveryCellAndExitThroughSaveReopen()
     {
         string repository = ProjectDirectory.RepositoryRoot;
-        string content = Environment.GetEnvironmentVariable("OPENCONQUER_CLIENT_CONTENT_ROOT")
-            ?? Path.Combine(repository, "content", "retail-5517", "payload");
-        Assert.SkipUnless(File.Exists(Path.Combine(content, "ini", "GameMap.dat")),
+        string? content = Environment.GetEnvironmentVariable("OPENCONQUER_CLIENT_CONTENT_ROOT");
+        Assert.SkipUnless(content is not null && File.Exists(Path.Combine(content, "ini", "GameMap.dat")),
             "Local map source content is unavailable. Set OPENCONQUER_CLIENT_ROOT and OPENCONQUER_CLIENT_CONTENT_ROOT.");
 
         using ProjectDirectory directory = new();
@@ -20,7 +19,7 @@ public sealed class SourceTerrainContentTests
         GameMapContent map;
         using (StudioProject project = StudioProject.Create(directory.Project, "Source terrain"))
         {
-            ClientProjectConnection connection = ClientProjectConnection.Attach(project, repository, content,
+            ClientProjectConnection connection = ClientProjectConnection.Attach(project, repository, content!,
                 TestContext.Current.CancellationToken);
             map = connection.ReadMap(1010);
             long cells = (long)map.CellGrid.Width * map.CellGrid.Height;
