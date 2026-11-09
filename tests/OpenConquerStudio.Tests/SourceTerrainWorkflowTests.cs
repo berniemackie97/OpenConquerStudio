@@ -60,7 +60,10 @@ public sealed class SourceTerrainWorkflowTests
             reopened.ReadTerrainCell(terrainId, 0, 0));
         Assert.Equal(terrainId, Assert.Single(reopened.Document.Worlds).TerrainId);
         Assert.Equal([secondMarker, firstMarker], actual.Exits.Select(m => m.Id).ToArray());
-        string revision = Assert.Single(Directory.GetFiles(directory.PathFor("project", "Assets", terrainId.ToString("N")), "*.ocasset.json"));
+        using JsonDocument index = JsonDocument.Parse(File.ReadAllBytes(directory.Manifest));
+        string digest = index.RootElement.GetProperty("resources").EnumerateArray().Single(resource =>
+            resource.GetProperty("id").GetGuid() == terrainId).GetProperty("sha256").GetString()!;
+        string revision = directory.PathFor("project", "Assets", terrainId.ToString("N"), digest + ".ocasset.json");
         using JsonDocument metadata = JsonDocument.Parse(File.ReadAllBytes(revision));
         Assert.Equal(2, metadata.RootElement.GetProperty("schemaVersion").GetInt32());
 
