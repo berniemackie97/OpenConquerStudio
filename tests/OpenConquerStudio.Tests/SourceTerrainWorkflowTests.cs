@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Text.Json;
 using OpenConquerStudio.Authoring;
 
@@ -114,7 +113,10 @@ public sealed class SourceTerrainWorkflowTests
 
         Assert.Throws<InvalidDataException>(() => project.ImportTerrain(candidate with
         {
-            Source = s_origin with { MapPath = "../outside.dmap" }
+            Source = s_origin with
+            {
+                MapPath = "../outside.dmap"
+            }
         }, "Terrain"));
         Assert.Throws<InvalidDataException>(() => project.ImportTerrain(candidate with
         {
@@ -127,7 +129,10 @@ public sealed class SourceTerrainWorkflowTests
         Assert.Throws<InvalidDataException>(() => project.RefreshTerrain(originalId, candidate));
         Assert.Throws<InvalidDataException>(() => project.ImportTerrain(candidate with
         {
-            Source = s_origin with { SceneryCount = -1 }
+            Source = s_origin with
+            {
+                SceneryCount = -1
+            }
         }, "Terrain"));
         Assert.Same(saved, project.Document);
         Assert.False(project.IsModified);
