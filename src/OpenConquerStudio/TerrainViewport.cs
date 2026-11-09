@@ -39,7 +39,11 @@ internal sealed class TerrainViewport : Grid
         RowDefinitions = new RowDefinitions("Auto,*,Auto");
         RowSpacing = 6;
         Margin = new Thickness(12);
-        WrapPanel controls = new() { ItemSpacing = 8, LineSpacing = 6 };
+        WrapPanel controls = new()
+        {
+            ItemSpacing = 8,
+            LineSpacing = 6
+        };
         foreach ((string label, Control input) in new (string, Control)[]
         {
             ("Select X0", _startX), ("Y0", _startY), ("X1", _endX), ("Y1", _endY),
@@ -50,7 +54,11 @@ internal sealed class TerrainViewport : Grid
             controls.Children.Add(input);
         }
 
-        Button paint = new() { Name = "PaintTerrainSelection", Content = "Paint selected cells" };
+        Button paint = new()
+        {
+            Name = "PaintTerrainSelection",
+            Content = "Paint selected cells"
+        };
         paint.Click += async (_, _) =>
         {
             if (PaintRequested is { } apply)
