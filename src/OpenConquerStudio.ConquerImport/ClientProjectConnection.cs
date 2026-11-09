@@ -284,7 +284,27 @@ public sealed class ClientProjectConnection
         }
 
         ImmutableArray<SourcePuzzleCapture> puzzles = captures.MoveToImmutable();
-        ImmutableArray<SourceAnimationRequirement> required = SourceAnimationDependencies.Collect(scene, puzzles);
+        ImmutableArray<string> requiredScenes = SourceSceneDependencies.Collect(scene);
+        ImmutableArray<SourceSceneCapture>.Builder sceneCaptures =
+            ImmutableArray.CreateBuilder<SourceSceneCapture>(requiredScenes.Length);
+        long sceneBytes = 0;
+        foreach (string path in requiredScenes)
+        {
+            token.ThrowIfCancellationRequested();
+            byte[] bytes = ContentReader.ReadRequiredBytes(Source, path, ContentLookupMode.LooseOnly,
+                SourceSceneInput.MaximumBytes);
+            sceneBytes += bytes.Length;
+            if (sceneBytes > ProjectDocument.MaximumTotalSceneBytes)
+            {
+                throw new InvalidDataException("Referenced scenery files exceed the project capture budget.");
+            }
+            _ = SourceSceneDependencies.Read(path, bytes);
+            sceneCaptures.Add(new SourceSceneCapture(path, bytes));
+        }
+
+        ImmutableArray<SourceSceneCapture> scenes = sceneCaptures.MoveToImmutable();
+        ImmutableArray<SourceAnimationRequirement> required =
+            SourceAnimationDependencies.Collect(scene, puzzles, scenes);
         ImmutableArray<SourceAnimationIndexCapture>.Builder indexes =
             ImmutableArray.CreateBuilder<SourceAnimationIndexCapture>(required.Length);
         long totalBytes = 0;
@@ -302,11 +322,34 @@ public sealed class ClientProjectConnection
             indexes.Add(new SourceAnimationIndexCapture(reference.Path, bytes));
         }
 
+        ImmutableArray<SourceAnimationIndexCapture> animations = indexes.MoveToImmutable();
+        ImmutableArray<SourceAnimationIndexInput> metadata = [.. animations.Select((capture, index) =>
+            SourceAnimationDependencies.Read(required[index], capture.Bytes))];
+        ImmutableArray<string> paths = SourceFrameDependencies.Collect(metadata);
+        ImmutableArray<SourceFrameCapture>.Builder images =
+            ImmutableArray.CreateBuilder<SourceFrameCapture>(paths.Length);
+        long frameBytes = 0;
+        foreach (string path in paths)
+        {
+            token.ThrowIfCancellationRequested();
+            byte[] bytes = ContentReader.ReadRequiredBytes(Source, path, ContentLookupMode.LooseThenPackage,
+                SourceFrameInput.MaximumBytes);
+            frameBytes += bytes.Length;
+            if (frameBytes > ProjectDocument.MaximumTotalFrameBytes)
+            {
+                throw new InvalidDataException("Referenced frame images exceed the project capture budget.");
+            }
+            _ = SourceFrameDependencies.Read(path, bytes, token);
+            images.Add(new SourceFrameCapture(path, bytes));
+        }
+
         return extracted with
         {
             DecodedSource = decoded,
             PuzzleFiles = puzzles,
-            AnimationFiles = indexes.MoveToImmutable()
+            SceneFiles = scenes,
+            AnimationFiles = animations,
+            FrameFiles = images.MoveToImmutable()
         };
     }
 
