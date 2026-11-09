@@ -1,10 +1,10 @@
 using System.Buffers.Binary;
 using System.Text;
 using Avalonia.Controls;
-using OpenConquer.Content.Map;
-using OpenConquerStudio.ConquerImport;
 using Avalonia.Interactivity;
+using OpenConquer.Content.Map;
 using OpenConquerStudio.Authoring;
+using OpenConquerStudio.ConquerImport;
 using OpenConquerStudio.Tests;
 
 namespace OpenConquerStudio.App.Tests;
