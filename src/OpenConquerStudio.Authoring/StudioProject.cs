@@ -172,6 +172,11 @@ public sealed partial class StudioProject : IDisposable
         {
             return;
         }
+        if (Document.Terrains.Any(terrain => terrain.Source?.Frames.Any(frame =>
+            frame.TextureId == original.Id) == true))
+        {
+            throw new InvalidDataException("Linked source frame textures cannot be replaced directly. Unlink the frame first, or refresh its source terrain.");
+        }
 
         ProjectDocument document = Document with
         {
