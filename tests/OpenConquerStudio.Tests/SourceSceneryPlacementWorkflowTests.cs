@@ -49,7 +49,7 @@ public sealed class SourceSceneryPlacementWorkflowTests
         SourceMapInventory inventory = reopened.ReadSourceMapInventory(id);
         Assert.Equal(3, inventory.Scenery.Length);
         Assert.Equal(10, inventory.Scenery[2].TypeCode);
-        Assert.Equal(ProjectFiles.Hash(capture.DecodedSource!), terrain.Source!.SnapshotDigest);
+        Assert.Equal(Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(capture.DecodedSource!)), terrain.Source!.SnapshotDigest);
     }
 
     [Fact]
@@ -131,7 +131,7 @@ public sealed class SourceSceneryPlacementWorkflowTests
             new TerrainRegion(0, 0, 0, 0), project.ReadTerrainCell(id, 0, 0), "Bad",
             sceneryPlacements: asset.SceneryPlacements.RemoveAt(0)));
         Assert.Same(saved, project.Document);
-        Assert.False(project.IsModified == saved.SchemaVersion);
+        Assert.True(project.IsModified);
     }
 
     internal static TerrainImport SourceWithScenery(bool reorder = false, int firstX = 17, int firstY = 29)
