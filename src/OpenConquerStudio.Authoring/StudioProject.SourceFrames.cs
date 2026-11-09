@@ -132,7 +132,10 @@ public sealed partial class StudioProject
             }
 
             Guid id = original.TextureId!.Value;
-            frames.Add(frame with { TextureId = id });
+            frames.Add(frame with
+            {
+                TextureId = id
+            });
             if (frame.Digest == original.Digest)
             {
                 continue;
