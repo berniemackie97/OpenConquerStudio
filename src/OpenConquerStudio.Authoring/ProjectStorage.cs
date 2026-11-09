@@ -152,8 +152,8 @@ internal static class ProjectStorage
 
     private static int TerrainResourceVersion(TerrainAsset terrain) =>
         terrain.Source is null ? 1 : terrain.Source.SnapshotDigest is null ? 2 :
-            terrain.Source.Puzzles.IsEmpty ? 3 :
             !terrain.SceneryPlacements.IsEmpty ? 8 :
+            terrain.Source.Puzzles.IsEmpty ? 3 :
             terrain.Source.Frames.Any(frame => frame.TextureId is not null) ? 7 :
             !terrain.Source.Scenes.IsEmpty || !terrain.Source.Frames.IsEmpty ? 6 :
             terrain.Source.AnimationIndexes.IsEmpty ? 4 : 5;
