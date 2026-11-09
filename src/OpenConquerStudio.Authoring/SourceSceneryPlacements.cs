@@ -89,6 +89,27 @@ public static class SourceSceneryPlacements
         return previous.SequenceEqual(result) ? previous : result;
     }
 
+    public static void ValidateEdits(ImmutableArray<TerrainSceneryPlacement> previous,
+        ImmutableArray<TerrainSceneryPlacement> edited)
+    {
+        if (edited.IsDefault || previous.Length != edited.Length)
+        {
+            throw new InvalidDataException("Scenery placement edits cannot add or remove source records.");
+        }
+        for (int i = 0; i < previous.Length; i++)
+        {
+            TerrainSceneryPlacement original = previous[i];
+            TerrainSceneryPlacement changed = edited[i];
+            if (original.Id != changed.Id || original.SourceIndex != changed.SourceIndex ||
+                original.TypeCode != changed.TypeCode || original.ResourcePath != changed.ResourcePath ||
+                original.PartName != changed.PartName || original.SourceX != changed.SourceX ||
+                original.SourceY != changed.SourceY)
+            {
+                throw new InvalidDataException("Scenery placement edits can change coordinates, not source identities or ordering.");
+            }
+        }
+    }
+
     public static void ValidateAgainstSource(TerrainAsset terrain, byte[] decodedMap)
     {
         if (terrain.SceneryPlacements.IsEmpty)
