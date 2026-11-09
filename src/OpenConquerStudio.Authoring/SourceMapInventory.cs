@@ -29,8 +29,10 @@ public sealed record SourceMapInventory(int FormatVersion, uint MapDataId, strin
     public ImmutableArray<SourceAnimationIndexInput> AnimationIndexes { get; init; } = [];
     public ImmutableArray<SourceSceneInput> Scenes { get; init; } = [];
     public ImmutableArray<SourceFrameInput> Frames { get; init; } = [];
+    public ImmutableArray<TerrainSceneryPlacement> AuthoredSceneryPlacements { get; init; } = [];
 
-    internal static SourceMapInventory Read(uint id, TerrainSource source, byte[] decoded)
+    internal static SourceMapInventory Read(uint id, TerrainSource source, byte[] decoded,
+        ImmutableArray<TerrainSceneryPlacement> authoredScenery = default)
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(decoded);
@@ -93,6 +95,15 @@ public sealed record SourceMapInventory(int FormatVersion, uint MapDataId, strin
         }
 
         ImmutableArray<SourceMapReference> ordered = references.ToImmutable();
+        if (!authoredScenery.IsDefaultOrEmpty)
+        {
+            TerrainAsset authored = new(Guid.NewGuid(), "Captured", id, grid.Width, grid.Height, digest)
+            {
+                Source = source,
+                SceneryPlacements = authoredScenery
+            };
+            SourceSceneryPlacements.ValidateAgainstSource(authored, decoded);
+        }
         if (!source.Puzzles.IsEmpty)
         {
             ImmutableArray<SourcePuzzleReference> puzzlePaths = SourcePuzzleReferences.Collect(grid, scene);
@@ -122,7 +133,8 @@ public sealed record SourceMapInventory(int FormatVersion, uint MapDataId, strin
             }
         }
 
-        return new SourceMapInventory(!source.Scenes.IsEmpty || !source.Frames.IsEmpty ? 4 :
+        return new SourceMapInventory(!authoredScenery.IsDefaultOrEmpty ? 5 :
+            !source.Scenes.IsEmpty || !source.Frames.IsEmpty ? 4 :
             !source.AnimationIndexes.IsEmpty ? 3 : source.Puzzles.IsEmpty ? 1 : 2,
             id, source.MapPath, digest, grid.Width, grid.Height,
             grid.PuzzlePath, scene.ExitMarkers.Count, scenery.MoveToImmutable(),
@@ -131,7 +143,8 @@ public sealed record SourceMapInventory(int FormatVersion, uint MapDataId, strin
             Puzzles = source.Puzzles,
             AnimationIndexes = source.AnimationIndexes,
             Scenes = source.Scenes,
-            Frames = source.Frames
+            Frames = source.Frames,
+            AuthoredSceneryPlacements = authoredScenery.IsDefault ? [] : authoredScenery
         };
     }
 
