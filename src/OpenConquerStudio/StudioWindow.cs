@@ -146,7 +146,8 @@ public sealed partial class StudioWindow : Window
             TerrainRegion region = _terrainViewport.Selection;
             var changes = _terrainEditor.ReadChanges();
             StudioProject project = Project;
-            await Task.Run(() => project.PaintTerrainRegion(selected.Id, region, changes.Cell, changes.Name, changes.Exits), token);
+            await Task.Run(() => project.PaintTerrainRegion(selected.Id, region, changes.Cell, changes.Name,
+                changes.Exits, changes.SceneryPlacements), token);
             await UpdatePreview(selected.Id, token);
         }, commitEdits: false);
         _worldEditor = new WorldEditor(() => ExecuteAsync(_ => Task.CompletedTask));
