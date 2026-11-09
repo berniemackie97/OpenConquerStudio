@@ -180,8 +180,8 @@ internal static class ProjectStorage
             }
             if (source.SnapshotDigest is string storedMap)
             {
-                _ = SourceMapInventory.Read(terrain.MapDataId, source, inputs[storedMap]);
-                SourceSceneryPlacements.ValidateAgainstSource(terrain, inputs[storedMap]);
+                _ = SourceMapInventory.Read(terrain.MapDataId, source, inputs[storedMap],
+                    terrain.SceneryPlacements);
             }
 
             foreach (SourcePuzzleInput puzzle in source.Puzzles)
