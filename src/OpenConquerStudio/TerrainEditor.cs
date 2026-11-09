@@ -55,8 +55,8 @@ internal sealed class TerrainEditor : StackPanel
         {
             if (_asset is not null)
             {
-                ImmutableArray<string> paths = [.. _sourceFrames.SelectedItems
-                    .OfType<SourceFrameOption>().Select(item => item.Path)];
+                ImmutableArray<string> paths = _sourceFrames.SelectedItems is { } selected
+                    ? [.. selected.OfType<SourceFrameOption>().Select(item => item.Path)] : [];
                 if (!paths.IsEmpty)
                 {
                     await _promoteFrames(_asset.Id, paths);
