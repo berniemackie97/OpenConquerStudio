@@ -39,7 +39,7 @@ public sealed partial class StudioProject
         };
         updated.Validate();
         _terrainCells.TryAdd(terrain.CellDigest, bytes);
-        RetainInputs(origin, snapshot, source.PuzzleFiles);
+        RetainInputs(origin, snapshot, source.PuzzleFiles, source.AnimationFiles);
         Apply(updated);
         return terrain.Id;
     }
@@ -65,6 +65,19 @@ public sealed partial class StudioProject
         }
         byte[] bytes = TerrainGrid.Encode(source.Cells.AsSpan(), source.Width, source.Height);
         (TerrainSource origin, byte[]? snapshot) = CaptureSource(source);
+        if (source.AnimationFiles.IsDefault && original.Source.AnimationIndexes.Length != 0)
+        {
+            throw new InvalidDataException("Refreshing captured animation indexes requires their complete source inputs.");
+        }
+
+        if (origin.Puzzles.SequenceEqual(original.Source.Puzzles))
+        {
+            origin = origin with { Puzzles = original.Source.Puzzles };
+        }
+        if (SourceAnimationDependencies.Equivalent(origin.AnimationIndexes, original.Source.AnimationIndexes))
+        {
+            origin = origin with { AnimationIndexes = original.Source.AnimationIndexes };
+        }
         Dictionary<(int X, int Y, uint Passway), Queue<Guid>> existing = [];
         foreach (TerrainExitMarker marker in original.Exits)
         {
@@ -107,7 +120,7 @@ public sealed partial class StudioProject
         };
         updated.Validate();
         _terrainCells.TryAdd(refreshed.CellDigest, bytes);
-        RetainInputs(origin, snapshot, source.PuzzleFiles);
+        RetainInputs(origin, snapshot, source.PuzzleFiles, source.AnimationFiles);
         Apply(updated);
     }
 
@@ -123,32 +136,61 @@ public sealed partial class StudioProject
             [.. source.PuzzleFiles.Select(capture => capture.Bytes is null
                 ? new SourcePuzzleInput(capture.Path, null, 0, null, 0, 0, 0, 0)
                 : SourcePuzzleInput.FromBytes(capture.Path, capture.Bytes))];
+        ImmutableArray<SourceAnimationIndexInput> animationIndexes = [];
+        if (!source.AnimationFiles.IsDefault)
+        {
+            GameMapCellGrid grid = GameMapCellGrid.Parse(bytes);
+            GameMapSceneSections scene = GameMapSceneSections.Parse(bytes, grid.BytesConsumed, grid.HeaderField0);
+            ImmutableArray<SourceAnimationRequirement> requirements =
+                SourceAnimationDependencies.Collect(scene, source.PuzzleFiles);
+            animationIndexes = [.. source.AnimationFiles.Select((capture, index) =>
+                SourceAnimationDependencies.Read(requirements[index], capture.Bytes))];
+        }
         return (source.Source with
         {
             SnapshotDigest = ProjectFiles.Hash(bytes),
             SnapshotLength = bytes.Length,
-            Puzzles = puzzles
+            Puzzles = puzzles,
+            AnimationIndexes = animationIndexes
         }, bytes);
     }
 
-    private void RetainInputs(TerrainSource source, byte[]? decoded, ImmutableArray<SourcePuzzleCapture> captures)
+    private void RetainInputs(TerrainSource source, byte[]? decoded,
+        ImmutableArray<SourcePuzzleCapture> puzzles, ImmutableArray<SourceAnimationIndexCapture> animations)
     {
         if (decoded is not null)
         {
             _sourceInputs.TryAdd(source.SnapshotDigest!, decoded);
         }
-        if (captures.IsDefault)
+        if (!puzzles.IsDefault)
         {
-            return;
+            foreach (SourcePuzzleCapture capture in puzzles)
+            {
+                if (capture.Bytes is not null)
+                {
+                    byte[] bytes = (byte[])capture.Bytes.Clone();
+                    _sourceInputs.TryAdd(ProjectFiles.Hash(bytes), bytes);
+                }
+            }
         }
-        foreach (SourcePuzzleCapture capture in captures)
+        if (!animations.IsDefault)
         {
-            if (capture.Bytes is not null)
+            foreach (SourceAnimationIndexCapture capture in animations)
             {
                 byte[] bytes = (byte[])capture.Bytes.Clone();
                 _sourceInputs.TryAdd(ProjectFiles.Hash(bytes), bytes);
             }
         }
+    }
+
+    public ImmutableArray<SourceAnimationSection> ReadSourceAnimationIndex(Guid terrainId, string path)
+    {
+        ThrowIfDisposed();
+        TerrainSource source = Document.Terrains.Single(a => a.Id == terrainId).Source
+            ?? throw new InvalidDataException("Select a source-extracted terrain.");
+        SourceAnimationIndexInput index = source.AnimationIndexes.Single(a =>
+            string.Equals(a.Path, path, StringComparison.OrdinalIgnoreCase));
+        return index.Sections;
     }
 
     public GameMapPuzzleBitmap ReadSourcePuzzle(Guid terrainId, string path)
