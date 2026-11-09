@@ -13,7 +13,10 @@ public readonly record struct TerrainExitMarker(Guid Id, int X, int Y, uint Pass
 public sealed record TerrainAsset(Guid Id, string Name, uint MapDataId, int Width, int Height, string CellDigest)
 {
     public ImmutableArray<TerrainExitMarker> Exits { get; init; } = [];
-    public TerrainSource? Source { get; init; }
+    public TerrainSource? Source
+    {
+        get; init;
+    }
 }
 
 public sealed record AtlasAsset(Guid Id, string Name, Guid TextureId, ImmutableArray<SpriteRegion> Sprites);
