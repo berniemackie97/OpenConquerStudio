@@ -94,7 +94,7 @@ public sealed partial class StudioWindowTests
         }
     }, TestContext.Current.CancellationToken);
 
-    private static TerrainImport CreateCapturedTerrain()
+    internal static TerrainImport CreateCapturedTerrain()
     {
         using MemoryStream stream = new();
         byte[] header = new byte[276];

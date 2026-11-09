@@ -13,6 +13,7 @@ public readonly record struct TerrainExitMarker(Guid Id, int X, int Y, uint Pass
 public sealed record TerrainAsset(Guid Id, string Name, uint MapDataId, int Width, int Height, string CellDigest)
 {
     public ImmutableArray<TerrainExitMarker> Exits { get; init; } = [];
+    public ImmutableArray<TerrainSceneryPlacement> SceneryPlacements { get; init; } = [];
     public TerrainSource? Source
     {
         get; init;
@@ -40,6 +41,7 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
     public const int MaximumTotalFrameBytes = 64 * 1024 * 1024;
     public const int MaximumTerrainExitMarkers = 4_096;
     public const int MaximumTotalTerrainExitMarkers = 8_192;
+    public const int MaximumTotalSceneryPlacements = 8_192;
     public const int MaximumModelBytes = 128 * 1024 * 1024;
     public const int CurrentVersion = 2;
     public const int MaximumAssets = 64;
@@ -117,6 +119,7 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
         HashSet<Guid> promotedTextures = [];
         long terrainCells = 0;
         int terrainExitMarkers = 0;
+        int totalSceneryPlacements = 0;
         HashSet<uint> mapDataIds = [];
         HashSet<string> sourceDigests = new(StringComparer.Ordinal);
         HashSet<string> puzzleDigests = new(StringComparer.Ordinal);
@@ -223,6 +226,28 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
                 {
                     throw new InvalidDataException("Terrain exit marker identities must be nonempty and unique.");
                 }
+            }
+
+            if (terrain.SceneryPlacements.IsDefault ||
+                terrain.SceneryPlacements.Length > SourceSceneryPlacements.MaximumPerTerrain ||
+                terrain.SceneryPlacements.Length != 0 && terrain.Source?.SnapshotDigest is null)
+            {
+                throw new InvalidDataException("Authored scenery placements require a captured source map.");
+            }
+            totalSceneryPlacements += terrain.SceneryPlacements.Length;
+            if (totalSceneryPlacements > MaximumTotalSceneryPlacements)
+            {
+                throw new InvalidDataException("Authored scenery placements exceed the project budget.");
+            }
+            int lastSceneryOrdinal = -1;
+            foreach (TerrainSceneryPlacement placement in terrain.SceneryPlacements)
+            {
+                placement.Validate(terrain.Source!.SceneryCount);
+                if (placement.SourceIndex <= lastSceneryOrdinal || !ids.Add(placement.Id))
+                {
+                    throw new InvalidDataException("Scenery placements require distinct IDs and source ordering.");
+                }
+                lastSceneryOrdinal = placement.SourceIndex;
             }
 
             terrainCells += TerrainGrid.CellCount(terrain.Width, terrain.Height);
