@@ -76,7 +76,10 @@ public sealed record TerrainSource(string MapPath, string PuzzlePath, uint Catal
 public sealed record TerrainImport(uint MapDataId, int Width, int Height,
     ImmutableArray<TerrainCell> Cells, ImmutableArray<TerrainExitMarker> Exits, TerrainSource Source)
 {
-    public ImmutableArray<SourcePuzzleCapture> PuzzleFiles { get; init; }
+    public ImmutableArray<SourcePuzzleCapture> PuzzleFiles
+    {
+        get; init;
+    }
 
     public byte[]? DecodedSource
     {
