@@ -243,6 +243,24 @@ public sealed class ClientProjectConnection
         return [.. frames];
     }
 
+    public TerrainImport ReadTerrainWithSource(uint id, CancellationToken token = default)
+    {
+        token.ThrowIfCancellationRequested();
+        if (!_maps.TryGetTerrain(id, out GameMapCatalog.Terrain? terrain))
+        {
+            throw new InvalidDataException($"Map data ID {id} is absent from the source map catalog.");
+        }
+
+        byte[] archive = ContentReader.ReadRequiredBytes(Source, terrain.Path,
+            ContentLookupMode.LooseOnly, 128 * 1024);
+        byte[] decoded = GameMapArchive.Decode(archive, terrain.Path);
+        GameMapCellGrid grid = GameMapCellGrid.Parse(decoded);
+        GameMapSceneSections scene = GameMapSceneSections.Parse(decoded, grid.BytesConsumed, grid.HeaderField0);
+        TerrainImport extracted = ClientTerrainImporter.Read(id, terrain.Path, terrain.CompanionValue,
+            grid, scene, token);
+        return extracted with { DecodedSource = decoded };
+    }
+
     public GameMapContent ReadMap(uint id) => GameMapContent.Load(Source, _maps, id);
 
     public string DescribeSource(ClientAssetEntry entry)
