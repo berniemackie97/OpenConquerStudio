@@ -97,9 +97,15 @@ internal sealed class ClientContentPanel : Grid
                 _clipControls.IsVisible = entry.Kind == "animation";
                 _mapControls.IsVisible = entry.Kind == "map";
                 _characterControls.IsVisible = entry.Kind == "character";
-                _import.IsVisible = entry.Kind is "texture" or "animation" or "model" or "character";
-                _replace.IsVisible = entry.Kind is "texture" or "animation";
-                _replace.Content = entry.Kind == "animation" ? "Refresh selected authored animation" : "Replace selected authored texture";
+                _import.IsVisible = entry.Kind is "texture" or "animation" or "model" or "character" or "map";
+                _import.Content = entry.Kind == "map" ? "Extract editable terrain grid" : "Import editable copy";
+                _replace.IsVisible = entry.Kind is "texture" or "animation" or "map";
+                _replace.Content = entry.Kind switch
+                {
+                    "animation" => "Refresh selected authored animation",
+                    "map" => "Refresh selected authored terrain",
+                    _ => "Replace selected authored texture"
+                };
                 await preview(entry, () => Options() with
                 {
                     Section = null
