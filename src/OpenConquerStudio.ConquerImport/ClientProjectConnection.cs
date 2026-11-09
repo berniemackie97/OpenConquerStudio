@@ -281,7 +281,11 @@ public sealed class ClientProjectConnection
             string path = references[i];
             if (!Source.TryOpenRead(path, ContentLookupMode.LooseOnly, out Stream? stream))
             {
-                if (i != 0 || !path.EndsWith(".pul", StringComparison.OrdinalIgnoreCase))
+                bool requiredByOverlay = scene.PositionedOverlays.Any(group =>
+                    group.Entries.OfType<GameMapPuzzleOverlayEntry>().Any(entry =>
+                        string.Equals(entry.PuzzlePath, path, StringComparison.OrdinalIgnoreCase)));
+                if (i != 0 || requiredByOverlay ||
+                    !path.EndsWith(".pul", StringComparison.OrdinalIgnoreCase))
                 {
                     throw new InvalidDataException($"Required map puzzle '{path}' is missing.");
                 }
