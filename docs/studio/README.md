@@ -175,7 +175,10 @@ dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- promo
 dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- unlink-map-frame /path/to/project <terrain-guid> images/frame.dds
 ```
 Unlinking leaves the texture as a normal authored resource; future source refreshes no
-longer replace it. Authored frame textures compile through the existing texture build path.
+longer replace it. Authored frame textures use the existing texture build path. The general project compiler
+still rejects projects containing authored terrain, rather than silently publishing a
+partial world package. Standalone textures can be built after unlinking and removing
+the source terrain; complete visual-world compilation remains a separate milestone.
 This does not yet produce authored puzzle/scenery placement layers or a compiled client map.
 
 ## Author terrain cells
