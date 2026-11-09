@@ -80,7 +80,7 @@ internal sealed class TerrainSceneryEditor : StackPanel
         {
             return asset.SceneryPlacements;
         }
-        int index = asset.SceneryPlacements.FindIndex(item => item.Id == original.Id);
+        int index = IndexOf(asset.SceneryPlacements, original.Id);
         if (index < 0)
         {
             throw new InvalidDataException("The selected scenery placement no longer exists.");
