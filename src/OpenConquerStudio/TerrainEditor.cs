@@ -183,7 +183,13 @@ internal sealed class TerrainEditor : StackPanel
                 {
                     _location.Text += $"\nANI indexes: {source.AnimationIndexes.Length} retained, " +
                         $"{source.AnimationIndexes.Sum(index => index.Sections.Length)} sections. " +
-                        "Referenced frame images remain external.";
+                        "Referenced ANI sections are verified.";
+                }
+                if (!source.Scenes.IsEmpty || !source.Frames.IsEmpty)
+                {
+                    _location.Text += $"\nScenery sources: {source.Scenes.Length}, " +
+                        $"verified image frames: {source.Frames.Length}. " +
+                        "Authoring layer transforms and target compilation remain outstanding.";
                 }
             }
         }
