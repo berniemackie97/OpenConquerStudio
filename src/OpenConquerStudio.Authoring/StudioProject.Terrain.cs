@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using OpenConquer.Content.Map;
 
 namespace OpenConquerStudio.Authoring;
 
@@ -38,10 +39,7 @@ public sealed partial class StudioProject
         };
         updated.Validate();
         _terrainCells.TryAdd(terrain.CellDigest, bytes);
-        if (snapshot is not null)
-        {
-            _mapSources.TryAdd(origin.SnapshotDigest!, snapshot);
-        }
+        RetainInputs(origin, snapshot, source.PuzzleFiles);
         Apply(updated);
         return terrain.Id;
     }
@@ -60,6 +58,10 @@ public sealed partial class StudioProject
         if (original.Source.SnapshotDigest is not null && source.DecodedSource is null)
         {
             throw new InvalidDataException("A captured map must be refreshed with its complete decoded source.");
+        }
+        if (original.Source.Puzzles.Length != 0 && source.PuzzleFiles.IsDefault)
+        {
+            throw new InvalidDataException("Refreshing captured puzzle inputs requires a complete dependency inventory.");
         }
         byte[] bytes = TerrainGrid.Encode(source.Cells.AsSpan(), source.Width, source.Height);
         (TerrainSource origin, byte[]? snapshot) = CaptureSource(source);
@@ -105,10 +107,7 @@ public sealed partial class StudioProject
         };
         updated.Validate();
         _terrainCells.TryAdd(refreshed.CellDigest, bytes);
-        if (snapshot is not null)
-        {
-            _mapSources.TryAdd(origin.SnapshotDigest!, snapshot);
-        }
+        RetainInputs(origin, snapshot, source.PuzzleFiles);
         Apply(updated);
     }
 
@@ -120,11 +119,49 @@ public sealed partial class StudioProject
         }
 
         byte[] bytes = (byte[])source.DecodedSource.Clone();
+        ImmutableArray<SourcePuzzleInput> puzzles = source.PuzzleFiles.IsDefault ? [] :
+            [.. source.PuzzleFiles.Select(capture => capture.Bytes is null
+                ? new SourcePuzzleInput(capture.Path, null, 0, null, 0, 0, 0, 0)
+                : SourcePuzzleInput.FromBytes(capture.Path, capture.Bytes))];
         return (source.Source with
         {
             SnapshotDigest = ProjectFiles.Hash(bytes),
-            SnapshotLength = bytes.Length
+            SnapshotLength = bytes.Length,
+            Puzzles = puzzles
         }, bytes);
+    }
+
+    private void RetainInputs(TerrainSource source, byte[]? decoded, ImmutableArray<SourcePuzzleCapture> captures)
+    {
+        if (decoded is not null)
+        {
+            _sourceInputs.TryAdd(source.SnapshotDigest!, decoded);
+        }
+        if (captures.IsDefault)
+        {
+            return;
+        }
+        foreach (SourcePuzzleCapture capture in captures)
+        {
+            if (capture.Bytes is not null)
+            {
+                byte[] bytes = (byte[])capture.Bytes.Clone();
+                _sourceInputs.TryAdd(ProjectFiles.Hash(bytes), bytes);
+            }
+        }
+    }
+
+    public GameMapPuzzleBitmap ReadSourcePuzzle(Guid terrainId, string path)
+    {
+        ThrowIfDisposed();
+        TerrainSource source = Document.Terrains.Single(a => a.Id == terrainId).Source
+            ?? throw new InvalidDataException("Select a source-extracted terrain.");
+        SourcePuzzleInput puzzle = source.Puzzles.Single(p => string.Equals(p.Path, path, StringComparison.OrdinalIgnoreCase));
+        if (puzzle.Digest is not string digest)
+        {
+            throw new InvalidDataException($"Puzzle '{path}' was unavailable during capture.");
+        }
+        return GameMapPuzzleBitmap.Parse(_sourceInputs[digest]);
     }
 
     public SourceMapInventory ReadSourceMapInventory(Guid terrainId)
@@ -138,7 +175,7 @@ public sealed partial class StudioProject
             throw new InvalidDataException("This terrain has no owned source-map snapshot. Refresh it from the source installation.");
         }
 
-        return SourceMapInventory.Read(terrain.MapDataId, source, _mapSources[source.SnapshotDigest]);
+        return SourceMapInventory.Read(terrain.MapDataId, source, _sourceInputs[source.SnapshotDigest]);
     }
 
     public void EditTerrainExits(Guid id, ImmutableArray<TerrainExitMarker> exits)
