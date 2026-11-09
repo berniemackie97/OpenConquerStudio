@@ -151,6 +151,33 @@ missing source dependencies. Saving never rewrites the
 original map or puzzle files. Terrain/collision builds still use the authoritative server
 tool and do not include the unresolved visual dependencies.
 
+## Promote captured map images into authored textures
+
+Select a source-extracted terrain under **Authored**. Its inspector lists the decoded
+DDS/TGA frame inputs retained with the project. Select one or more image frames and choose
+**Create editable textures from selected frames**. Studio adds independent, editable
+texture resources in one undoable project revision and records their authored GUIDs against
+the corresponding source-frame references. Repeating the operation for an already-linked
+frame is a no-op. The original source image bytes remain unchanged.
+
+Selected inputs must fit the authored texture count and decoded pixel-memory budgets.
+A failed batch leaves the document and Undo/Redo history untouched. Existing authored
+atlas and animation references use the texture GUID, not a source filename. On explicit
+source-terrain refresh, a matching frame path preserves its authored texture GUID and
+updates decoded pixels and source metadata when the encoded image changes, retaining the
+texture's authored name, flip and rotation. Changes that invalidate connected sprite bounds
+are rejected before committing; they are not silently truncated.
+
+Linked textures cannot be deleted or independently replaced while referenced by their
+source frame. Use the explicit unlink command to detach the authored texture first:
+```sh
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- promote-map-frame /path/to/project <terrain-guid> images/frame.dds
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- unlink-map-frame /path/to/project <terrain-guid> images/frame.dds
+```
+Unlinking leaves the texture as a normal authored resource; future source refreshes no
+longer replace it. Authored frame textures compile through the existing texture build path.
+This does not yet produce authored puzzle/scenery placement layers or a compiled client map.
+
 ## Author terrain cells
 
 Choose **Assets → New terrain**, select a unique MapDataId and set dimensions and initial raw
