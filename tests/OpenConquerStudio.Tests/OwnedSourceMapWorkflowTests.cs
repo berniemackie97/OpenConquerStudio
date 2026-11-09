@@ -72,9 +72,9 @@ public sealed class OwnedSourceMapWorkflowTests
         {
             TerrainImport source = ClientTerrainImporter.Read(9200, "maps/ground.dmap", 42, grid, scene,
                 TestContext.Current.CancellationToken) with
-        {
-            DecodedSource = decoded
-        };
+            {
+                DecodedSource = decoded
+            };
             Guid id = project.ImportTerrain(source, "Ground");
             digest = project.Document.Terrains.Single().Source!.SnapshotDigest!;
             project.Save(TestContext.Current.CancellationToken);
