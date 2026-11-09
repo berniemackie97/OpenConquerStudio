@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.Collections.Immutable;
 using System.Text;
 using System.Text.Json;
 using OpenConquer.Content.Map;
