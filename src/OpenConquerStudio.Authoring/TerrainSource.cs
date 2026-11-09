@@ -166,10 +166,11 @@ public sealed record TerrainImport(uint MapDataId, int Width, int Height,
             throw new InvalidDataException("Animation capture requires decoded map and puzzle inputs.");
         }
 
-        if ((!SceneFiles.IsDefault || !FrameFiles.IsDefault) &&
-            (DecodedSource is null || PuzzleFiles.IsDefault || AnimationFiles.IsDefault))
+        if (SceneFiles.IsDefault != FrameFiles.IsDefault ||
+            (!SceneFiles.IsDefault &&
+                (DecodedSource is null || PuzzleFiles.IsDefault || AnimationFiles.IsDefault)))
         {
-            throw new InvalidDataException("Visual source capture requires map, puzzles and ANI indexes.");
+            throw new InvalidDataException("Visual source capture requires complete scene and frame inventories, map, puzzles and ANI indexes.");
         }
         if (DecodedSource is not null)
         {
