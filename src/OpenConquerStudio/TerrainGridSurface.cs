@@ -77,9 +77,9 @@ internal sealed class TerrainGridSurface : Control
         InvalidateVisual();
     }
 
-    protected override void OnRender(DrawingContext context)
+    public override void Render(DrawingContext context)
     {
-        base.OnRender(context);
+        base.Render(context);
         if (_read is null)
         {
             return;
