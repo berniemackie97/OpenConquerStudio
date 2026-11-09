@@ -274,7 +274,9 @@ public sealed partial class StudioProject : IDisposable
             retainedSourceInputs = Document.Terrains.Concat(_undo.SelectMany(d => d.Terrains))
                 .SelectMany(a => a.Source is null ? Enumerable.Empty<string>() :
                     a.Source.Puzzles.Select(p => p.Digest).Append(a.Source.SnapshotDigest)
-                        .Concat(a.Source.AnimationIndexes.Select(index => index.Digest)).OfType<string>())
+                        .Concat(a.Source.AnimationIndexes.Select(index => index.Digest))
+                        .Concat(a.Source.Scenes.Select(scene => scene.Digest))
+                        .Concat(a.Source.Frames.Select(frame => frame.Digest)).OfType<string>())
                 .ToHashSet(StringComparer.Ordinal);
             if (_undo.Count == 0 || retained.Sum(d => (long)_pixels[d].Pixels.Length) +
                 retainedModels.Sum(d => (long)_models[d].Length) + retainedTerrain.Sum(d => (long)_terrainCells[d].Length) +
