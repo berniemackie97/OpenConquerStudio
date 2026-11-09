@@ -309,7 +309,10 @@ internal static class ProjectStorage
                         }
                         inputs.Add(recorded.Digest, bytes);
                     }
-                    if (SourceFrameDependencies.Read(recorded.Path, bytes, token) != recorded)
+                    if (SourceFrameDependencies.Read(recorded.Path, bytes, token) != recorded with
+                    {
+                        TextureId = null
+                    })
                     {
                         throw new InvalidDataException("Captured frame image metadata differs from its original bytes.");
                     }
