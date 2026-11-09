@@ -103,6 +103,14 @@ public sealed class OwnedMapVisualInputsTests
         }, "Missing scenery"));
         Assert.Throws<InvalidDataException>(() => project.ImportTerrain(input with
         {
+            FrameFiles = default
+        }, "Missing frame inventory"));
+        Assert.Throws<InvalidDataException>(() => project.ImportTerrain(input with
+        {
+            SceneFiles = default
+        }, "Missing scene inventory"));
+        Assert.Throws<InvalidDataException>(() => project.ImportTerrain(input with
+        {
             FrameFiles = [new("images/scene.tga", Tga(42)), new("images/shared.tga", Tga(21))]
         }, "Reordered frames"));
         Assert.Throws<InvalidDataException>(() => project.ImportTerrain(input with
