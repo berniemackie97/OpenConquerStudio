@@ -45,12 +45,22 @@ budgets before applying an immutable project revision. Explicit refresh preserve
 terrain resource identity and matches exit-marker identities by raw value and occurrence.
 Changes to the scene-only source records do not alter the extracted terrain payload.
 
-The source reference stored with the terrain identifies the archive and referenced puzzle,
-records catalog/header values, and counts unresolved scenery and overlay groups. **It does not
-capture their encoded payloads or implement their dependency graph.** The original source
-remains separately required until a lossless typed source-resource import is implemented.
-Neither terrain export nor a server terrain/collision pair claims to include puzzle, scenery,
-animations, environment, or client map visuals. Full source-map promotion stays blocked by #39.
+The extracted terrain retains source map/puzzle paths, catalog/header values and the
+counts of scenery and overlay groups. The current import also persists the original
+**decoded map payload** as a bounded immutable input, keyed by SHA-256, and exposes
+a deterministic dependency inventory built from the stored map bytes. The inventory
+enumerates the ground puzzle, every scenery type/payload digest, ordered overlay
+groups, and each parsed scene/puzzle/animation reference with its source position.
+Unknown but parsed scenery payloads remain in the preserved decoded map, rather
+than being silently omitted from the input record.
+
+The snapshot does not include the external puzzle, scene, ANI or texture resources
+referenced by the map, or provide a complete typed asset graph. It is not an editable
+client world: layout semantics, dependency resolution and canonical map compilation
+are still blocked under #39 and #40. Terrain export and the validated server terrain/
+collision pair do not include those visual dependencies. Schema-1 authored terrain
+and schema-2 source-extracted terrain remain readable; decoded snapshots are stored
+in schema-3 terrain revisions.
 
 ## One authoring source, separate target outputs
 

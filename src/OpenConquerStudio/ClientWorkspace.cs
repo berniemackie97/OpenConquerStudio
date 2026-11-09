@@ -185,7 +185,7 @@ internal sealed class ClientWorkspace
         if (entry.Kind == "map")
         {
             TerrainImport source = await Task.Run(() =>
-                ClientTerrainImporter.Read(connection.ReadMap(entry.MapDataId!.Value), token), token);
+                connection.ReadTerrainWithSource(entry.MapDataId!.Value, token), token);
             if (replace)
             {
                 if (_owner.SelectedAsset is not ResourceInfo { Kind: "terrain" } selected)

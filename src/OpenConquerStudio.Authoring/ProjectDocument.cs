@@ -33,6 +33,7 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
     public ImmutableArray<TerrainAsset> Terrains { get; init; } = [];
     public ImmutableArray<WorldAsset> Worlds { get; init; } = [];
     public const int MaximumTotalTerrainCells = 262_144;
+    public const int MaximumTotalSourceMapBytes = 64 * 1024 * 1024;
     public const int MaximumTerrainExitMarkers = 4_096;
     public const int MaximumTotalTerrainExitMarkers = 8_192;
     public const int MaximumModelBytes = 128 * 1024 * 1024;
@@ -112,6 +113,8 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
         long terrainCells = 0;
         int terrainExitMarkers = 0;
         HashSet<uint> mapDataIds = [];
+        HashSet<string> sourceDigests = new(StringComparer.Ordinal);
+        long sourceBytes = 0;
         foreach (TerrainAsset terrain in Terrains)
         {
             if (terrain is null || terrain.Id == Guid.Empty || !ids.Add(terrain.Id) || terrain.MapDataId == 0 ||
@@ -123,6 +126,14 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
             ValidateName(terrain.Name);
             ValidateDigest(terrain.CellDigest);
             terrain.Source?.Validate();
+            if (terrain.Source?.SnapshotDigest is string digest && sourceDigests.Add(digest))
+            {
+                sourceBytes += terrain.Source.SnapshotLength;
+                if (sourceBytes > MaximumTotalSourceMapBytes)
+                {
+                    throw new InvalidDataException("Project-owned source maps exceed their total size budget.");
+                }
+            }
             if (terrain.Exits.IsDefault || terrain.Exits.Length > MaximumTerrainExitMarkers)
             {
                 throw new InvalidDataException("Terrain exit marker count is invalid.");

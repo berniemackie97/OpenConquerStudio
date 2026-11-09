@@ -168,6 +168,13 @@ internal sealed class TerrainEditor : StackPanel
             _passability.Value = _selectedCell.PassabilityFlag;
             _elevation.Value = _selectedCell.Elevation;
             _location.Text = $"MapDataId {_asset.MapDataId} · {_asset.Width} × {_asset.Height}\nCell {_selectedX}, {_selectedY}";
+            if (_asset.Source is { } source)
+            {
+                _location.Text += $"\nSource {source.MapPath} · {source.SceneryCount} scenery records · " +
+                    $"{source.OverlayGroupCount} overlay groups · " +
+                    (source.SnapshotDigest is null ? "source content not retained" :
+                        $"decoded map retained ({source.SnapshotLength:N0} bytes)");
+            }
         }
         finally { _loading = false; }
     }

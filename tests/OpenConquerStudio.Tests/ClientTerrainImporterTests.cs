@@ -58,7 +58,7 @@ public sealed class ClientTerrainImporterTests
         Assert.False(project.IsModified);
     }
 
-    private static byte[] MapSource()
+    internal static byte[] MapSource()
     {
         using MemoryStream stream = new();
         byte[] header = new byte[276];
