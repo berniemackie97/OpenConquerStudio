@@ -33,7 +33,10 @@ internal sealed class TerrainGridSurface : Control
 
     public event Action<TerrainRegion>? Selected;
 
-    public TerrainRegion Selection { get; private set; }
+    public TerrainRegion Selection
+    {
+        get; private set;
+    }
 
     public TerrainGridSurface()
     {
