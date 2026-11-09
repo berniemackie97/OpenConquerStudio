@@ -34,7 +34,7 @@ public sealed class OwnedMapAnimationWorkflowTests
         using StudioProject reopened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken);
         TerrainAsset terrain = Assert.Single(reopened.Document.Terrains);
         Assert.Equal(id, terrain.Id);
-        Assert.Equal(1, terrain.Source!.AnimationIndexes.Length);
+        Assert.Single(terrain.Source!.AnimationIndexes);
         string digest = terrain.Source.AnimationIndexes[0].Digest;
         Assert.Equal(Indexes(), File.ReadAllBytes(directory.PathFor("project", "Inputs", digest + ".ocani")));
         Assert.Equal(["Puzzle2", "Puzzle9", "Puzzle12", "Puzzle8"],
