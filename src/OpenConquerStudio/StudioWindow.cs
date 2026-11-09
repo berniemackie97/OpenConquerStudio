@@ -45,6 +45,7 @@ public sealed partial class StudioWindow : Window
         Margin = new Thickness(36),
     };
     private readonly AssetPreview _preview = new();
+    private readonly TerrainViewport _terrainViewport = new();
     private readonly TextBlock _projectStatus = new() { Margin = new Thickness(12, 0), TextWrapping = TextWrapping.Wrap };
     private readonly List<Control> _projectCommands = [];
     private readonly List<Control> _assetCommands = [];
@@ -131,6 +132,19 @@ public sealed partial class StudioWindow : Window
                 await UpdatePreview(id, token);
             }));
         _terrainEditor.PendingChanged += PendingEditsChanged;
+        _terrainViewport.PaintRequested += () => ExecuteAsync(async token =>
+        {
+            if (SelectedAsset is not { Kind: "terrain" } selected)
+            {
+                return;
+            }
+
+            TerrainRegion region = _terrainViewport.Selection;
+            var changes = _terrainEditor.ReadChanges();
+            StudioProject project = Project;
+            await Task.Run(() => project.PaintTerrainRegion(selected.Id, region, changes.Cell, changes.Name, changes.Exits), token);
+            await UpdatePreview(selected.Id, token);
+        }, commitEdits: false);
         _worldEditor = new WorldEditor(() => ExecuteAsync(_ => Task.CompletedTask));
         _worldEditor.PendingChanged += PendingEditsChanged;
         _projectName.TextChanged += (_, _) => PendingEditsChanged();
@@ -293,7 +307,7 @@ public sealed partial class StudioWindow : Window
         body.Children.Add(new GridSplitter { Width = 5, HorizontalAlignment = HorizontalAlignment.Stretch, [Grid.ColumnProperty] = 1 });
         Grid previewArea = new()
         {
-            Children = { _preview, _emptyPreview },
+            Children = { _preview, _terrainViewport, _emptyPreview },
             [Grid.ColumnProperty] = 2
         };
         body.Children.Add(previewArea);
@@ -412,6 +426,7 @@ public sealed partial class StudioWindow : Window
     {
         _emptyPreview.IsVisible = false;
         _preview.IsVisible = true;
+        _terrainViewport.Clear();
         _assetTabs.SelectedIndex = 1;
         _dependencies.Text = "Client sources are read-only. Imported copies have their own authored dependencies.";
         _activeWorkspaceTab = 1;
@@ -753,6 +768,7 @@ public sealed partial class StudioWindow : Window
         _assetTabs.IsEnabled = !_busy;
         _modelEditor.IsEnabled = !_busy;
         _terrainEditor.IsEnabled = !_busy;
+        _terrainViewport.IsEnabled = !_busy;
         _worldEditor.IsEnabled = !_busy;
         _atlasEditor.IsEnabled = !_busy;
         _animationEditor.IsEnabled = !_busy;
