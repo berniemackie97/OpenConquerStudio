@@ -15,7 +15,10 @@ public sealed class OwnedSourceMapWorkflowTests
         GameMapCellGrid grid = GameMapCellGrid.Parse(decoded);
         GameMapSceneSections scene = GameMapSceneSections.Parse(decoded, grid.BytesConsumed, grid.HeaderField0);
         TerrainImport input = ClientTerrainImporter.Read(9100, "maps/ground.dmap", 42, grid, scene,
-            TestContext.Current.CancellationToken) with { DecodedSource = decoded };
+            TestContext.Current.CancellationToken) with
+        {
+            DecodedSource = decoded
+        };
         Guid id;
         SourceMapInventory original;
         using (StudioProject project = StudioProject.Create(directory.Project, "Game"))
@@ -68,7 +71,10 @@ public sealed class OwnedSourceMapWorkflowTests
         using (StudioProject project = StudioProject.Create(directory.Project, "Game"))
         {
             TerrainImport source = ClientTerrainImporter.Read(9200, "maps/ground.dmap", 42, grid, scene,
-                TestContext.Current.CancellationToken) with { DecodedSource = decoded };
+                TestContext.Current.CancellationToken) with
+        {
+            DecodedSource = decoded
+        };
             Guid id = project.ImportTerrain(source, "Ground");
             digest = project.Document.Terrains.Single().Source!.SnapshotDigest!;
             project.Save(TestContext.Current.CancellationToken);
@@ -91,7 +97,10 @@ public sealed class OwnedSourceMapWorkflowTests
         GameMapCellGrid grid = GameMapCellGrid.Parse(decoded);
         GameMapSceneSections scene = GameMapSceneSections.Parse(decoded, grid.BytesConsumed, grid.HeaderField0);
         TerrainImport input = ClientTerrainImporter.Read(9300, "maps/ground.dmap", 42, grid, scene,
-            TestContext.Current.CancellationToken) with { DecodedSource = decoded };
+            TestContext.Current.CancellationToken) with
+        {
+            DecodedSource = decoded
+        };
         using StudioProject project = StudioProject.Create(directory.Project, "Game");
         ProjectDocument initial = project.Document;
         byte[] damaged = (byte[])decoded.Clone();
@@ -103,7 +112,10 @@ public sealed class OwnedSourceMapWorkflowTests
         Assert.Same(initial, project.Document);
         Assert.False(project.IsModified);
 
-        Guid id = project.ImportTerrain(input with { DecodedSource = null }, "Legacy source");
+        Guid id = project.ImportTerrain(input with
+        {
+            DecodedSource = null
+        }, "Legacy source");
         project.Save(TestContext.Current.CancellationToken);
         Assert.Null(project.Document.Terrains.Single().Source!.SnapshotDigest);
         Assert.Throws<InvalidDataException>(() => project.ReadSourceMapInventory(id));
@@ -111,7 +123,7 @@ public sealed class OwnedSourceMapWorkflowTests
         {
             DecodedSource = damaged
         }));
-        Assert.Equal(1, project.Document.Terrains.Length);
+        Assert.Single(project.Document.Terrains);
     }
 
     [Fact]
@@ -122,7 +134,10 @@ public sealed class OwnedSourceMapWorkflowTests
         GameMapCellGrid grid = GameMapCellGrid.Parse(decoded);
         GameMapSceneSections scene = GameMapSceneSections.Parse(decoded, grid.BytesConsumed, grid.HeaderField0);
         TerrainImport input = ClientTerrainImporter.Read(9400, "maps/ground.dmap", 42, grid, scene,
-            TestContext.Current.CancellationToken) with { DecodedSource = decoded };
+            TestContext.Current.CancellationToken) with
+        {
+            DecodedSource = decoded
+        };
         using StudioProject project = StudioProject.Create(directory.Project, "Game");
         Guid id = project.ImportTerrain(input, "Ground");
         project.Save(TestContext.Current.CancellationToken);
