@@ -14,6 +14,12 @@ internal sealed class TerrainEditor : StackPanel
     private readonly NumericUpDown _passability = Number("TerrainPassability", 0, ushort.MaxValue);
     private readonly NumericUpDown _elevation = Number("TerrainElevation", short.MinValue, short.MaxValue);
     private readonly TextBlock _location = new() { TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+    private readonly TextBlock _sourceFrameHeading = new() { Text = "Captured image frames" };
+    private readonly Button _promoteButton = new()
+    {
+        Name = "PromoteTerrainFrames",
+        Content = "Create editable textures from selected frames"
+    };
     private readonly ListBox _sourceFrames = new()
     {
         Name = "TerrainSourceFrameSelection",
@@ -44,14 +50,11 @@ internal sealed class TerrainEditor : StackPanel
         Children.Add(new TextBlock { Text = "Name" });
         Children.Add(_name);
         Children.Add(_location);
-        Children.Add(new TextBlock { Text = "Captured image frames" });
+        Children.Add(_sourceFrameHeading);
         Children.Add(_sourceFrames);
-        Button promote = new()
-        {
-            Name = "PromoteTerrainFrames",
-            Content = "Create editable textures from selected frames"
-        };
-        promote.Click += async (_, _) =>
+        _sourceFrames.SelectionChanged += (_, _) =>
+            _promoteButton.IsEnabled = _sourceFrames.SelectedItems?.Count > 0;
+        _promoteButton.Click += async (_, _) =>
         {
             if (_asset is not null)
             {
@@ -63,7 +66,7 @@ internal sealed class TerrainEditor : StackPanel
                 }
             }
         };
-        Children.Add(promote);
+        Children.Add(_promoteButton);
         Children.Add(new TextBlock { Text = "Cell X / Y" });
         Children.Add(_x);
         Children.Add(_y);
@@ -177,7 +180,11 @@ internal sealed class TerrainEditor : StackPanel
             _name.Text = asset.Name;
             _sourceFrames.ItemsSource = asset.Source?.Frames.Select(frame =>
                 new SourceFrameOption(frame.Path, frame.TextureId)).ToArray() ?? [];
-            _sourceFrames.IsVisible = asset.Source?.Frames.IsEmpty == false;
+            bool hasSourceFrames = asset.Source?.Frames.IsEmpty == false;
+            _sourceFrameHeading.IsVisible = hasSourceFrames;
+            _sourceFrames.IsVisible = hasSourceFrames;
+            _promoteButton.IsVisible = hasSourceFrames;
+            _promoteButton.IsEnabled = _sourceFrames.SelectedItems?.Count > 0;
             LoadCell();
             _exitEditor.Load(asset);
         }
