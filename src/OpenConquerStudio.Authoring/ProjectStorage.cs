@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using System.Text.Json;
-using OpenConquer.Content.Map;
 using OpenConquerStudio.Runtime;
 
 namespace OpenConquerStudio.Authoring;
@@ -173,6 +172,10 @@ internal static class ProjectStorage
                     throw new InvalidDataException("Owned map source does not match its immutable revision.");
                 }
                 inputs.Add(mapDigest, decoded);
+            }
+            if (source.SnapshotDigest is string storedMap)
+            {
+                _ = SourceMapInventory.Read(terrain.MapDataId, source, inputs[storedMap]);
             }
 
             foreach (SourcePuzzleInput puzzle in source.Puzzles)
