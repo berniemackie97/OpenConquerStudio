@@ -56,37 +56,40 @@ public sealed class OwnedMapAnimationWorkflowTests
         using ProjectDirectory directory = new();
         byte[] map = ClientTerrainImporterTests.MapSource();
         TerrainImport initial = Input(map);
-        using StudioProject project = StudioProject.Create(directory.Project, "Game");
-        Guid id = project.ImportTerrain(initial, "Ground");
-        project.Save(TestContext.Current.CancellationToken);
-        ProjectDocument saved = project.Document;
-        project.Rename("Temporary");
-        project.Undo();
-        Assert.True(project.CanRedo);
-
-        project.RefreshTerrain(id, Input(map));
-        Assert.Same(saved, project.Document);
-        Assert.False(project.IsModified);
-        Assert.True(project.CanRedo);
-
-        byte[] changed = Encoding.Latin1.GetBytes(Encoding.Latin1.GetString(Indexes())
-            .Replace("textures/2b.dds", "textures/new.dds", StringComparison.Ordinal));
-        TerrainImport next = Input(map) with
+        Guid id;
+        using (StudioProject project = StudioProject.Create(directory.Project, "Game"))
         {
-            AnimationFiles = [new("ani/puzzle.ani", changed)]
-        };
-        project.RefreshTerrain(id, next);
-        Assert.Equal(id, Assert.Single(project.Document.Terrains).Id);
-        Assert.True(project.IsModified);
-        Assert.Equal(["textures/2a.dds", "textures/new.dds"],
-            project.ReadSourceAnimationIndex(id, "ani/puzzle.ani")[0].FramePaths.ToArray());
-        project.Undo();
-        Assert.Same(saved, project.Document);
-        Assert.Equal(["textures/2a.dds", "textures/2b.dds"],
-            project.ReadSourceAnimationIndex(id, "ani/puzzle.ani")[0].FramePaths.ToArray());
-        project.Redo();
-        project.Save(TestContext.Current.CancellationToken);
-        Assert.False(project.IsModified);
+            id = project.ImportTerrain(initial, "Ground");
+            project.Save(TestContext.Current.CancellationToken);
+            ProjectDocument saved = project.Document;
+            project.Rename("Temporary");
+            project.Undo();
+            Assert.True(project.CanRedo);
+    
+            project.RefreshTerrain(id, Input(map));
+            Assert.Same(saved, project.Document);
+            Assert.False(project.IsModified);
+            Assert.True(project.CanRedo);
+    
+            byte[] changed = Encoding.Latin1.GetBytes(Encoding.Latin1.GetString(Indexes())
+                .Replace("textures/2b.dds", "textures/new.dds", StringComparison.Ordinal));
+            TerrainImport next = Input(map) with
+            {
+                AnimationFiles = [new("ani/puzzle.ani", changed)]
+            };
+            project.RefreshTerrain(id, next);
+            Assert.Equal(id, Assert.Single(project.Document.Terrains).Id);
+            Assert.True(project.IsModified);
+            Assert.Equal(["textures/2a.dds", "textures/new.dds"],
+                project.ReadSourceAnimationIndex(id, "ani/puzzle.ani")[0].FramePaths.ToArray());
+            project.Undo();
+            Assert.Same(saved, project.Document);
+            Assert.Equal(["textures/2a.dds", "textures/2b.dds"],
+                project.ReadSourceAnimationIndex(id, "ani/puzzle.ani")[0].FramePaths.ToArray());
+            project.Redo();
+            project.Save(TestContext.Current.CancellationToken);
+            Assert.False(project.IsModified);
+        }
 
         using StudioProject reopened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken);
         Assert.Equal("textures/new.dds", reopened.ReadSourceAnimationIndex(id, "ani/puzzle.ani")[0].FramePaths[1]);
@@ -150,14 +153,18 @@ public sealed class OwnedMapAnimationWorkflowTests
         byte[] source = AnimatedOverlayMap();
         TerrainImport extracted = Input(source, includeSceneIndex: true);
         using ProjectDirectory directory = new();
-        using StudioProject project = StudioProject.Create(directory.Project, "Game");
-        Guid id = project.ImportTerrain(extracted, "Ground");
-        SourceMapInventory inventory = project.ReadSourceMapInventory(id);
-        Assert.Equal(["ani/puzzle.ani", "ani/effect.ani"],
-            inventory.AnimationIndexes.Select(x => x.Path).ToArray());
-        Assert.Equal("Spark", inventory.AnimationIndexes[1].Sections[0].Name);
-        Assert.Equal("textures/spark.dds", inventory.AnimationIndexes[1].Sections[0].FramePaths[0]);
-        project.Save(TestContext.Current.CancellationToken);
+        Guid id;
+        using (StudioProject project = StudioProject.Create(directory.Project, "Game"))
+        {
+            id = project.ImportTerrain(extracted, "Ground");
+            SourceMapInventory inventory = project.ReadSourceMapInventory(id);
+            Assert.Equal(["ani/puzzle.ani", "ani/effect.ani"],
+                inventory.AnimationIndexes.Select(x => x.Path).ToArray());
+            Assert.Equal("Spark", inventory.AnimationIndexes[1].Sections[0].Name);
+            Assert.Equal("textures/spark.dds", inventory.AnimationIndexes[1].Sections[0].FramePaths[0]);
+            project.Save(TestContext.Current.CancellationToken);
+        }
+
         using StudioProject opened = StudioProject.Open(directory.Project, TestContext.Current.CancellationToken);
         Assert.Equal("Spark", opened.ReadSourceAnimationIndex(id, "ani/effect.ani")[0].Name);
     }
