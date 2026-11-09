@@ -6,6 +6,10 @@ namespace OpenConquerStudio.Authoring;
 public sealed record SourceFrameInput(string Path, string Digest, int ByteLength, string Format,
     int Width, int Height)
 {
+    public Guid? TextureId
+    {
+        get; init;
+    }
     public const int MaximumBytes = 16 * 1024 * 1024;
 
     public void Validate()
@@ -18,6 +22,10 @@ public sealed record SourceFrameInput(string Path, string Digest, int ByteLength
             throw new InvalidDataException("Captured image frame metadata or bounds are invalid.");
         }
         _ = TextureData.GetByteLength(Width, Height);
+        if (TextureId == Guid.Empty)
+        {
+            throw new InvalidDataException("Linked source frame texture identity cannot be empty.");
+        }
     }
 }
 
