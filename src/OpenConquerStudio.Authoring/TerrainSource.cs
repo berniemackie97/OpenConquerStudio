@@ -7,6 +7,7 @@ public sealed record TerrainSource(string MapPath, string PuzzlePath, uint Catal
     uint GridHeader0, uint GridHeader1, int SceneryCount, int OverlayGroupCount)
 {
     public ImmutableArray<SourcePuzzleInput> Puzzles { get; init; } = [];
+    public ImmutableArray<SourceAnimationIndexInput> AnimationIndexes { get; init; } = [];
 
     public string? SnapshotDigest
     {
@@ -36,6 +37,21 @@ public sealed record TerrainSource(string MapPath, string PuzzlePath, uint Catal
             if (!paths.Add(puzzle.Path))
             {
                 throw new InvalidDataException("Map puzzle input paths must be unique.");
+            }
+        }
+
+        if (AnimationIndexes.IsDefault || AnimationIndexes.Length > 256 ||
+            (AnimationIndexes.Length != 0 && Puzzles.IsEmpty))
+        {
+            throw new InvalidDataException("Captured animation indexes require an owned puzzle input inventory.");
+        }
+        HashSet<string> animationPaths = new(StringComparer.OrdinalIgnoreCase);
+        foreach (SourceAnimationIndexInput index in AnimationIndexes)
+        {
+            index.Validate();
+            if (!animationPaths.Add(index.Path))
+            {
+                throw new InvalidDataException("Animation index paths must be unique within a terrain source.");
             }
         }
 
@@ -81,6 +97,11 @@ public sealed record TerrainImport(uint MapDataId, int Width, int Height,
         get; init;
     }
 
+    public ImmutableArray<SourceAnimationIndexCapture> AnimationFiles
+    {
+        get; init;
+    }
+
     public byte[]? DecodedSource
     {
         get; init;
@@ -102,6 +123,11 @@ public sealed record TerrainImport(uint MapDataId, int Width, int Height,
         if (!PuzzleFiles.IsDefault && DecodedSource is null)
         {
             throw new InvalidDataException("Puzzle capture requires the corresponding decoded map.");
+        }
+
+        if (!AnimationFiles.IsDefault && (PuzzleFiles.IsDefault || DecodedSource is null))
+        {
+            throw new InvalidDataException("Animation capture requires decoded map and puzzle inputs.");
         }
 
         if (DecodedSource is not null)
@@ -175,6 +201,13 @@ public sealed record TerrainImport(uint MapDataId, int Width, int Height,
                         _ = SourcePuzzleInput.FromBytes(capture.Path, capture.Bytes);
                     }
                 }
+            }
+            if (!AnimationFiles.IsDefault)
+            {
+                ImmutableArray<SourceAnimationRequirement> required =
+                    SourceAnimationDependencies.Collect(scene, PuzzleFiles);
+                SourceAnimationDependencies.Validate(required, AnimationFiles,
+                    ProjectDocument.MaximumTotalAnimationIndexBytes);
             }
         }
 
