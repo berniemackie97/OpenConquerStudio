@@ -46,7 +46,7 @@ public sealed record SourceAnimationRequirement(string Path, ImmutableArray<stri
 public static class SourceAnimationDependencies
 {
     public static ImmutableArray<SourceAnimationRequirement> Collect(GameMapSceneSections scene,
-        ImmutableArray<SourcePuzzleCapture> puzzles)
+        ImmutableArray<SourcePuzzleCapture> puzzles, ImmutableArray<SourceSceneCapture> scenes = default)
     {
         ArgumentNullException.ThrowIfNull(scene);
         if (puzzles.IsDefault)
@@ -93,9 +93,23 @@ public static class SourceAnimationDependencies
 
         foreach (GameMapSceneryRecord record in scene.Scenery)
         {
-            if (record.TypeCode == 4)
+            if (record.TypeCode == 4 && !GameMapSceneryAniBindings.IsEmptyAnimationRecord(record))
             {
                 Add(record.ResourcePath!, record.PartName!);
+            }
+        }
+
+        if (!scenes.IsDefault)
+        {
+            ImmutableArray<string> required = SourceSceneDependencies.Collect(scene);
+            SourceSceneDependencies.Validate(required, scenes, ProjectDocument.MaximumTotalSceneBytes);
+            foreach (SourceSceneCapture capture in scenes)
+            {
+                GameMapTerrainSceneFile file = GameMapTerrainSceneFile.Parse(capture.Bytes);
+                foreach (GameMapTerrainObject sceneObject in file.Objects)
+                {
+                    Add(sceneObject.AnimationPath, sceneObject.SectionName);
+                }
             }
         }
 
