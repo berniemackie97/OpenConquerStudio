@@ -110,20 +110,21 @@ public static class SourceSceneryPlacements
         }
     }
 
-    public static void ValidateAgainstSource(TerrainAsset terrain, byte[] decodedMap)
+    public static void ValidateAgainstSource(ImmutableArray<TerrainSceneryPlacement> placements,
+        byte[] decodedMap)
     {
-        if (terrain.SceneryPlacements.IsEmpty)
+        if (placements.IsDefaultOrEmpty)
         {
             return;
         }
         ImmutableArray<TerrainSceneryPlacement> required = Extract(decodedMap);
-        if (required.Length != terrain.SceneryPlacements.Length)
+        if (required.Length != placements.Length)
         {
             throw new InvalidDataException("Authored scenery placement inventory differs from the captured map.");
         }
         for (int i = 0; i < required.Length; i++)
         {
-            TerrainSceneryPlacement actual = terrain.SceneryPlacements[i];
+            TerrainSceneryPlacement actual = placements[i];
             TerrainSceneryPlacement expected = required[i];
             if (actual.SourceIndex != expected.SourceIndex || actual.TypeCode != expected.TypeCode ||
                 !string.Equals(actual.ResourcePath, expected.ResourcePath, StringComparison.OrdinalIgnoreCase) ||
