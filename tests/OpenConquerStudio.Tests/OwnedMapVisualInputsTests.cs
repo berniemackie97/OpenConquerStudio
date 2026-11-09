@@ -167,7 +167,7 @@ public sealed class OwnedMapVisualInputsTests
         Assert.Single(project.Document.Terrains);
     }
 
-    private static TerrainImport Input()
+    internal static TerrainImport Input()
     {
         byte[] map = Map();
         GameMapCellGrid grid = GameMapCellGrid.Parse(map);
@@ -199,7 +199,7 @@ public sealed class OwnedMapVisualInputsTests
         "[Puzzle12]\nFrameAmount=1\nFrame0=images/shared.tga\n" +
         "[Puzzle8]\nFrameAmount=1\nFrame0=images/shared.tga\n");
 
-    private static byte[] Tga(byte red)
+    internal static byte[] Tga(byte red)
     {
         byte[] bytes = new byte[23];
         bytes[2] = 10;
