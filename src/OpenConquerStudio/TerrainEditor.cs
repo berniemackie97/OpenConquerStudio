@@ -134,6 +134,11 @@ internal sealed class TerrainEditor : StackPanel
             _selectedX = 0;
             _selectedY = 0;
         }
+        else
+        {
+            _selectedX = Math.Min(_selectedX, asset.Width - 1);
+            _selectedY = Math.Min(_selectedY, asset.Height - 1);
+        }
         _loading = true;
         try
         {
