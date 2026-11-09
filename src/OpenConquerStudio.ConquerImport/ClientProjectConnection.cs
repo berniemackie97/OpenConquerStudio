@@ -258,7 +258,10 @@ public sealed class ClientProjectConnection
         GameMapSceneSections scene = GameMapSceneSections.Parse(decoded, grid.BytesConsumed, grid.HeaderField0);
         TerrainImport extracted = ClientTerrainImporter.Read(id, terrain.Path, terrain.CompanionValue,
             grid, scene, token);
-        return extracted with { DecodedSource = decoded };
+        return extracted with
+        {
+            DecodedSource = decoded
+        };
     }
 
     public GameMapContent ReadMap(uint id) => GameMapContent.Load(Source, _maps, id);
