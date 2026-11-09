@@ -46,12 +46,14 @@ public sealed class ClientTerrainImporterTests
         using ProjectDirectory directory = new();
         using StudioProject project = StudioProject.Create(directory.Project, "Game");
         Guid id = project.ImportTerrain(
-            ClientTerrainImporter.Read(9100, "maps/ground.dmap", 42, grid, scene), "Source ground");
+            ClientTerrainImporter.Read(9100, "maps/ground.dmap", 42, grid, scene,
+                TestContext.Current.CancellationToken), "Source ground");
         project.Save(TestContext.Current.CancellationToken);
         ProjectDocument saved = project.Document;
 
         project.RefreshTerrain(id,
-            ClientTerrainImporter.Read(9100, "maps/ground.dmap", 42, grid, scene));
+            ClientTerrainImporter.Read(9100, "maps/ground.dmap", 42, grid, scene,
+                TestContext.Current.CancellationToken));
         Assert.Same(saved, project.Document);
         Assert.False(project.IsModified);
     }
