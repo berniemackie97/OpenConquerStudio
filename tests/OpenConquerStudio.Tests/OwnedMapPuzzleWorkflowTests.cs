@@ -197,7 +197,7 @@ public sealed class OwnedMapPuzzleWorkflowTests
         };
     }
 
-    private static byte[] Puzzle(int width, int height, ushort first, ushort second)
+    internal static byte[] Puzzle(int width, int height, ushort first, ushort second)
     {
         byte[] bytes = new byte[272 + width * height * sizeof(ushort)];
         "PUZZLE\0\0"u8.CopyTo(bytes);
