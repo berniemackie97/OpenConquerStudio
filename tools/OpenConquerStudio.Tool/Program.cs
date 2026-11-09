@@ -278,8 +278,7 @@ try
             {
                 ClientProjectConnection connection = ClientProjectConnection.OpenAttached(root)
                     ?? throw new InvalidOperationException("Connect a client content folder before extracting a source terrain.");
-                TerrainImport source = ClientTerrainImporter.Read(connection.ReadMap(uint.Parse(mapDataId, CultureInfo.InvariantCulture)),
-                    cancellation.Token);
+                TerrainImport source = connection.ReadTerrainWithSource(uint.Parse(mapDataId, CultureInfo.InvariantCulture), cancellation.Token);
                 Guid id = project.ImportTerrain(source, $"Map {source.MapDataId} terrain");
                 project.Save(cancellation.Token);
                 Console.WriteLine(id);
@@ -293,8 +292,7 @@ try
             {
                 ClientProjectConnection connection = ClientProjectConnection.OpenAttached(root)
                     ?? throw new InvalidOperationException("Connect a client content folder before refreshing a source terrain.");
-                TerrainImport source = ClientTerrainImporter.Read(connection.ReadMap(uint.Parse(mapDataId, CultureInfo.InvariantCulture)),
-                    cancellation.Token);
+                TerrainImport source = connection.ReadTerrainWithSource(uint.Parse(mapDataId, CultureInfo.InvariantCulture), cancellation.Token);
                 project.RefreshTerrain(Guid.Parse(terrainId), source);
                 project.Save(cancellation.Token);
                 Console.WriteLine("Updated terrain cells and ordered exits. Visual dependencies remain source-only.");
