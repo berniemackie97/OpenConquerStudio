@@ -152,8 +152,8 @@ internal static class ProjectStorage
 
     private static int TerrainResourceVersion(TerrainAsset terrain) =>
         terrain.Source is null ? 1 : terrain.Source.SnapshotDigest is null ? 2 :
-            terrain.Source.Puzzles.IsEmpty ? 3 : terrain.Source.AnimationIndexes.IsEmpty ? 4 :
-            terrain.Source.Scenes.IsEmpty && terrain.Source.Frames.IsEmpty ? 5 : 6;
+            terrain.Source.Puzzles.IsEmpty ? 3 : !terrain.Source.Scenes.IsEmpty || !terrain.Source.Frames.IsEmpty ? 6 :
+            terrain.Source.AnimationIndexes.IsEmpty ? 4 : 5;
 
     private static Dictionary<string, byte[]> ReadSourceInputs(string root, ProjectDocument document, CancellationToken token)
     {
