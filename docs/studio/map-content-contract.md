@@ -54,13 +54,20 @@ groups, and each parsed scene/puzzle/animation reference with its source positio
 Unknown but parsed scenery payloads remain in the preserved decoded map, rather
 than being silently omitted from the input record.
 
-The snapshot does not include the external puzzle, scene, ANI or texture resources
-referenced by the map, or provide a complete typed asset graph. It is not an editable
+Referenced puzzle bitmaps are now captured as separate bounded immutable inputs
+alongside the decoded map when present. The inventory records puzzle identity, exact
+bytes, dimensions, tile-grid information, scrolling velocities and ANI index path.
+Absent optional ground puzzles are explicit unresolved entries; required positioned
+puzzles that cannot be loaded reject the extraction. Each captured puzzle is validated
+on save and reopen against the same project-owned map reference ordering.
+
+These snapshots do not include external ANI indexes, texture frames or scenery
+resource files, and do not form a complete typed asset graph. It is not an editable
 client world: layout semantics, dependency resolution and canonical map compilation
 are still blocked under #39 and #40. Terrain export and the validated server terrain/
 collision pair do not include those visual dependencies. Schema-1 authored terrain
-and schema-2 source-extracted terrain remain readable; decoded snapshots are stored
-in schema-3 terrain revisions.
+and schema-2 source-extracted terrain remain readable; map-only snapshots use schema 3,
+and projects owning puzzle tile grids use schema-4 terrain revisions.
 
 ## One authoring source, separate target outputs
 
