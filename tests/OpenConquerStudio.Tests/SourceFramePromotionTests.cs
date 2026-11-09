@@ -36,6 +36,14 @@ public sealed class SourceFramePromotionTests
             ["images/scene.tga", "images/shared.tga"], TestContext.Current.CancellationToken);
         Assert.Equal(textures.ToArray(), repeated.ToArray());
         Assert.False(reopened.IsModified);
+        Assert.Throws<InvalidOperationException>(() => StudioCompiler.Compile(reopened,
+            directory.PathFor("unsupported-world-build"), TestContext.Current.CancellationToken));
+        Assert.False(Directory.Exists(directory.PathFor("unsupported-world-build")));
+
+        reopened.UnlinkSourceFrame(terrainId, "images/scene.tga");
+        reopened.UnlinkSourceFrame(terrainId, "images/shared.tga");
+        reopened.Delete(terrainId);
+        reopened.Save(TestContext.Current.CancellationToken);
         ContentBuild build = StudioCompiler.Compile(reopened, directory.PathFor("compiled"),
             TestContext.Current.CancellationToken);
         Assert.Equal(2, build.Textures.Length);
