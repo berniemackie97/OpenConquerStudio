@@ -112,7 +112,7 @@ public sealed partial class StudioWindowTests
             PuzzleFiles = [new("puzzles/ground.pul", puzzle)],
             SceneFiles = [],
             AnimationFiles = [new("ani/puzzle.ani", Encoding.Latin1.GetBytes(
-                "[Puzzle2]\\nFrameAmount=1\\nFrame0=images/shared.tga\\n".Replace("\\n", "\n")))],
+                "[Puzzle2]\nFrameAmount=1\nFrame0=images/shared.tga\n"))],
             FrameFiles = [new("images/shared.tga", tga)]
         };
     }
