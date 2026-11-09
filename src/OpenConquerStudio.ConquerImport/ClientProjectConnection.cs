@@ -258,9 +258,49 @@ public sealed class ClientProjectConnection
         GameMapSceneSections scene = GameMapSceneSections.Parse(decoded, grid.BytesConsumed, grid.HeaderField0);
         TerrainImport extracted = ClientTerrainImporter.Read(id, terrain.Path, terrain.CompanionValue,
             grid, scene, token);
+        List<string> references = [grid.PuzzlePath];
+        foreach (GameMapPositionedOverlayRecord group in scene.PositionedOverlays)
+        {
+            foreach (GameMapPuzzleOverlayEntry entry in group.Entries.OfType<GameMapPuzzleOverlayEntry>())
+            {
+                if (!references.Contains(entry.PuzzlePath, StringComparer.OrdinalIgnoreCase))
+                {
+                    references.Add(entry.PuzzlePath);
+                }
+            }
+        }
+        if (references.Count > 256)
+        {
+            throw new InvalidDataException("Map references more than 256 distinct puzzle inputs.");
+        }
+
+        ImmutableArray<SourcePuzzleCapture>.Builder captures = ImmutableArray.CreateBuilder<SourcePuzzleCapture>(references.Count);
+        for (int i = 0; i < references.Count; i++)
+        {
+            token.ThrowIfCancellationRequested();
+            string path = references[i];
+            if (!Source.TryOpenRead(path, ContentLookupMode.LooseOnly, out Stream? stream))
+            {
+                if (i != 0 || !path.EndsWith(".pul", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidDataException($"Required map puzzle '{path}' is missing.");
+                }
+                captures.Add(new SourcePuzzleCapture(path, null));
+                continue;
+            }
+
+            using (stream)
+            {
+                byte[] puzzle = ContentReader.ReadBytes(stream, path, SourcePuzzleInput.MaximumBytes);
+                _ = GameMapPuzzleBitmap.Parse(puzzle);
+                captures.Add(new SourcePuzzleCapture(path, puzzle));
+            }
+        }
+
         return extracted with
         {
-            DecodedSource = decoded
+            DecodedSource = decoded,
+            PuzzleFiles = captures.MoveToImmutable()
         };
     }
 
