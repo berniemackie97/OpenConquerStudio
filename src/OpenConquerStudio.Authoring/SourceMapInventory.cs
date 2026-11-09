@@ -92,12 +92,10 @@ public sealed record SourceMapInventory(int FormatVersion, uint MapDataId, strin
         ImmutableArray<SourceMapReference> ordered = references.ToImmutable();
         if (!source.Puzzles.IsEmpty)
         {
-            string[] puzzlePaths = [.. ordered.Where(reference => reference.Kind is
-                    SourceMapReferenceKind.GroundPuzzle or SourceMapReferenceKind.PositionedPuzzle)
-                .Select(reference => reference.ResourcePath).Distinct(StringComparer.OrdinalIgnoreCase)];
+            ImmutableArray<SourcePuzzleReference> puzzlePaths = SourcePuzzleReferences.Collect(grid, scene);
             if (puzzlePaths.Length != source.Puzzles.Length ||
-                puzzlePaths.Where((path, index) =>
-                    !string.Equals(path, source.Puzzles[index].Path, StringComparison.OrdinalIgnoreCase)).Any())
+                puzzlePaths.Where((item, index) =>
+                    !string.Equals(item.Path, source.Puzzles[index].Path, StringComparison.OrdinalIgnoreCase)).Any())
             {
                 throw new InvalidDataException("Captured puzzle inputs do not match their source-map references.");
             }
