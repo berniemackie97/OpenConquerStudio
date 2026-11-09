@@ -19,6 +19,85 @@ public sealed partial class StudioProject
         return terrain.Id;
     }
 
+    public Guid ImportTerrain(TerrainImport source, string name)
+    {
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(source);
+        source.Validate();
+        byte[] bytes = TerrainGrid.Encode(source.Cells.AsSpan(), source.Width, source.Height);
+        TerrainAsset terrain = new(Guid.NewGuid(), name, source.MapDataId, source.Width,
+            source.Height, ProjectFiles.Hash(bytes))
+        {
+            Exits = source.Exits,
+            Source = source.Source
+        };
+        ProjectDocument updated = Document with
+        {
+            Terrains = [.. Document.Terrains, terrain]
+        };
+        updated.Validate();
+        _terrainCells.TryAdd(terrain.CellDigest, bytes);
+        Apply(updated);
+        return terrain.Id;
+    }
+
+    public void RefreshTerrain(Guid id, TerrainImport source)
+    {
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(source);
+        source.Validate();
+        TerrainAsset original = Document.Terrains.Single(a => a.Id == id);
+        if (original.Source is null || original.MapDataId != source.MapDataId)
+        {
+            throw new InvalidDataException("Refresh requires terrain extracted from the same map data ID.");
+        }
+
+        byte[] bytes = TerrainGrid.Encode(source.Cells.AsSpan(), source.Width, source.Height);
+        Dictionary<(int X, int Y, uint Passway), Queue<Guid>> existing = [];
+        foreach (TerrainExitMarker marker in original.Exits)
+        {
+            var key = (marker.X, marker.Y, marker.PasswayIndex);
+            if (!existing.TryGetValue(key, out Queue<Guid>? identities))
+            {
+                identities = new Queue<Guid>();
+                existing.Add(key, identities);
+            }
+            identities.Enqueue(marker.Id);
+        }
+
+        ImmutableArray<TerrainExitMarker> markers = [.. source.Exits.Select(marker =>
+        {
+            var key = (marker.X, marker.Y, marker.PasswayIndex);
+            return existing.TryGetValue(key, out Queue<Guid>? identities) && identities.TryDequeue(out Guid oldId)
+                ? marker with { Id = oldId } : marker;
+        })];
+        if (original.Exits.SequenceEqual(markers))
+        {
+            markers = original.Exits;
+        }
+
+        TerrainAsset refreshed = original with
+        {
+            Width = source.Width,
+            Height = source.Height,
+            CellDigest = ProjectFiles.Hash(bytes),
+            Exits = markers,
+            Source = source.Source
+        };
+        if (refreshed == original)
+        {
+            return;
+        }
+
+        ProjectDocument updated = Document with
+        {
+            Terrains = [.. Document.Terrains.Select(a => a.Id == id ? refreshed : a)]
+        };
+        updated.Validate();
+        _terrainCells.TryAdd(refreshed.CellDigest, bytes);
+        Apply(updated);
+    }
+
     public void EditTerrainExits(Guid id, ImmutableArray<TerrainExitMarker> exits)
     {
         ThrowIfDisposed();
