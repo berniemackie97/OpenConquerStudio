@@ -13,6 +13,7 @@ public readonly record struct TerrainExitMarker(Guid Id, int X, int Y, uint Pass
 public sealed record TerrainAsset(Guid Id, string Name, uint MapDataId, int Width, int Height, string CellDigest)
 {
     public ImmutableArray<TerrainExitMarker> Exits { get; init; } = [];
+    public TerrainSource? Source { get; init; }
 }
 
 public sealed record AtlasAsset(Guid Id, string Name, Guid TextureId, ImmutableArray<SpriteRegion> Sprites);
@@ -118,6 +119,7 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
 
             ValidateName(terrain.Name);
             ValidateDigest(terrain.CellDigest);
+            terrain.Source?.Validate();
             if (terrain.Exits.IsDefault || terrain.Exits.Length > MaximumTerrainExitMarkers)
             {
                 throw new InvalidDataException("Terrain exit marker count is invalid.");
