@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using OpenConquerStudio.Authoring;
-using OpenConquerStudio.Runtime;
 
 namespace OpenConquerStudio.Tests;
 
@@ -23,7 +22,7 @@ public sealed class SourceFramePromotionTests
             Assert.Equal(textures[0], terrain.Source!.Frames.Single(f => f.Path == "images/scene.tga").TextureId);
             Assert.Equal(textures[1], terrain.Source.Frames.Single(f => f.Path == "images/shared.tga").TextureId);
             Assert.Equal(["terrain"], project.Document.Dependents(textures[0]).Select(x => x.Kind).ToArray());
-            Assert.Equal([textures[1], textures[0]].Order().ToArray(),
+            Assert.Equal(new[] { textures[0], textures[1] }.Order().ToArray(),
                 project.Document.Dependencies(terrainId).ToArray());
             Assert.Equal(new byte[] { 21, 0, 0, 255 },
                 project.Preview(textures[1], TestContext.Current.CancellationToken).Pixels.ToArray());
@@ -34,7 +33,7 @@ public sealed class SourceFramePromotionTests
         Assert.Equal(textures[0], reopened.Document.Terrains.Single().Source!.Frames[1].TextureId);
         ImmutableArray<Guid> repeated = reopened.PromoteSourceFrames(terrainId,
             ["images/scene.tga", "images/shared.tga"], TestContext.Current.CancellationToken);
-        Assert.Equal(textures, repeated);
+        Assert.Equal(textures.ToArray(), repeated.ToArray());
         Assert.False(reopened.IsModified);
         ContentBuild build = StudioCompiler.Compile(reopened, directory.PathFor("compiled"),
             TestContext.Current.CancellationToken);
