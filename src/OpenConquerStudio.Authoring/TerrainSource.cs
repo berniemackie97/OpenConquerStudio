@@ -167,9 +167,13 @@ public sealed record TerrainImport(uint MapDataId, int Width, int Height,
                     }
                     if (capture.Bytes is null)
                     {
-                        if (i != 0 || !capture.Path.EndsWith(".pul", StringComparison.OrdinalIgnoreCase))
+                        bool requiredByOverlay = scene.PositionedOverlays.Any(group =>
+                            group.Entries.OfType<GameMapPuzzleOverlayEntry>().Any(entry =>
+                                string.Equals(entry.PuzzlePath, capture.Path, StringComparison.OrdinalIgnoreCase)));
+                        if (i != 0 || requiredByOverlay ||
+                            !capture.Path.EndsWith(".pul", StringComparison.OrdinalIgnoreCase))
                         {
-                            throw new InvalidDataException("Only an absent optional ground puzzle may remain unresolved.");
+                            throw new InvalidDataException("Required positioned puzzle inputs cannot be unresolved.");
                         }
                     }
                     else
