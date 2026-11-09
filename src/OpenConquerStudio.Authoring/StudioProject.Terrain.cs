@@ -31,7 +31,8 @@ public sealed partial class StudioProject
             source.Height, ProjectFiles.Hash(bytes))
         {
             Exits = source.Exits,
-            Source = origin
+            Source = origin,
+            SceneryPlacements = snapshot is null ? [] : SourceSceneryPlacements.Extract(snapshot)
         };
         ProjectDocument updated = Document with
         {
@@ -136,13 +137,17 @@ public sealed partial class StudioProject
             markers = original.Exits;
         }
 
+        ImmutableArray<TerrainSceneryPlacement> placements = snapshot is null ? [] :
+            SourceSceneryPlacements.Reconcile(original.SceneryPlacements,
+                SourceSceneryPlacements.Extract(snapshot));
         TerrainAsset refreshed = original with
         {
             Width = source.Width,
             Height = source.Height,
             CellDigest = ProjectFiles.Hash(bytes),
             Exits = markers,
-            Source = origin
+            Source = origin,
+            SceneryPlacements = placements
         };
         if (refreshed == original && promoted.Textures.Count == 0)
         {
@@ -339,12 +344,36 @@ public sealed partial class StudioProject
         return _terrainCells[terrain.CellDigest];
     }
 
+    public void EditTerrainSceneryPlacement(Guid terrainId, Guid placementId, int x, int y)
+    {
+        ThrowIfDisposed();
+        TerrainAsset terrain = Document.Terrains.Single(a => a.Id == terrainId);
+        TerrainSceneryPlacement placement = terrain.SceneryPlacements.SingleOrDefault(a => a.Id == placementId)
+            ?? throw new InvalidDataException("Select a captured scenery placement to edit.");
+        if (placement.X == x && placement.Y == y)
+        {
+            return;
+        }
+
+        ImmutableArray<TerrainSceneryPlacement> changed = [.. terrain.SceneryPlacements.Select(a =>
+            a.Id == placementId ? a with { X = x, Y = y } : a)];
+        SourceSceneryPlacements.ValidateEdits(terrain.SceneryPlacements, changed);
+        Apply(Document with
+        {
+            Terrains = [.. Document.Terrains.Select(a => a.Id == terrainId ? terrain with
+            {
+                SceneryPlacements = changed
+            } : a)]
+        });
+    }
+
     public void EditTerrainCell(Guid id, int x, int y, TerrainCell cell, string name,
         ImmutableArray<TerrainExitMarker> exits = default) =>
         PaintTerrainRegion(id, new TerrainRegion(x, y, x, y), cell, name, exits);
 
     public void PaintTerrainRegion(Guid id, TerrainRegion region, TerrainCell cell, string name,
-        ImmutableArray<TerrainExitMarker> exits = default)
+        ImmutableArray<TerrainExitMarker> exits = default,
+        ImmutableArray<TerrainSceneryPlacement> sceneryPlacements = default)
     {
         ThrowIfDisposed();
         TerrainAsset terrain = Document.Terrains.Single(a => a.Id == id);
@@ -365,11 +394,17 @@ public sealed partial class StudioProject
             }
         }
 
+        if (!sceneryPlacements.IsDefault)
+        {
+            SourceSceneryPlacements.ValidateEdits(terrain.SceneryPlacements, sceneryPlacements);
+        }
         TerrainAsset edited = terrain with
         {
             Name = name,
             CellDigest = painted is null ? terrain.CellDigest : ProjectFiles.Hash(painted),
-            Exits = exits.IsDefault || terrain.Exits.SequenceEqual(exits) ? terrain.Exits : exits
+            Exits = exits.IsDefault || terrain.Exits.SequenceEqual(exits) ? terrain.Exits : exits,
+            SceneryPlacements = sceneryPlacements.IsDefault || terrain.SceneryPlacements.SequenceEqual(sceneryPlacements)
+                ? terrain.SceneryPlacements : sceneryPlacements
         };
         if (edited == terrain)
         {
