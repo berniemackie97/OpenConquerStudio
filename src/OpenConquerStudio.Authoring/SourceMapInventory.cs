@@ -89,7 +89,7 @@ public sealed record SourceMapInventory(int FormatVersion, uint MapDataId, strin
 
         return new SourceMapInventory(1, id, source.MapPath, digest, grid.Width, grid.Height,
             grid.PuzzlePath, scene.ExitMarkers.Count, scenery.MoveToImmutable(),
-            overlays.MoveToImmutable(), references.MoveToImmutable());
+            overlays.MoveToImmutable(), references.ToImmutable());
     }
 
     public static void Export(StudioProject project, Guid terrainId, string destination,
