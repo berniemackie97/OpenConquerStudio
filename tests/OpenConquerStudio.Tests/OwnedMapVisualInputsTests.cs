@@ -26,8 +26,8 @@ public sealed class OwnedMapVisualInputsTests
             Assert.Equal("SceneTile", scene.Objects[0].SectionName);
             Assert.Equal(["images/shared.tga", "images/scene.tga"],
                 inventory.Frames.Select(frame => frame.Path).ToArray());
-            Assert.Equal((1, 1), (project.ReadSourceFrame(id, "images/shared.tga").Width,
-                project.ReadSourceFrame(id, "images/shared.tga").Height));
+            Assert.Equal((1, 1), (project.ReadSourceFrame(id, "images/shared.tga", TestContext.Current.CancellationToken).Width,
+                project.ReadSourceFrame(id, "images/shared.tga", TestContext.Current.CancellationToken).Height));
             Assert.Equal((1, 1), (Assert.Single(project.ReadSourceScene(id, "scenes/terrain.scene").Objects).GridWidth,
                 project.ReadSourceScene(id, "scenes/terrain.scene").Objects[0].GridHeight));
             project.Save(TestContext.Current.CancellationToken);
