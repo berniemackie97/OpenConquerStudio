@@ -85,6 +85,16 @@ pending terrain name or exit-marker changes, as a single undoable revision. Surf
 identify groups of raw IDs; they are not map textures or traversal rules. Both single-cell
 and region edits preserve an immutable, digest-verified terrain payload.
 
+The same atomic rectangle operation is available in the CLI for automated project authoring:
+
+```sh
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- terrain-region /path/to/project <terrain-guid> 2 3 8 10 25 1 -5
+```
+
+The coordinates select inclusive corners. The remaining values are the raw surface ID,
+passability flag and signed elevation. The command validates the entire region before
+saving, with one project revision.
+
 The Studio CLI can export saved terrain as source JSON for the server's existing version 1
 `generate-base-terrain` interface:
 
