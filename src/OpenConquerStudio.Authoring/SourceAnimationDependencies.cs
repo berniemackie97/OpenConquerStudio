@@ -148,6 +148,34 @@ public static class SourceAnimationDependencies
         return result;
     }
 
+    public static bool Equivalent(ImmutableArray<SourceAnimationIndexInput> left,
+        ImmutableArray<SourceAnimationIndexInput> right)
+    {
+        if (left.Length != right.Length)
+        {
+            return false;
+        }
+        for (int i = 0; i < left.Length; i++)
+        {
+            SourceAnimationIndexInput a = left[i];
+            SourceAnimationIndexInput b = right[i];
+            if (a.Path != b.Path || a.Digest != b.Digest || a.ByteLength != b.ByteLength ||
+                a.Sections.Length != b.Sections.Length)
+            {
+                return false;
+            }
+            for (int j = 0; j < a.Sections.Length; j++)
+            {
+                if (a.Sections[j].Name != b.Sections[j].Name ||
+                    !a.Sections[j].FramePaths.SequenceEqual(b.Sections[j].FramePaths))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public static void Validate(ImmutableArray<SourceAnimationRequirement> required,
         ImmutableArray<SourceAnimationIndexCapture> captures, int maximumTotalBytes)
     {
