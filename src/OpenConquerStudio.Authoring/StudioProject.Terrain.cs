@@ -307,7 +307,8 @@ public sealed partial class StudioProject
             throw new InvalidDataException("This terrain has no owned source-map snapshot. Refresh it from the source installation.");
         }
 
-        return SourceMapInventory.Read(terrain.MapDataId, source, _sourceInputs[source.SnapshotDigest]);
+        return SourceMapInventory.Read(terrain.MapDataId, source, _sourceInputs[source.SnapshotDigest],
+            terrain.SceneryPlacements);
     }
 
     public void EditTerrainExits(Guid id, ImmutableArray<TerrainExitMarker> exits)
