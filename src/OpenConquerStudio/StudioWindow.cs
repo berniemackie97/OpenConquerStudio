@@ -628,7 +628,7 @@ public sealed partial class StudioWindow : Window
             }
 
             RefreshAssets(id);
-            if (id is Guid selected && _project.Document.Resources.Any(a => a.Id == selected))
+            if (id is Guid selected && Project.Document.Resources.Any(a => a.Id == selected))
             {
                 await UpdatePreview(selected, token);
             }
