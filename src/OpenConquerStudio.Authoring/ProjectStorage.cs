@@ -69,7 +69,7 @@ internal static class ProjectStorage
                     id = model.Id;
                     break;
                 case "terrain":
-                    TerrainAsset terrain = Decode<TerrainAsset>(assetBytes);
+                    TerrainAsset terrain = DecodeTerrain(assetBytes);
                     terrains.Add(terrain);
                     id = terrain.Id;
                     break;
@@ -134,6 +134,17 @@ internal static class ProjectStorage
         }
 
         return resource.Asset;
+    }
+
+    private static TerrainAsset DecodeTerrain(byte[] bytes)
+    {
+        ResourceDocument<TerrainAsset> document = ProjectFiles.Deserialize<ResourceDocument<TerrainAsset>>(bytes);
+        if (document.Asset is null || document.SchemaVersion != (document.Asset.Source is null ? 1 : 2))
+        {
+            throw new InvalidDataException("Unsupported or inconsistent terrain resource version.");
+        }
+
+        return document.Asset;
     }
 
     internal static Dictionary<string, TextureData> ReadPixels(string root, ProjectDocument document, CancellationToken token)
@@ -218,7 +229,7 @@ internal static class ProjectStorage
             byte[] bytes = info.Kind switch
             {
                 "model" => ProjectFiles.Serialize(new ResourceDocument<ModelAsset>(1, document.Models.Single(a => a.Id == info.Id))),
-                "terrain" => ProjectFiles.Serialize(new ResourceDocument<TerrainAsset>(1, document.Terrains.Single(a => a.Id == info.Id))),
+                "terrain" => SerializeTerrain(document.Terrains.Single(a => a.Id == info.Id)),
                 "world" => ProjectFiles.Serialize(new ResourceDocument<WorldAsset>(1, document.Worlds.Single(a => a.Id == info.Id))),
                 "texture" => ProjectFiles.Serialize(new ResourceDocument<TextureAsset>(1, document.Assets.Single(a => a.Id == info.Id))),
                 "atlas" => ProjectFiles.Serialize(new ResourceDocument<AtlasAsset>(1, document.Atlases.Single(a => a.Id == info.Id))),
@@ -242,6 +253,9 @@ internal static class ProjectStorage
         ProjectFiles.WriteAtomic(manifest, index, overwrite: savedDigest is not null);
         return ProjectFiles.Hash(index);
     }
+
+    private static byte[] SerializeTerrain(TerrainAsset terrain) =>
+        ProjectFiles.Serialize(new ResourceDocument<TerrainAsset>(terrain.Source is null ? 1 : 2, terrain));
 
     private static void CheckUnchanged(string path, string? digest)
     {

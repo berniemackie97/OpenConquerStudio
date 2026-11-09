@@ -71,6 +71,43 @@ mkdir migrated-game
 dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- migrate old-game migrated-game
 ```
 
+## Extract a source map's editable terrain
+
+Open a map in **Client content** and select **Extract editable terrain grid**. This copies
+the complete parsed surface/passability/elevation grid and ordered raw exit markers into
+one new authored terrain resource, with a stable GUID and the map's MapDataId. The source
+map remains read-only. The result opens in the same terrain-grid editor used for newly
+created terrains and can be painted, undone, saved, and exported for server terrain builds.
+
+This command **does not import a complete visual map**. Puzzle art, scenery objects, animations,
+overlay records, transition destinations, and the client-rendered scene remain source-only.
+The terrain record captures the source map path, referenced puzzle path, catalog/header
+fields and the counts of scenery and overlay groups for diagnostics; these references are
+not a lossless copy of the unresolved records. Do not delete or relocate original source
+content expecting those components to be reconstructible from the terrain resource.
+The editor rejects source grids above the authored 262,144-cell budget.
+
+To refresh extracted terrain after the source map changes, select the target terrain under
+**Authored**, return to the matching map under **Client content**, then choose
+**Refresh selected authored terrain**. This explicitly replaces the extracted grid and raw
+exit values in one project revision while preserving the terrain GUID, name, MapDataId,
+and world references. Unchanged raw exit records retain their marker IDs even when their
+order changes. Replaced or removed exit records do not retain their old identities.
+The command rejects mismatched map-data IDs or an authored terrain that was never extracted.
+
+The same operations are available to scripted authoring sessions once the project has a
+connected content folder:
+
+```sh
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- extract-client-terrain /path/to/project 1010
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- refresh-client-terrain /path/to/project <terrain-guid> 1010
+```
+
+The resource document for extracted terrain uses schema version 2; existing manually
+authored terrain remains compatible with schema version 1. Saving never rewrites the
+original map or puzzle files. Terrain/collision builds still use the authoritative server
+tool and do not include the unimported visual dependencies.
+
 ## Author terrain cells
 
 Choose **Assets → New terrain**, select a unique MapDataId and set dimensions and initial raw

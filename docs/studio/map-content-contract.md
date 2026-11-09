@@ -3,7 +3,9 @@
 Status: target design and migration gates, November 3, 2026. This does not freeze a new compiled
 map schema. Studio/Engine includes bounded authored terrain cells, single-revision region painting
 and ordered exit markers, with an explicit server tool bridge for terrain/collision pair generation.
-The terrain grid is a raw-data editing view, not a game visual scene. World portal destinations,
+The terrain grid is a raw-data editing view, not a game visual scene. Studio can explicitly
+extract and refresh the ground grid and ordered exit markers from a parsed source map, but
+puzzle/scenery/overlay records remain outside the authored resource. World portal destinations,
 visual maps and fully paired game content outputs remain outstanding. Client and server retain
 game execution and authority.
 
@@ -16,7 +18,7 @@ game execution and authority.
 | `.ocbt` v1, magic `OCBT` | Server base-terrain reader, writer and fingerprint | Ground grid plus ordered exit markers for a MapDataId. Studio exports source JSON and invokes an explicitly supplied server tool to generate and validate the terrain/collision pair. Studio never writes `.ocbt` binaries. |
 | `.ocmc` v1, magic `OCMC` | Server collision composer, reader and writer | Ordered sparse static-cell overrides bound to the exact base-terrain fingerprint. Includes the effect of supported scenery composition. Required even when the override list is empty. |
 | Map definitions and transitions | Server-owned, versioned catalogs | World mapId/flags and terrain bindings; resolved or explicitly unresolved portal destinations. Do not infer destinations from visual layers or another world using the same terrain. |
-| `project.ocstudio`, `.ocasset.json`, immutable inputs | Studio Authoring | Editable textures, sprite animation, meshes and bounded terrain-cell revisions. World/scene graphs and paired compiled maps are not yet authored. |
+| `project.ocstudio`, `.ocasset.json`, immutable inputs | Studio Authoring | Editable textures, sprite animation, meshes and bounded terrain-cell revisions. Extracted terrain uses resource-document schema 2 to retain source map/puzzle references and unresolved scene counts; existing terrain schema 1 remains readable. World/scene graphs and paired compiled maps are not yet authored. |
 
 The source inspection used client `78d752c2da39ca8f9f45f64377844efacce42d17` and server
 `a16cae6a2942dc2883131645b766b89e73ae145e`. Server tooling verified all 185 required base
@@ -32,6 +34,23 @@ The existing client compiler was also exercised against the same original instal
 | 1010 | Succeeds | Supported source records encode; visual/runtime equivalence still needs its own gate. |
 | 1929 | Succeeds | Supported source records encode; this does not establish every animation/layer behavior. |
 | 1999 | Rejects exit markers | Confirms the known missing exit representation blocks this map; no records were discarded. |
+
+## Source terrain extraction boundary
+
+The authoring project may copy the full decoded row-major terrain grid and ordered exit
+markers from a source map into one editable terrain. All surface IDs, passability bit patterns
+and signed elevations are copied exactly; exit coordinates remain signed and the raw
+passway field is preserved as an unsigned 32-bit bit pattern. Extraction validates authored
+budgets before applying an immutable project revision. Explicit refresh preserves the stable
+terrain resource identity and matches exit-marker identities by raw value and occurrence.
+Changes to the scene-only source records do not alter the extracted terrain payload.
+
+The source reference stored with the terrain identifies the archive and referenced puzzle,
+records catalog/header values, and counts unresolved scenery and overlay groups. **It does not
+capture their encoded payloads or implement their dependency graph.** The original source
+remains separately required until a lossless typed source-resource import is implemented.
+Neither terrain export nor a server terrain/collision pair claims to include puzzle, scenery,
+animations, environment, or client map visuals. Full source-map promotion stays blocked by #39.
 
 ## One authoring source, separate target outputs
 

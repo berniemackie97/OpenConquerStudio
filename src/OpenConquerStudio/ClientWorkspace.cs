@@ -132,7 +132,7 @@ internal sealed class ClientWorkspace
             int omitted = map.Scene.PositionedOverlays.Sum(group => group.Entries.OfType<GameMapAnimatedOverlayEntry>().Count());
             _clientContent.Describe(details);
             _preview.LoadMap(_sourceMap, connection.Source);
-            _owner.Diagnostic = details + $"\nSource map preview uses the client's shared puzzle/terrain renderer. {omitted} positioned animated overlays are not rendered by that implementation. Map editing is not implemented. Character assets can be previewed separately from the character catalog.";
+            _owner.Diagnostic = details + $"\nSource map preview uses the shared puzzle/terrain renderer. {omitted} positioned animated overlays are not rendered by that implementation. Use Extract editable terrain grid to copy only ground cells and exit markers; puzzle and scenery dependencies remain source-only.";
             return;
         }
 
@@ -182,6 +182,30 @@ internal sealed class ClientWorkspace
         int duration = options.FrameMilliseconds;
         ClientProjectConnection connection = _connection ?? throw new InvalidOperationException("Open a client project first.");
         Guid id;
+        if (entry.Kind == "map")
+        {
+            TerrainImport source = await Task.Run(() =>
+                ClientTerrainImporter.Read(connection.ReadMap(entry.MapDataId!.Value), token), token);
+            if (replace)
+            {
+                if (_owner.SelectedAsset is not ResourceInfo { Kind: "terrain" } selected)
+                {
+                    throw new InvalidOperationException("Select a source-extracted terrain in Authored before refreshing it.");
+                }
+                id = selected.Id;
+                await Task.Run(() => _owner.Project.RefreshTerrain(id, source), token);
+            }
+            else
+            {
+                id = await Task.Run(() => _owner.Project.ImportTerrain(source, $"Map {source.MapDataId} terrain"), token);
+            }
+
+            await _owner.SelectAsset(id, token);
+            _owner.Diagnostic = $"Terrain {source.MapDataId} extracted into editable cells and ordered exits. " +
+                $"{source.Source.SceneryCount} scenery records and {source.Source.OverlayGroupCount} overlay groups remain source-only. " +
+                "Puzzle art and scene dependencies were not imported. Save this terrain before generating server outputs.";
+            return;
+        }
         if (entry.Kind is "model" or "character")
         {
             C3ModelData model = await Task.Run(() => entry.Kind == "character"
