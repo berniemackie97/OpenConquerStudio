@@ -144,37 +144,23 @@ public sealed record TerrainImport(uint MapDataId, int Width, int Height,
             }
             if (!PuzzleFiles.IsDefault)
             {
-                List<string> expected = [grid.PuzzlePath];
-                foreach (GameMapPositionedOverlayRecord group in scene.PositionedOverlays)
-                {
-                    foreach (GameMapPuzzleOverlayEntry entry in group.Entries.OfType<GameMapPuzzleOverlayEntry>())
-                    {
-                        if (!expected.Contains(entry.PuzzlePath, StringComparer.OrdinalIgnoreCase))
-                        {
-                            expected.Add(entry.PuzzlePath);
-                        }
-                    }
-                }
-                if (PuzzleFiles.Length != expected.Count)
+                ImmutableArray<SourcePuzzleReference> expected = SourcePuzzleReferences.Collect(grid, scene);
+                if (PuzzleFiles.Length != expected.Length)
                 {
                     throw new InvalidDataException("Puzzle capture must account for every referenced map puzzle.");
                 }
                 long total = 0;
-                for (int i = 0; i < expected.Count; i++)
+                for (int i = 0; i < expected.Length; i++)
                 {
                     SourcePuzzleCapture capture = PuzzleFiles[i];
                     TerrainSource.ValidatePath(capture.Path);
-                    if (!string.Equals(capture.Path, expected[i], StringComparison.OrdinalIgnoreCase))
+                    if (!string.Equals(capture.Path, expected[i].Path, StringComparison.OrdinalIgnoreCase))
                     {
                         throw new InvalidDataException("Captured puzzle paths must follow first-reference order.");
                     }
                     if (capture.Bytes is null)
                     {
-                        bool requiredByOverlay = scene.PositionedOverlays.Any(group =>
-                            group.Entries.OfType<GameMapPuzzleOverlayEntry>().Any(entry =>
-                                string.Equals(entry.PuzzlePath, capture.Path, StringComparison.OrdinalIgnoreCase)));
-                        if (i != 0 || requiredByOverlay ||
-                            !capture.Path.EndsWith(".pul", StringComparison.OrdinalIgnoreCase))
+                        if (expected[i].Required)
                         {
                             throw new InvalidDataException("Required positioned puzzle inputs cannot be unresolved.");
                         }
