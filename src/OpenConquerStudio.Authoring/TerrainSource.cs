@@ -58,7 +58,7 @@ public sealed record TerrainSource(string MapPath, string PuzzlePath, uint Catal
         }
 
         if (Scenes.IsDefault || Scenes.Length > 256 || Frames.IsDefault || Frames.Length > 8192 ||
-            ((Scenes.Length != 0 || Frames.Length != 0) && AnimationIndexes.IsEmpty))
+            (Frames.Length != 0 && AnimationIndexes.IsEmpty))
         {
             throw new InvalidDataException("Scenery and frame inputs require captured animation indexes.");
         }
