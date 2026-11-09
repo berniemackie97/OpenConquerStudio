@@ -9,11 +9,13 @@ public sealed record SourceSceneObject(string AnimationPath, string SectionName,
 public sealed record SourceSceneInput(string Path, string Digest, int ByteLength,
     ImmutableArray<SourceSceneObject> Objects)
 {
+    public const int MaximumBytes = 1024 * 1024;
+
     public void Validate()
     {
         TerrainSource.ValidatePath(Path);
         ProjectDocument.ValidateDigest(Digest);
-        if (ByteLength is < 4 or > GameMapTerrainSceneFile.MaximumFileBytes || Objects.IsDefault ||
+        if (ByteLength is < 4 or > SourceSceneInput.MaximumBytes || Objects.IsDefault ||
             Objects.Length > 4096)
         {
             throw new InvalidDataException("Captured scenery file exceeds its source-record limits.");
@@ -67,7 +69,7 @@ public static class SourceSceneDependencies
     {
         ArgumentNullException.ThrowIfNull(bytes);
         TerrainSource.ValidatePath(path);
-        if (bytes.Length is < 4 or > GameMapTerrainSceneFile.MaximumFileBytes)
+        if (bytes.Length is < 4 or > SourceSceneInput.MaximumBytes)
         {
             throw new InvalidDataException($"Scenery source '{path}' exceeds its file budget.");
         }
