@@ -179,6 +179,12 @@ internal sealed class TerrainEditor : StackPanel
                     _location.Text += $"\nPuzzle grids: {source.Puzzles.Count(puzzle => puzzle.Digest is not null)} captured, " +
                         $"{source.Puzzles.Count(puzzle => puzzle.Digest is null)} unavailable";
                 }
+                if (!source.AnimationIndexes.IsEmpty)
+                {
+                    _location.Text += $"\nANI indexes: {source.AnimationIndexes.Length} retained, " +
+                        $"{source.AnimationIndexes.Sum(index => index.Sections.Length)} sections. " +
+                        "Referenced frame images remain external.";
+                }
             }
         }
         finally { _loading = false; }
