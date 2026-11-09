@@ -126,7 +126,10 @@ public sealed class SourceSceneryPlacementWorkflowTests
         Assert.Throws<InvalidDataException>(() => project.PaintTerrainRegion(id,
             new TerrainRegion(0, 0, 0, 0), project.ReadTerrainCell(id, 0, 0), "Bad",
             sceneryPlacements: asset.SceneryPlacements.SetItem(0,
-                asset.SceneryPlacements[0] with { SourceIndex = 1 })));
+                asset.SceneryPlacements[0] with
+                {
+                    SourceIndex = 1
+                })));
         Assert.Throws<InvalidDataException>(() => project.PaintTerrainRegion(id,
             new TerrainRegion(0, 0, 0, 0), project.ReadTerrainCell(id, 0, 0), "Bad",
             sceneryPlacements: asset.SceneryPlacements.RemoveAt(0)));
