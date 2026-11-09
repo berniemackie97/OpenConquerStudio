@@ -31,9 +31,11 @@ public sealed partial class StudioWindowTests
             ListBox sourceFrames = Find<ListBox>(window, "TerrainSourceFrameSelection");
             Assert.Single(sourceFrames.ItemsSource!);
             Assert.True(sourceFrames.IsEffectivelyVisible);
+            Button promote = Find<Button>(window, "PromoteTerrainFrames");
+            Assert.False(promote.IsEnabled);
             sourceFrames.SelectedIndex = 0;
-            Find<Button>(window, "PromoteTerrainFrames")
-                .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Assert.True(promote.IsEnabled);
+            promote.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             await window.PendingOperation;
             TextureAsset texture = Assert.Single(window.Project.Document.Assets);
             Assert.Equal(texture.Id, window.Project.Document.Terrains.Single()
@@ -65,6 +67,31 @@ public sealed partial class StudioWindowTests
             TestContext.Current.CancellationToken);
         Assert.Single(reopened.Document.Assets);
         Assert.NotNull(reopened.Document.Terrains.Single().Source!.Frames[0].TextureId);
+    }, TestContext.Current.CancellationToken);
+
+    [Fact]
+    public Task TerrainWithoutSourceFramesDoesNotShowPromotionControls() =>
+        s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        using (StudioProject project = StudioProject.Create(directory.Project, "Game"))
+        {
+            project.CreateTerrain("Ground", 9100, 1, 1, new TerrainCell(1, 0, 0));
+            project.Save(TestContext.Current.CancellationToken);
+        }
+
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            Assert.False(Find<Button>(window, "PromoteTerrainFrames").IsEffectivelyVisible);
+            Assert.False(Find<ListBox>(window, "TerrainSourceFrameSelection").IsEffectivelyVisible);
+        }
+        finally
+        {
+            window.Close();
+        }
     }, TestContext.Current.CancellationToken);
 
     private static TerrainImport CreateCapturedTerrain()
