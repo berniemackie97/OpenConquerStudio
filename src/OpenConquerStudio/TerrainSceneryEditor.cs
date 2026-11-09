@@ -28,14 +28,22 @@ internal sealed class TerrainSceneryEditor : StackPanel
             Text = "Editable coordinates for scenery types 1 and 4; unrecognized source records remain unchanged."
         });
         Children.Add(_placements);
-        Button inspect = new() { Name = "InspectTerrainScenery", Content = "Inspect selected scenery" };
+        Button inspect = new()
+        {
+            Name = "InspectTerrainScenery",
+            Content = "Inspect selected scenery"
+        };
         inspect.Click += async (_, _) => await InspectSelected();
         Children.Add(inspect);
         Children.Add(new TextBlock { Text = "Position X (signed)" });
         Children.Add(_x);
         Children.Add(new TextBlock { Text = "Position Y (signed)" });
         Children.Add(_y);
-        Button save = new() { Name = "ApplyTerrainScenery", Content = "Apply scenery coordinates" };
+        Button save = new()
+        {
+            Name = "ApplyTerrainScenery",
+            Content = "Apply scenery coordinates"
+        };
         save.Click += async (_, _) => await apply();
         Children.Add(save);
         foreach (NumericUpDown input in new[] { _x, _y })
@@ -86,7 +94,11 @@ internal sealed class TerrainSceneryEditor : StackPanel
             throw new InvalidDataException("The selected scenery placement no longer exists.");
         }
 
-        return asset.SceneryPlacements.SetItem(index, original with { X = x, Y = y });
+        return asset.SceneryPlacements.SetItem(index, original with
+        {
+            X = x,
+            Y = y
+        });
     }
 
     public void Accept(TerrainAsset asset)
