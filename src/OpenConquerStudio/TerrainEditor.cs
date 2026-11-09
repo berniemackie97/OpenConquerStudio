@@ -174,6 +174,11 @@ internal sealed class TerrainEditor : StackPanel
                     $"{source.OverlayGroupCount} overlay groups · " +
                     (source.SnapshotDigest is null ? "source content not retained" :
                         $"decoded map retained ({source.SnapshotLength:N0} bytes)");
+                if (!source.Puzzles.IsEmpty)
+                {
+                    _location.Text += $"\nPuzzle grids: {source.Puzzles.Count(puzzle => puzzle.Digest is not null)} captured, " +
+                        $"{source.Puzzles.Count(puzzle => puzzle.Digest is null)} unavailable";
+                }
             }
         }
         finally { _loading = false; }
