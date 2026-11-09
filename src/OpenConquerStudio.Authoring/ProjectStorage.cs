@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Text.Json;
+using OpenConquer.Content.Map;
 using OpenConquerStudio.Runtime;
 
 namespace OpenConquerStudio.Authoring;
@@ -151,7 +152,7 @@ internal static class ProjectStorage
 
     private static int TerrainResourceVersion(TerrainAsset terrain) =>
         terrain.Source is null ? 1 : terrain.Source.SnapshotDigest is null ? 2 :
-            terrain.Source.Puzzles.IsEmpty ? 3 : 4;
+            terrain.Source.Puzzles.IsEmpty ? 3 : terrain.Source.AnimationIndexes.IsEmpty ? 4 : 5;
 
     private static Dictionary<string, byte[]> ReadSourceInputs(string root, ProjectDocument document, CancellationToken token)
     {
@@ -200,6 +201,43 @@ internal static class ProjectStorage
                 if (decoded != puzzle)
                 {
                     throw new InvalidDataException("Owned puzzle metadata differs from its decoded input.");
+                }
+            }
+            if (!source.AnimationIndexes.IsEmpty)
+            {
+                GameMapCellGrid grid = GameMapCellGrid.Parse(inputs[source.SnapshotDigest!]);
+                GameMapSceneSections scene = GameMapSceneSections.Parse(inputs[source.SnapshotDigest!],
+                    grid.BytesConsumed, grid.HeaderField0);
+                ImmutableArray<SourcePuzzleCapture> puzzles = [.. source.Puzzles.Select(puzzle =>
+                    new SourcePuzzleCapture(puzzle.Path, puzzle.Digest is null ? null : inputs[puzzle.Digest]))];
+                ImmutableArray<SourceAnimationRequirement> required = SourceAnimationDependencies.Collect(scene, puzzles);
+                if (required.Length != source.AnimationIndexes.Length)
+                {
+                    throw new InvalidDataException("Stored animation indexes do not cover source-map dependencies.");
+                }
+                for (int i = 0; i < required.Length; i++)
+                {
+                    token.ThrowIfCancellationRequested();
+                    SourceAnimationIndexInput recorded = source.AnimationIndexes[i];
+                    if (!string.Equals(recorded.Path, required[i].Path, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidDataException("Animation index order differs from source-map dependencies.");
+                    }
+                    if (!inputs.TryGetValue(recorded.Digest, out byte[]? bytes))
+                    {
+                        bytes = ProjectFiles.Read(AnimationIndexPath(root, recorded.Digest),
+                            SourceAnimationIndexInput.MaximumBytes);
+                        if (bytes.Length != recorded.ByteLength || ProjectFiles.Hash(bytes) != recorded.Digest)
+                        {
+                            throw new InvalidDataException("Stored animation index failed its digest or length check.");
+                        }
+                        inputs.Add(recorded.Digest, bytes);
+                    }
+                    SourceAnimationIndexInput parsed = SourceAnimationDependencies.Read(required[i], bytes);
+                    if (!SourceAnimationDependencies.Equivalent([recorded], [parsed]))
+                    {
+                        throw new InvalidDataException("Captured animation index differs from its required sections.");
+                    }
                 }
             }
         }
@@ -292,6 +330,13 @@ internal static class ProjectStorage
             token.ThrowIfCancellationRequested();
             WriteImmutable(PuzzleSourcePath(root, digest), sourceInputs[digest], SourcePuzzleInput.MaximumBytes);
         }
+        foreach (string digest in document.Terrains.SelectMany(a => a.Source?.AnimationIndexes ?? [])
+            .Select(index => index.Digest).Distinct())
+        {
+            token.ThrowIfCancellationRequested();
+            WriteImmutable(AnimationIndexPath(root, digest), sourceInputs[digest],
+                SourceAnimationIndexInput.MaximumBytes);
+        }
 
         List<ResourceRevision> revisions = [];
         int metadataBytes = 0;
@@ -366,4 +411,6 @@ internal static class ProjectStorage
     private static string MapSourcePath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".ocmapsource");
 
     private static string PuzzleSourcePath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".ocpuzzle");
+
+    private static string AnimationIndexPath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".ocani");
 }

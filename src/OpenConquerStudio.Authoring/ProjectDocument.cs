@@ -35,6 +35,7 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
     public const int MaximumTotalTerrainCells = 262_144;
     public const int MaximumTotalSourceMapBytes = 64 * 1024 * 1024;
     public const int MaximumTotalPuzzleBytes = 16 * 1024 * 1024;
+    public const int MaximumTotalAnimationIndexBytes = 32 * 1024 * 1024;
     public const int MaximumTerrainExitMarkers = 4_096;
     public const int MaximumTotalTerrainExitMarkers = 8_192;
     public const int MaximumModelBytes = 128 * 1024 * 1024;
@@ -116,8 +117,10 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
         HashSet<uint> mapDataIds = [];
         HashSet<string> sourceDigests = new(StringComparer.Ordinal);
         HashSet<string> puzzleDigests = new(StringComparer.Ordinal);
+        HashSet<string> animationDigests = new(StringComparer.Ordinal);
         long sourceBytes = 0;
         long puzzleBytes = 0;
+        long animationBytes = 0;
         foreach (TerrainAsset terrain in Terrains)
         {
             if (terrain is null || terrain.Id == Guid.Empty || !ids.Add(terrain.Id) || terrain.MapDataId == 0 ||
@@ -139,6 +142,17 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
                         if (puzzleBytes > MaximumTotalPuzzleBytes)
                         {
                             throw new InvalidDataException("Project-owned puzzle inputs exceed their total size budget.");
+                        }
+                    }
+                }
+                foreach (SourceAnimationIndexInput index in source.AnimationIndexes)
+                {
+                    if (animationDigests.Add(index.Digest))
+                    {
+                        animationBytes += index.ByteLength;
+                        if (animationBytes > MaximumTotalAnimationIndexBytes)
+                        {
+                            throw new InvalidDataException("Project-owned animation indexes exceed their total size budget.");
                         }
                     }
                 }

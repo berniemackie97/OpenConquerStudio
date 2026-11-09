@@ -283,10 +283,30 @@ public sealed class ClientProjectConnection
             }
         }
 
+        ImmutableArray<SourcePuzzleCapture> puzzles = captures.MoveToImmutable();
+        ImmutableArray<SourceAnimationRequirement> required = SourceAnimationDependencies.Collect(scene, puzzles);
+        ImmutableArray<SourceAnimationIndexCapture>.Builder indexes =
+            ImmutableArray.CreateBuilder<SourceAnimationIndexCapture>(required.Length);
+        long totalBytes = 0;
+        foreach (SourceAnimationRequirement reference in required)
+        {
+            token.ThrowIfCancellationRequested();
+            byte[] bytes = ContentReader.ReadRequiredBytes(Source, reference.Path, ContentLookupMode.LooseOnly,
+                SourceAnimationIndexInput.MaximumBytes);
+            totalBytes += bytes.Length;
+            if (totalBytes > ProjectDocument.MaximumTotalAnimationIndexBytes)
+            {
+                throw new InvalidDataException("Map animation indexes exceed the project capture budget.");
+            }
+            _ = SourceAnimationDependencies.Read(reference, bytes);
+            indexes.Add(new SourceAnimationIndexCapture(reference.Path, bytes));
+        }
+
         return extracted with
         {
             DecodedSource = decoded,
-            PuzzleFiles = captures.MoveToImmutable()
+            PuzzleFiles = puzzles,
+            AnimationFiles = indexes.MoveToImmutable()
         };
     }
 

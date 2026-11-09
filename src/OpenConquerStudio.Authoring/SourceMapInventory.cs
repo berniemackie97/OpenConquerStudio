@@ -26,6 +26,7 @@ public sealed record SourceMapInventory(int FormatVersion, uint MapDataId, strin
     ImmutableArray<SourceMapOverlayGroup> Overlays, ImmutableArray<SourceMapReference> References)
 {
     public ImmutableArray<SourcePuzzleInput> Puzzles { get; init; } = [];
+    public ImmutableArray<SourceAnimationIndexInput> AnimationIndexes { get; init; } = [];
 
     internal static SourceMapInventory Read(uint id, TerrainSource source, byte[] decoded)
     {
@@ -101,11 +102,13 @@ public sealed record SourceMapInventory(int FormatVersion, uint MapDataId, strin
             }
         }
 
-        return new SourceMapInventory(source.Puzzles.IsEmpty ? 1 : 2, id, source.MapPath, digest, grid.Width, grid.Height,
+        return new SourceMapInventory(!source.AnimationIndexes.IsEmpty ? 3 : source.Puzzles.IsEmpty ? 1 : 2,
+            id, source.MapPath, digest, grid.Width, grid.Height,
             grid.PuzzlePath, scene.ExitMarkers.Count, scenery.MoveToImmutable(),
             overlays.MoveToImmutable(), ordered)
         {
-            Puzzles = source.Puzzles
+            Puzzles = source.Puzzles,
+            AnimationIndexes = source.AnimationIndexes
         };
     }
 

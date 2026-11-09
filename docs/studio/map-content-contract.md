@@ -61,13 +61,22 @@ Absent optional ground puzzles are explicit unresolved entries; required positio
 puzzles that cannot be loaded reject the extraction. Each captured puzzle is validated
 on save and reopen against the same project-owned map reference ordering.
 
-These snapshots do not include external ANI indexes, texture frames or scenery
-resource files, and do not form a complete typed asset graph. It is not an editable
+The importer now also captures the exact ANI text indexes needed by referenced puzzle
+tiles and explicit animated scenery/overlay records. It resolves each required section
+using the shared ANI parser, retaining ordered frame paths and rejecting missing,
+ambiguous or empty sections. The source map, puzzle bitmaps and ANI indexes are separate
+immutable, digest-checked inputs; unchanged refreshes preserve the same authored
+terrain revision. Section dependencies remain associated with source paths rather
+than being treated as authored resource identities.
+
+These snapshots do not include ANI frame image bytes, decoded animation textures or
+external scenery image resources, and do not form a complete typed asset graph. It is not an editable
 client world: layout semantics, dependency resolution and canonical map compilation
 are still blocked under #39 and #40. Terrain export and the validated server terrain/
 collision pair do not include those visual dependencies. Schema-1 authored terrain
 and schema-2 source-extracted terrain remain readable; map-only snapshots use schema 3,
-and projects owning puzzle tile grids use schema-4 terrain revisions.
+projects owning puzzle tile grids use schema-4 terrain revisions, and captured ANI
+indexes use schema-5 terrain revisions.
 
 ## One authoring source, separate target outputs
 
