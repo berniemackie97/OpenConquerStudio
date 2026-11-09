@@ -272,7 +272,9 @@ public sealed partial class StudioProject : IDisposable
             retainedModels = Document.Models.Concat(_undo.SelectMany(d => d.Models)).Select(a => a.DataDigest).ToHashSet(StringComparer.Ordinal);
             retainedTerrain = Document.Terrains.Concat(_undo.SelectMany(d => d.Terrains)).Select(a => a.CellDigest).ToHashSet(StringComparer.Ordinal);
             retainedSourceInputs = Document.Terrains.Concat(_undo.SelectMany(d => d.Terrains))
-                .Select(a => a.Source?.SnapshotDigest).OfType<string>().ToHashSet(StringComparer.Ordinal);
+                .SelectMany(a => a.Source is null ? Enumerable.Empty<string>() :
+                    a.Source.Puzzles.Select(p => p.Digest).Append(a.Source.SnapshotDigest).OfType<string>())
+                .ToHashSet(StringComparer.Ordinal);
             if (_undo.Count == 0 || retained.Sum(d => (long)_pixels[d].Pixels.Length) +
                 retainedModels.Sum(d => (long)_models[d].Length) + retainedTerrain.Sum(d => (long)_terrainCells[d].Length) +
                 retainedSourceInputs.Sum(d => (long)_sourceInputs[d].Length) <= 128 * 1024 * 1024)
