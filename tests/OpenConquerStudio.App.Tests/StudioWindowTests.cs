@@ -46,6 +46,59 @@ public sealed partial class StudioWindowTests
     }, TestContext.Current.CancellationToken);
 
     [Fact]
+    public Task ProjectRenameUndoRedoRestoresVisibleNameAndPersistsUndoneRevision() => s_session.Value.Dispatch(async () =>
+    {
+        using ProjectDirectory directory = new();
+        directory.CreateSavedTexture();
+        StudioWindow window = new();
+        window.Show();
+        try
+        {
+            await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
+            TextBox name = Find<TextBox>(window, "ProjectName");
+            Button undo = Find<Button>(window, "Undo");
+            Button redo = Find<Button>(window, "Redo");
+            Button save = window.GetLogicalDescendants().OfType<Button>().Single(b => Equals(b.Content, "Save"));
+
+            name.Text = "Draft";
+            undo.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.Equal("Game", name.Text);
+            Assert.False(window.Project.IsModified);
+
+            name.Text = "Renamed game";
+            save.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.Equal("Renamed game", window.Project.Document.Name);
+            Assert.False(window.Project.IsModified);
+
+            undo.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.Equal("Game", window.Project.Document.Name);
+            Assert.Equal("Game", name.Text);
+            Assert.True(window.Project.IsModified);
+            Assert.True(redo.IsEnabled);
+
+            redo.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.Equal("Renamed game", window.Project.Document.Name);
+            Assert.Equal("Renamed game", name.Text);
+            Assert.False(window.Project.IsModified);
+
+            undo.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            save.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await window.PendingOperation;
+            Assert.Equal("Game", window.Project.Document.Name);
+            Assert.False(window.Project.IsModified);
+        }
+        finally { window.Close(); }
+
+        using StudioProject reopened = StudioProject.Open(directory.Project);
+        Assert.Equal("Game", reopened.Document.Name);
+    }, TestContext.Current.CancellationToken);
+
+    [Fact]
     public Task SourceTabCannotLeaveAnAuthoredInspectorActive() => s_session.Value.Dispatch(async () =>
     {
         using ProjectDirectory directory = new();
