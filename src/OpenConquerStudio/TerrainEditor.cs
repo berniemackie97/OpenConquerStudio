@@ -28,6 +28,7 @@ internal sealed class TerrainEditor : StackPanel
     };
     private readonly Func<Guid, int, int, TerrainCell> _read;
     private readonly TerrainExitEditor _exitEditor;
+    private readonly TerrainSceneryEditor _sceneryEditor;
     private readonly Func<Guid, ImmutableArray<string>, Task> _promoteFrames;
     private TerrainAsset? _asset;
     private TerrainCell _selectedCell;
@@ -45,6 +46,8 @@ internal sealed class TerrainEditor : StackPanel
         _promoteFrames = promoteFrames;
         _exitEditor = new TerrainExitEditor(apply, navigate, replaceExits);
         _exitEditor.PendingChanged += Changed;
+        _sceneryEditor = new TerrainSceneryEditor(apply, navigate);
+        _sceneryEditor.PendingChanged += Changed;
         Spacing = 8;
         Children.Add(new TextBlock { Text = "Terrain", FontSize = 16 });
         Children.Add(new TextBlock { Text = "Name" });
@@ -109,6 +112,7 @@ internal sealed class TerrainEditor : StackPanel
         save.Click += async (_, _) => { if (_asset is not null) { await apply(); } };
         Children.Add(save);
         Children.Add(_exitEditor);
+        Children.Add(_sceneryEditor);
 
         _name.TextChanged += (_, _) => Changed();
         foreach (NumericUpDown input in new[] { _surface, _passability, _elevation })
@@ -129,7 +133,7 @@ internal sealed class TerrainEditor : StackPanel
             {
                 return false;
             }
-            if (_exitEditor.HasPending)
+            if (_exitEditor.HasPending || _sceneryEditor.HasPending)
             {
                 return true;
             }
@@ -142,14 +146,15 @@ internal sealed class TerrainEditor : StackPanel
         }
     }
 
-    public (string Name, TerrainCell Cell, ImmutableArray<TerrainExitMarker> Exits) ReadChanges()
+    public (string Name, TerrainCell Cell, ImmutableArray<TerrainExitMarker> Exits,
+        ImmutableArray<TerrainSceneryPlacement> SceneryPlacements) ReadChanges()
     {
         TerrainAsset asset = _asset ?? throw new InvalidOperationException("Select a terrain before editing its cells.");
         return (_name.Text ?? "", new TerrainCell(
             checked((ushort)EditorInput.Integer(_surface, "surface ID")),
             checked((ushort)EditorInput.Integer(_passability, "passability flag")),
             checked((short)EditorInput.Integer(_elevation, "elevation"))),
-            _exitEditor.ReadChanges(asset));
+            _exitEditor.ReadChanges(asset), _sceneryEditor.ReadChanges(asset));
     }
 
     public void Accept(TerrainAsset asset)
@@ -157,6 +162,7 @@ internal sealed class TerrainEditor : StackPanel
         _asset = asset;
         _selectedCell = _read(asset.Id, _selectedX, _selectedY);
         _exitEditor.Accept(asset);
+        _sceneryEditor.Accept(asset);
     }
 
     public void Load(TerrainAsset asset)
@@ -187,6 +193,7 @@ internal sealed class TerrainEditor : StackPanel
             _promoteButton.IsEnabled = _sourceFrames.SelectedItems?.Count > 0;
             LoadCell();
             _exitEditor.Load(asset);
+            _sceneryEditor.Load(asset);
         }
         finally { _loading = false; }
     }
