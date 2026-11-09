@@ -1,10 +1,20 @@
 using System.Collections.Immutable;
+using OpenConquer.Content.Map;
 
 namespace OpenConquerStudio.Authoring;
 
 public sealed record TerrainSource(string MapPath, string PuzzlePath, uint CatalogValue,
     uint GridHeader0, uint GridHeader1, int SceneryCount, int OverlayGroupCount)
 {
+    public string? SnapshotDigest
+    {
+        get; init;
+    }
+    public int SnapshotLength
+    {
+        get; init;
+    }
+
     public void Validate()
     {
         ValidatePath(MapPath);
@@ -13,7 +23,24 @@ public sealed record TerrainSource(string MapPath, string PuzzlePath, uint Catal
         {
             throw new InvalidDataException("Terrain source record counts must be nonnegative.");
         }
+        if (SnapshotDigest is null)
+        {
+            if (SnapshotLength != 0)
+            {
+                throw new InvalidDataException("Map snapshot length requires a digest.");
+            }
+        }
+        else
+        {
+            ProjectDocument.ValidateDigest(SnapshotDigest);
+            if (SnapshotLength is < 276 or > MaximumDecodedSourceBytes)
+            {
+                throw new InvalidDataException("Map snapshot exceeds its allowed length.");
+            }
+        }
     }
+
+    public const int MaximumDecodedSourceBytes = 32 * 1024 * 1024;
 
     private static void ValidatePath(string path)
     {
@@ -29,6 +56,11 @@ public sealed record TerrainSource(string MapPath, string PuzzlePath, uint Catal
 public sealed record TerrainImport(uint MapDataId, int Width, int Height,
     ImmutableArray<TerrainCell> Cells, ImmutableArray<TerrainExitMarker> Exits, TerrainSource Source)
 {
+    public byte[]? DecodedSource
+    {
+        get; init;
+    }
+
     public void Validate()
     {
         if (MapDataId == 0 || Cells.IsDefault || Cells.Length != TerrainGrid.CellCount(Width, Height) ||
@@ -38,6 +70,50 @@ public sealed record TerrainImport(uint MapDataId, int Width, int Height,
         }
 
         Source.Validate();
+        if (Source.SnapshotDigest is not null)
+        {
+            throw new InvalidDataException("Map snapshot metadata must be assigned when importing.");
+        }
+        if (DecodedSource is not null)
+        {
+            if (DecodedSource.Length is < 276 or > TerrainSource.MaximumDecodedSourceBytes)
+            {
+                throw new InvalidDataException("Decoded map exceeds its size limit.");
+            }
+
+            GameMapCellGrid grid = GameMapCellGrid.Parse(DecodedSource);
+            GameMapSceneSections scene = GameMapSceneSections.Parse(DecodedSource, grid.BytesConsumed, grid.HeaderField0);
+            if (grid.Width != Width || grid.Height != Height ||
+                grid.HeaderField0 != Source.GridHeader0 || grid.HeaderField1 != Source.GridHeader1 ||
+                grid.PuzzlePath != Source.PuzzlePath ||
+                scene.Scenery.Count != Source.SceneryCount || scene.PositionedOverlays.Count != Source.OverlayGroupCount ||
+                scene.ExitMarkers.Count != Exits.Length)
+            {
+                throw new InvalidDataException("Decoded map differs from the extracted terrain metadata.");
+            }
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    GameMapCell cell = grid.GetCell(x, y);
+                    if (Cells[y * Width + x] != new TerrainCell(cell.SurfaceId, cell.PassabilityFlag, cell.Elevation))
+                    {
+                        throw new InvalidDataException("Decoded map cells differ from extracted terrain.");
+                    }
+                }
+            }
+            for (int i = 0; i < scene.ExitMarkers.Count; i++)
+            {
+                GameMapExitMarker marker = scene.ExitMarkers[i];
+                TerrainExitMarker exit = Exits[i];
+                if (exit.X != marker.Field0 || exit.Y != marker.Field1 ||
+                    exit.PasswayIndex != unchecked((uint)marker.Field2))
+                {
+                    throw new InvalidDataException("Decoded map exits differ from extracted terrain.");
+                }
+            }
+        }
+
         HashSet<Guid> ids = [];
         foreach (TerrainExitMarker exit in Exits)
         {
