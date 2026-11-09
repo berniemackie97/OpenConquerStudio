@@ -72,11 +72,17 @@ public sealed partial class StudioProject
 
         if (origin.Puzzles.SequenceEqual(original.Source.Puzzles))
         {
-            origin = origin with { Puzzles = original.Source.Puzzles };
+            origin = origin with
+            {
+                Puzzles = original.Source.Puzzles
+            };
         }
         if (SourceAnimationDependencies.Equivalent(origin.AnimationIndexes, original.Source.AnimationIndexes))
         {
-            origin = origin with { AnimationIndexes = original.Source.AnimationIndexes };
+            origin = origin with
+            {
+                AnimationIndexes = original.Source.AnimationIndexes
+            };
         }
         Dictionary<(int X, int Y, uint Passway), Queue<Guid>> existing = [];
         foreach (TerrainExitMarker marker in original.Exits)
