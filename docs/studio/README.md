@@ -103,10 +103,30 @@ dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- extra
 dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- refresh-client-terrain /path/to/project <terrain-guid> 1010
 ```
 
-The resource document for extracted terrain uses schema version 2; existing manually
-authored terrain remains compatible with schema version 1. Saving never rewrites the
+The source-map extraction now retains an immutable, digest-verified copy of the
+**decoded map bytes** in the project under `Inputs/`. This preserves ordered exit,
+scenery and overlay records without relying on the original map archive after saving.
+The terrain inspector shows whether an owned map snapshot exists. The project-owned
+snapshot does **not** include referenced puzzle, texture, animation, or scene files:
+these are still unresolved external dependencies, not editable or compiled game assets.
+
+To inspect the exact ordered scene references offline after Save and reopen, run:
+
+```sh
+dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- export-map-source-inventory /path/to/project <terrain-guid> /path/to/new-inventory.json
+```
+
+The inventory includes the ground puzzle, every parsed scenery record type and payload
+digest, every positioned overlay group and its insertion metadata, and ordered puzzle,
+scene, and animation references. Repeated source references remain repeated. A missing
+source snapshot is rejected explicitly; the exporter does not reconstruct one from
+metadata counts or paths.
+
+Captured terrain uses resource-document schema version 3. Previously extracted terrain
+(schema 2) and manually authored terrain (schema 1) remain readable; schema-2 extraction
+must be refreshed from source to acquire an owned snapshot. Saving never rewrites the
 original map or puzzle files. Terrain/collision builds still use the authoritative server
-tool and do not include the unimported visual dependencies.
+tool and do not include the unresolved visual dependencies.
 
 ## Author terrain cells
 
