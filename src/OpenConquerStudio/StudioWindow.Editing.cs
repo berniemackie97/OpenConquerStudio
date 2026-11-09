@@ -77,10 +77,10 @@ public sealed partial class StudioWindow
                 apply = () => project.EditModel(info.Id, model.Name, model.Clip, model.Milliseconds, model.Repeat);
                 break;
             case "terrain":
-                (string terrainName, TerrainCell cell, ImmutableArray<TerrainExitMarker> exits) = _terrainEditor.ReadChanges();
+                var (terrainName, cell, exits, placements) = _terrainEditor.ReadChanges();
                 int x = _terrainEditor.SelectedX;
                 int y = _terrainEditor.SelectedY;
-                apply = () => project.EditTerrainCell(info.Id, x, y, cell, terrainName, exits);
+                apply = () => project.EditTerrainCell(info.Id, x, y, cell, terrainName, exits, placements);
                 break;
             case "world":
                 WorldAsset world = _worldEditor.ReadChanges();
