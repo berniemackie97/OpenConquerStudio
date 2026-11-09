@@ -368,8 +368,9 @@ public sealed partial class StudioProject
     }
 
     public void EditTerrainCell(Guid id, int x, int y, TerrainCell cell, string name,
-        ImmutableArray<TerrainExitMarker> exits = default) =>
-        PaintTerrainRegion(id, new TerrainRegion(x, y, x, y), cell, name, exits);
+        ImmutableArray<TerrainExitMarker> exits = default,
+        ImmutableArray<TerrainSceneryPlacement> sceneryPlacements = default) =>
+        PaintTerrainRegion(id, new TerrainRegion(x, y, x, y), cell, name, exits, sceneryPlacements);
 
     public void PaintTerrainRegion(Guid id, TerrainRegion region, TerrainCell cell, string name,
         ImmutableArray<TerrainExitMarker> exits = default,
