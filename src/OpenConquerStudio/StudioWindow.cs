@@ -620,6 +620,12 @@ public sealed partial class StudioWindow : Window
             {
                 _project!.Redo();
             }
+            _loadingInspector = true;
+            try
+            {
+                _projectName.Text = Project.Document.Name;
+            }
+            finally { _loadingInspector = false; }
             RefreshAssets(id);
             if (id is Guid selected && _project.Document.Resources.Any(a => a.Id == selected))
             {
