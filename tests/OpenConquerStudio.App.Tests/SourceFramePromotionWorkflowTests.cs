@@ -1,4 +1,8 @@
+using System.Buffers.Binary;
+using System.Text;
 using Avalonia.Controls;
+using OpenConquer.Content.Map;
+using OpenConquerStudio.ConquerImport;
 using Avalonia.Interactivity;
 using OpenConquerStudio.Authoring;
 using OpenConquerStudio.Tests;
@@ -15,7 +19,7 @@ public sealed partial class StudioWindowTests
         Guid terrain;
         using (StudioProject project = StudioProject.Create(directory.Project, "Game"))
         {
-            terrain = project.ImportTerrain(OwnedMapVisualInputsTests.Input(), "Ground");
+            terrain = project.ImportTerrain(CreateCapturedTerrain(), "Ground");
             project.Save(TestContext.Current.CancellationToken);
         }
 
@@ -25,7 +29,7 @@ public sealed partial class StudioWindowTests
         {
             await window.ExecuteAsync(token => window.LoadProject(directory.Manifest, token));
             ListBox sourceFrames = Find<ListBox>(window, "TerrainSourceFrameSelection");
-            Assert.Equal(2, sourceFrames.ItemCount);
+            Assert.Single(sourceFrames.ItemsSource!);
             Assert.True(sourceFrames.IsEffectivelyVisible);
             sourceFrames.SelectedIndex = 0;
             Find<Button>(window, "PromoteTerrainFrames")
@@ -62,4 +66,54 @@ public sealed partial class StudioWindowTests
         Assert.Single(reopened.Document.Assets);
         Assert.NotNull(reopened.Document.Terrains.Single().Source!.Frames[0].TextureId);
     }, TestContext.Current.CancellationToken);
+
+    private static TerrainImport CreateCapturedTerrain()
+    {
+        using MemoryStream stream = new();
+        byte[] header = new byte[276];
+        BinaryPrimitives.WriteUInt32LittleEndian(header, 1000);
+        BinaryPrimitives.WriteUInt32LittleEndian(header.AsSpan(4), 77);
+        Encoding.Latin1.GetBytes("puzzles/ground.pul").CopyTo(header, 8);
+        BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(268), 1);
+        BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(272), 1);
+        stream.Write(header);
+        using (BinaryWriter writer = new(stream, Encoding.Latin1, leaveOpen: true))
+        {
+            writer.Write((ushort)1);
+            writer.Write((ushort)5);
+            writer.Write((short)0);
+            writer.Write((uint)18);
+            writer.Write(0);
+            writer.Write(0);
+            writer.Write(0);
+        }
+        byte[] map = stream.ToArray();
+        GameMapCellGrid grid = GameMapCellGrid.Parse(map);
+        GameMapSceneSections sections = GameMapSceneSections.Parse(map, grid.BytesConsumed, grid.HeaderField0);
+        byte[] puzzle = new byte[274];
+        "PUZZLE\0\0"u8.CopyTo(puzzle);
+        Encoding.Latin1.GetBytes("ani/puzzle.ani").CopyTo(puzzle, 8);
+        BinaryPrimitives.WriteInt32LittleEndian(puzzle.AsSpan(264), 1);
+        BinaryPrimitives.WriteInt32LittleEndian(puzzle.AsSpan(268), 1);
+        BinaryPrimitives.WriteUInt16LittleEndian(puzzle.AsSpan(272), 2);
+        byte[] tga = new byte[23];
+        tga[2] = 10;
+        tga[12] = 1;
+        tga[14] = 1;
+        tga[16] = 32;
+        tga[17] = 8;
+        tga[18] = 0x80;
+        tga[21] = 21;
+        tga[22] = 255;
+        return ClientTerrainImporter.Read(9100, "maps/ground.dmap", 42, grid, sections,
+            TestContext.Current.CancellationToken) with
+        {
+            DecodedSource = map,
+            PuzzleFiles = [new("puzzles/ground.pul", puzzle)],
+            SceneFiles = [],
+            AnimationFiles = [new("ani/puzzle.ani", Encoding.Latin1.GetBytes(
+                "[Puzzle2]\\nFrameAmount=1\\nFrame0=images/shared.tga\\n".Replace("\\n", "\n")))],
+            FrameFiles = [new("images/shared.tga", tga)]
+        };
+    }
 }
