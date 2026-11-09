@@ -6,6 +6,8 @@ namespace OpenConquerStudio.Authoring;
 public sealed record TerrainSource(string MapPath, string PuzzlePath, uint CatalogValue,
     uint GridHeader0, uint GridHeader1, int SceneryCount, int OverlayGroupCount)
 {
+    public ImmutableArray<SourcePuzzleInput> Puzzles { get; init; } = [];
+
     public string? SnapshotDigest
     {
         get; init;
@@ -22,6 +24,24 @@ public sealed record TerrainSource(string MapPath, string PuzzlePath, uint Catal
         if (SceneryCount < 0 || OverlayGroupCount < 0)
         {
             throw new InvalidDataException("Terrain source record counts must be nonnegative.");
+        }
+        if (Puzzles.IsDefault || Puzzles.Length > 256)
+        {
+            throw new InvalidDataException("Map puzzle input references exceed their resource budget.");
+        }
+        HashSet<string> paths = new(StringComparer.OrdinalIgnoreCase);
+        foreach (SourcePuzzleInput puzzle in Puzzles)
+        {
+            puzzle.Validate();
+            if (!paths.Add(puzzle.Path))
+            {
+                throw new InvalidDataException("Map puzzle input paths must be unique.");
+            }
+        }
+
+        if (SnapshotDigest is null && Puzzles.Length != 0)
+        {
+            throw new InvalidDataException("Puzzle inputs require a captured map source.");
         }
         if (SnapshotDigest is null)
         {
@@ -42,7 +62,7 @@ public sealed record TerrainSource(string MapPath, string PuzzlePath, uint Catal
 
     public const int MaximumDecodedSourceBytes = 32 * 1024 * 1024;
 
-    private static void ValidatePath(string path)
+    internal static void ValidatePath(string path)
     {
         if (string.IsNullOrWhiteSpace(path) || path.Length > 260 ||
             path.Any(char.IsControl) || path.Contains('\\') ||
@@ -56,6 +76,11 @@ public sealed record TerrainSource(string MapPath, string PuzzlePath, uint Catal
 public sealed record TerrainImport(uint MapDataId, int Width, int Height,
     ImmutableArray<TerrainCell> Cells, ImmutableArray<TerrainExitMarker> Exits, TerrainSource Source)
 {
+    public ImmutableArray<SourcePuzzleCapture> PuzzleFiles
+    {
+        get; init;
+    }
+
     public byte[]? DecodedSource
     {
         get; init;
@@ -74,6 +99,11 @@ public sealed record TerrainImport(uint MapDataId, int Width, int Height,
         {
             throw new InvalidDataException("Map snapshot metadata must be assigned when importing.");
         }
+        if (!PuzzleFiles.IsDefault && DecodedSource is null)
+        {
+            throw new InvalidDataException("Puzzle capture requires the corresponding decoded map.");
+        }
+
         if (DecodedSource is not null)
         {
             if (DecodedSource.Length is < 276 or > TerrainSource.MaximumDecodedSourceBytes)
@@ -110,6 +140,40 @@ public sealed record TerrainImport(uint MapDataId, int Width, int Height,
                     exit.PasswayIndex != unchecked((uint)marker.Field2))
                 {
                     throw new InvalidDataException("Decoded map exits differ from extracted terrain.");
+                }
+            }
+            if (!PuzzleFiles.IsDefault)
+            {
+                ImmutableArray<SourcePuzzleReference> expected = SourcePuzzleReferences.Collect(grid, scene);
+                if (PuzzleFiles.Length != expected.Length)
+                {
+                    throw new InvalidDataException("Puzzle capture must account for every referenced map puzzle.");
+                }
+                long total = 0;
+                for (int i = 0; i < expected.Length; i++)
+                {
+                    SourcePuzzleCapture capture = PuzzleFiles[i];
+                    TerrainSource.ValidatePath(capture.Path);
+                    if (!string.Equals(capture.Path, expected[i].Path, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidDataException("Captured puzzle paths must follow first-reference order.");
+                    }
+                    if (capture.Bytes is null)
+                    {
+                        if (expected[i].Required)
+                        {
+                            throw new InvalidDataException("Required positioned puzzle inputs cannot be unresolved.");
+                        }
+                    }
+                    else
+                    {
+                        total += capture.Bytes.Length;
+                        if (total > ProjectDocument.MaximumTotalPuzzleBytes)
+                        {
+                            throw new InvalidDataException("Puzzle inputs exceed the project capture budget.");
+                        }
+                        _ = SourcePuzzleInput.FromBytes(capture.Path, capture.Bytes);
+                    }
                 }
             }
         }

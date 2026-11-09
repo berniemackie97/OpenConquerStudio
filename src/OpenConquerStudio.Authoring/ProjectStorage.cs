@@ -17,7 +17,7 @@ internal static class ProjectStorage
     private const int MaximumMetadataBytes = 8 * 1024 * 1024;
 
     internal static (ProjectDocument Document, Dictionary<string, TextureData> Pixels, string Digest, Dictionary<string, byte[]> Models,
-        Dictionary<string, byte[]> Terrains, Dictionary<string, byte[]> MapSources) Read(string root, CancellationToken token)
+        Dictionary<string, byte[]> Terrains, Dictionary<string, byte[]> SourceInputs) Read(string root, CancellationToken token)
     {
         byte[] bytes = ProjectFiles.Read(Path.Combine(root, ProjectStorage.ManifestName), ProjectFiles.MaximumManifestBytes);
         using (JsonDocument json = JsonDocument.Parse(bytes))
@@ -124,7 +124,7 @@ internal static class ProjectStorage
             payloads.TryAdd(model.DataDigest, data);
         }
         return (document, ReadPixels(root, document, token), ProjectFiles.Hash(bytes), payloads,
-            ReadTerrains(root, document, token), ReadMapSources(root, document, token));
+            ReadTerrains(root, document, token), ReadSourceInputs(root, document, token));
     }
 
     private static T Decode<T>(byte[] bytes) where T : class
@@ -150,28 +150,60 @@ internal static class ProjectStorage
     }
 
     private static int TerrainResourceVersion(TerrainAsset terrain) =>
-        terrain.Source is null ? 1 : terrain.Source.SnapshotDigest is null ? 2 : 3;
+        terrain.Source is null ? 1 : terrain.Source.SnapshotDigest is null ? 2 :
+            terrain.Source.Puzzles.IsEmpty ? 3 : 4;
 
-    private static Dictionary<string, byte[]> ReadMapSources(string root, ProjectDocument document, CancellationToken token)
+    private static Dictionary<string, byte[]> ReadSourceInputs(string root, ProjectDocument document, CancellationToken token)
     {
-        Dictionary<string, byte[]> snapshots = new(StringComparer.Ordinal);
+        Dictionary<string, byte[]> inputs = new(StringComparer.Ordinal);
         foreach (TerrainAsset terrain in document.Terrains)
         {
             token.ThrowIfCancellationRequested();
-            TerrainSource? source = terrain.Source;
-            if (source?.SnapshotDigest is not string digest || snapshots.ContainsKey(digest))
+            if (terrain.Source is not { } source)
             {
                 continue;
             }
 
-            byte[] bytes = ProjectFiles.Read(MapSourcePath(root, digest), TerrainSource.MaximumDecodedSourceBytes);
-            if (bytes.Length != source.SnapshotLength || ProjectFiles.Hash(bytes) != digest)
+            if (source.SnapshotDigest is string mapDigest && !inputs.ContainsKey(mapDigest))
             {
-                throw new InvalidDataException("Owned map source does not match its immutable revision.");
+                byte[] decoded = ProjectFiles.Read(MapSourcePath(root, mapDigest), TerrainSource.MaximumDecodedSourceBytes);
+                if (decoded.Length != source.SnapshotLength || ProjectFiles.Hash(decoded) != mapDigest)
+                {
+                    throw new InvalidDataException("Owned map source does not match its immutable revision.");
+                }
+                inputs.Add(mapDigest, decoded);
             }
-            snapshots.Add(digest, bytes);
+            if (source.SnapshotDigest is string storedMap)
+            {
+                _ = SourceMapInventory.Read(terrain.MapDataId, source, inputs[storedMap]);
+            }
+
+            foreach (SourcePuzzleInput puzzle in source.Puzzles)
+            {
+                token.ThrowIfCancellationRequested();
+                if (puzzle.Digest is not string digest)
+                {
+                    continue;
+                }
+
+                if (!inputs.TryGetValue(digest, out byte[]? bytes))
+                {
+                    bytes = ProjectFiles.Read(PuzzleSourcePath(root, digest), SourcePuzzleInput.MaximumBytes);
+                    if (bytes.Length != puzzle.ByteLength || ProjectFiles.Hash(bytes) != digest)
+                    {
+                        throw new InvalidDataException("Owned puzzle does not match its immutable revision.");
+                    }
+                    inputs.Add(digest, bytes);
+                }
+
+                SourcePuzzleInput decoded = SourcePuzzleInput.FromBytes(puzzle.Path, bytes);
+                if (decoded != puzzle)
+                {
+                    throw new InvalidDataException("Owned puzzle metadata differs from its decoded input.");
+                }
+            }
         }
-        return snapshots;
+        return inputs;
     }
 
     internal static Dictionary<string, TextureData> ReadPixels(string root, ProjectDocument document, CancellationToken token)
@@ -227,7 +259,7 @@ internal static class ProjectStorage
     }
 
     internal static string Save(string root, ProjectDocument document, Dictionary<string, TextureData> pixels, Dictionary<string, byte[]> models,
-        Dictionary<string, byte[]> terrains, Dictionary<string, byte[]> mapSources, string? savedDigest, CancellationToken token)
+        Dictionary<string, byte[]> terrains, Dictionary<string, byte[]> sourceInputs, string? savedDigest, CancellationToken token)
     {
         document.Validate();
         string manifest = Path.Combine(root, ProjectStorage.ManifestName);
@@ -252,7 +284,13 @@ internal static class ProjectStorage
         foreach (string digest in document.Terrains.Select(a => a.Source?.SnapshotDigest).OfType<string>().Distinct())
         {
             token.ThrowIfCancellationRequested();
-            WriteImmutable(MapSourcePath(root, digest), mapSources[digest], TerrainSource.MaximumDecodedSourceBytes);
+            WriteImmutable(MapSourcePath(root, digest), sourceInputs[digest], TerrainSource.MaximumDecodedSourceBytes);
+        }
+        foreach (string digest in document.Terrains.SelectMany(a => a.Source?.Puzzles ?? [])
+            .Select(puzzle => puzzle.Digest).OfType<string>().Distinct())
+        {
+            token.ThrowIfCancellationRequested();
+            WriteImmutable(PuzzleSourcePath(root, digest), sourceInputs[digest], SourcePuzzleInput.MaximumBytes);
         }
 
         List<ResourceRevision> revisions = [];
@@ -326,4 +364,6 @@ internal static class ProjectStorage
     private static string TerrainPath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".octerrain");
 
     private static string MapSourcePath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".ocmapsource");
+
+    private static string PuzzleSourcePath(string root, string digest) => Path.Combine(root, "Inputs", digest + ".ocpuzzle");
 }

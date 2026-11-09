@@ -79,11 +79,15 @@ one new authored terrain resource, with a stable GUID and the map's MapDataId. T
 map remains read-only. The result opens in the same terrain-grid editor used for newly
 created terrains and can be painted, undone, saved, and exported for server terrain builds.
 
-This command **does not import a complete visual map**. Puzzle art, scenery objects, animations,
-overlay records, transition destinations, and the client-rendered scene remain source-only.
-The terrain record captures the source map path, referenced puzzle path, catalog/header
-fields and the counts of scenery and overlay groups for diagnostics; these references are
-not a lossless copy of the unresolved records. Do not delete or relocate original source
+This command **does not import a complete visual map**. It captures each referenced puzzle
+tile-grid file when available, preserving its original bytes and animation-index reference.
+A missing optional ground `.pul` is reported explicitly; a missing required positioned
+puzzle stops the import. Actual tile animation definitions, texture frames, scenery content,
+transition destinations, and the client-rendered scene remain unresolved.
+The terrain record captures the source map path, puzzle paths and metadata, catalog/header
+fields, and the counts of scenery and overlay groups for diagnostics. Referenced puzzle
+tile grids are owned, but the referenced ANI/texture content and scenery resources are
+not losslessly captured by this capability. Do not delete or relocate original source
 content expecting those components to be reconstructible from the terrain resource.
 The editor rejects source grids above the authored 262,144-cell budget.
 
@@ -107,8 +111,11 @@ The source-map extraction now retains an immutable, digest-verified copy of the
 **decoded map bytes** in the project under `Inputs/`. This preserves ordered exit,
 scenery and overlay records without relying on the original map archive after saving.
 The terrain inspector shows whether an owned map snapshot exists. The project-owned
-snapshot does **not** include referenced puzzle, texture, animation, or scene files:
-these are still unresolved external dependencies, not editable or compiled game assets.
+snapshot is accompanied by captured puzzle bitmap inputs under `Inputs/` when they exist.
+Each retained puzzle can be decoded offline, including its tile indices and scroll velocity.
+Neither the map nor the puzzle snapshots include ANI index files, texture frames, or
+scenery content. Those are still unresolved external dependencies, not editable or
+compiled game assets.
 
 To inspect the exact ordered scene references offline after Save and reopen, run:
 
@@ -117,14 +124,16 @@ dotnet run --project tools/OpenConquerStudio.Tool -c Release --no-build -- expor
 ```
 
 The inventory includes the ground puzzle, every parsed scenery record type and payload
-digest, every positioned overlay group and its insertion metadata, and ordered puzzle,
-scene, and animation references. Repeated source references remain repeated. A missing
+digest, every positioned overlay group and its insertion metadata, ordered puzzle,
+scene, and animation references, and each puzzle's capture status, byte digest,
+tile-grid dimensions, ANI index path, and scroll velocity. Repeated source references remain repeated. A missing
 source snapshot is rejected explicitly; the exporter does not reconstruct one from
 metadata counts or paths.
 
-Captured terrain uses resource-document schema version 3. Previously extracted terrain
-(schema 2) and manually authored terrain (schema 1) remain readable; schema-2 extraction
-must be refreshed from source to acquire an owned snapshot. Saving never rewrites the
+Captured terrain with puzzle-input inventory uses resource-document schema version 4.
+Previously captured maps (schema 3), source-extracted terrain (schema 2), and manually
+authored terrain (schema 1) remain readable. Older extraction must be refreshed from
+the source installation to obtain an owned puzzle dependency inventory. Saving never rewrites the
 original map or puzzle files. Terrain/collision builds still use the authoritative server
 tool and do not include the unresolved visual dependencies.
 

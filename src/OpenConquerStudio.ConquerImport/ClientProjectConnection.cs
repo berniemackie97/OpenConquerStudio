@@ -258,9 +258,35 @@ public sealed class ClientProjectConnection
         GameMapSceneSections scene = GameMapSceneSections.Parse(decoded, grid.BytesConsumed, grid.HeaderField0);
         TerrainImport extracted = ClientTerrainImporter.Read(id, terrain.Path, terrain.CompanionValue,
             grid, scene, token);
+        ImmutableArray<SourcePuzzleReference> references = SourcePuzzleReferences.Collect(grid, scene);
+        ImmutableArray<SourcePuzzleCapture>.Builder captures = ImmutableArray.CreateBuilder<SourcePuzzleCapture>(references.Length);
+        for (int i = 0; i < references.Length; i++)
+        {
+            token.ThrowIfCancellationRequested();
+            SourcePuzzleReference reference = references[i];
+            string path = reference.Path;
+            if (!Source.TryOpenRead(path, ContentLookupMode.LooseOnly, out Stream? stream))
+            {
+                if (reference.Required)
+                {
+                    throw new InvalidDataException($"Required map puzzle '{path}' is missing.");
+                }
+                captures.Add(new SourcePuzzleCapture(path, null));
+                continue;
+            }
+
+            using (stream)
+            {
+                byte[] puzzle = ContentReader.ReadBytes(stream, path, SourcePuzzleInput.MaximumBytes);
+                _ = GameMapPuzzleBitmap.Parse(puzzle);
+                captures.Add(new SourcePuzzleCapture(path, puzzle));
+            }
+        }
+
         return extracted with
         {
-            DecodedSource = decoded
+            DecodedSource = decoded,
+            PuzzleFiles = captures.MoveToImmutable()
         };
     }
 

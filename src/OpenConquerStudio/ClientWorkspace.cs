@@ -201,9 +201,12 @@ internal sealed class ClientWorkspace
             }
 
             await _owner.SelectAsset(id, token);
+            int captured = source.PuzzleFiles.Count(puzzle => puzzle.Bytes is not null);
+            int missing = source.PuzzleFiles.Length - captured;
             _owner.Diagnostic = $"Terrain {source.MapDataId} extracted into editable cells and ordered exits. " +
+                $"{captured} puzzle grids captured, {missing} optional ground puzzles unavailable. " +
                 $"{source.Source.SceneryCount} scenery records and {source.Source.OverlayGroupCount} overlay groups remain source-only. " +
-                "Puzzle art and scene dependencies were not imported. Save this terrain before generating server outputs.";
+                "ANI frames, scenery content and complete visual-world dependencies remain unresolved.";
             return;
         }
         if (entry.Kind is "model" or "character")
