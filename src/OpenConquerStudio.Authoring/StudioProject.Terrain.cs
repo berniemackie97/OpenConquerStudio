@@ -100,6 +100,11 @@ public sealed partial class StudioProject
                 Scenes = original.Source.Scenes
             };
         }
+        var promoted = ReconcilePromotedFrames(original.Source, origin, source);
+        origin = origin with
+        {
+            Frames = promoted.Frames
+        };
         if (SourceFrameDependencies.Equivalent(origin.Frames, original.Source.Frames))
         {
             origin = origin with
@@ -139,18 +144,24 @@ public sealed partial class StudioProject
             Exits = markers,
             Source = origin
         };
-        if (refreshed == original)
+        if (refreshed == original && promoted.Textures.Count == 0)
         {
             return;
         }
 
         ProjectDocument updated = Document with
         {
+            Assets = [.. Document.Assets.Select(asset =>
+                promoted.Textures.GetValueOrDefault(asset.Id) ?? asset)],
             Terrains = [.. Document.Terrains.Select(a => a.Id == id ? refreshed : a)]
         };
         updated.Validate();
         _terrainCells.TryAdd(refreshed.CellDigest, bytes);
         RetainInputs(origin, snapshot, source);
+        foreach ((string digest, OpenConquerStudio.Runtime.TextureData texture) in promoted.Pixels)
+        {
+            _pixels.TryAdd(digest, texture);
+        }
         Apply(updated);
     }
 

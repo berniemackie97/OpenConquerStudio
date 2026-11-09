@@ -88,6 +88,25 @@ and schema-2 source-extracted terrain remain readable; map-only snapshots use sc
 projects owning puzzle tile grids use schema-4 terrain revisions, and captured ANI
 indexes use schema-5 terrain revisions. Scene/frame inputs use schema-6 revisions.
 
+## Source frame to authored texture identity
+
+Captured frames can be promoted selectively to independent authored texture resources.
+Each selected source-frame record retains a typed texture GUID, while its source path and
+raw encoded digest stay separate. A matching path on explicit source refresh retains
+that GUID, updates the authored texture pixels from the verified captured image when
+the source digest changes, and preserves authored name/orientation properties. Existing
+atlas/sprite references remain GUID-based. The project validates that every linked
+texture is present and matches the captured source format, dimensions and digest.
+Delete and independent replace operations are blocked until the link is explicitly
+removed; unlinking does not delete the authored texture.
+
+Promotion of multiple frames is one project revision and either passes the decoded
+texture/pixel budgets completely or changes nothing. A no-op promotion/refresh does not
+clear Redo. The terrain resource document uses schema 7 when it contains authored frame
+links; previously stored schema-1–6 resources remain readable. This is a typed bridge
+from source inputs to authored images, not complete scene graph promotion, visual
+placement editing or final client map compilation.
+
 ## One authoring source, separate target outputs
 
 An authored world references terrain, visual layers, placements, environment and world-specific

@@ -152,7 +152,9 @@ internal static class ProjectStorage
 
     private static int TerrainResourceVersion(TerrainAsset terrain) =>
         terrain.Source is null ? 1 : terrain.Source.SnapshotDigest is null ? 2 :
-            terrain.Source.Puzzles.IsEmpty ? 3 : !terrain.Source.Scenes.IsEmpty || !terrain.Source.Frames.IsEmpty ? 6 :
+            terrain.Source.Puzzles.IsEmpty ? 3 :
+            terrain.Source.Frames.Any(frame => frame.TextureId is not null) ? 7 :
+            !terrain.Source.Scenes.IsEmpty || !terrain.Source.Frames.IsEmpty ? 6 :
             terrain.Source.AnimationIndexes.IsEmpty ? 4 : 5;
 
     private static Dictionary<string, byte[]> ReadSourceInputs(string root, ProjectDocument document, CancellationToken token)
@@ -307,7 +309,10 @@ internal static class ProjectStorage
                         }
                         inputs.Add(recorded.Digest, bytes);
                     }
-                    if (SourceFrameDependencies.Read(recorded.Path, bytes, token) != recorded)
+                    if (SourceFrameDependencies.Read(recorded.Path, bytes, token) != (recorded with
+                    {
+                        TextureId = null
+                    }))
                     {
                         throw new InvalidDataException("Captured frame image metadata differs from its original bytes.");
                     }

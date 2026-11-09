@@ -130,6 +130,10 @@ public sealed partial class StudioWindow : Window
             {
                 Project.EditTerrainExits(id, exits);
                 await UpdatePreview(id, token);
+            }), (id, paths) => ExecuteAsync(async token =>
+            {
+                Project.PromoteSourceFrames(id, paths, token);
+                await SelectAsset(id, token);
             }));
         _terrainEditor.PendingChanged += PendingEditsChanged;
         _terrainViewport.PaintRequested += () => ExecuteAsync(async token =>

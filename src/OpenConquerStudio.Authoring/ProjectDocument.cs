@@ -114,6 +114,7 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
             throw new InvalidDataException("Model assets exceed the 128 MiB project budget.");
         }
 
+        HashSet<Guid> promotedTextures = [];
         long terrainCells = 0;
         int terrainExitMarkers = 0;
         HashSet<uint> mapDataIds = [];
@@ -175,6 +176,20 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
                 }
                 foreach (SourceFrameInput frame in source.Frames)
                 {
+                    if (frame.TextureId is Guid id)
+                    {
+                        if (!promotedTextures.Add(id))
+                        {
+                            throw new InvalidDataException("Multiple source frames share a promoted texture identity.");
+                        }
+                        TextureAsset? texture = Assets.FirstOrDefault(asset => asset.Id == id);
+                        if (texture is null || texture.SourceDigest != frame.Digest ||
+                            texture.SourceFormat != frame.Format ||
+                            texture.Width != frame.Width || texture.Height != frame.Height)
+                        {
+                            throw new InvalidDataException($"Source frame '{frame.Path}' has an invalid promoted texture binding.");
+                        }
+                    }
                     if (frameDigests.Add(frame.Digest))
                     {
                         frameBytes += frame.ByteLength;
@@ -288,7 +303,13 @@ public sealed partial record ProjectDocument(int SchemaVersion, Guid Id, string 
             return [world.TerrainId];
         }
 
-        if (Assets.Any(a => a.Id == id) || Models.Any(a => a.Id == id) || Terrains.Any(a => a.Id == id))
+        if (Terrains.FirstOrDefault(a => a.Id == id) is { } terrain)
+        {
+            return terrain.Source is null ? [] :
+                [.. terrain.Source.Frames.Select(frame => frame.TextureId).OfType<Guid>().Distinct().Order()];
+        }
+
+        if (Assets.Any(a => a.Id == id) || Models.Any(a => a.Id == id))
         {
             return [];
         }
