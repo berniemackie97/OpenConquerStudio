@@ -25,11 +25,12 @@ public sealed partial class StudioProject
         ArgumentNullException.ThrowIfNull(source);
         source.Validate();
         byte[] bytes = TerrainGrid.Encode(source.Cells.AsSpan(), source.Width, source.Height);
+        (TerrainSource origin, byte[]? snapshot) = CaptureSource(source);
         TerrainAsset terrain = new(Guid.NewGuid(), name, source.MapDataId, source.Width,
             source.Height, ProjectFiles.Hash(bytes))
         {
             Exits = source.Exits,
-            Source = source.Source
+            Source = origin
         };
         ProjectDocument updated = Document with
         {
@@ -37,6 +38,10 @@ public sealed partial class StudioProject
         };
         updated.Validate();
         _terrainCells.TryAdd(terrain.CellDigest, bytes);
+        if (snapshot is not null)
+        {
+            _mapSources.TryAdd(origin.SnapshotDigest!, snapshot);
+        }
         Apply(updated);
         return terrain.Id;
     }
@@ -52,7 +57,12 @@ public sealed partial class StudioProject
             throw new InvalidDataException("Refresh requires terrain extracted from the same map data ID.");
         }
 
+        if (original.Source.SnapshotDigest is not null && source.DecodedSource is null)
+        {
+            throw new InvalidDataException("A captured map must be refreshed with its complete decoded source.");
+        }
         byte[] bytes = TerrainGrid.Encode(source.Cells.AsSpan(), source.Width, source.Height);
+        (TerrainSource origin, byte[]? snapshot) = CaptureSource(source);
         Dictionary<(int X, int Y, uint Passway), Queue<Guid>> existing = [];
         foreach (TerrainExitMarker marker in original.Exits)
         {
@@ -82,7 +92,7 @@ public sealed partial class StudioProject
             Height = source.Height,
             CellDigest = ProjectFiles.Hash(bytes),
             Exits = markers,
-            Source = source.Source
+            Source = origin
         };
         if (refreshed == original)
         {
@@ -95,7 +105,40 @@ public sealed partial class StudioProject
         };
         updated.Validate();
         _terrainCells.TryAdd(refreshed.CellDigest, bytes);
+        if (snapshot is not null)
+        {
+            _mapSources.TryAdd(origin.SnapshotDigest!, snapshot);
+        }
         Apply(updated);
+    }
+
+    private static (TerrainSource Source, byte[]? Bytes) CaptureSource(TerrainImport source)
+    {
+        if (source.DecodedSource is null)
+        {
+            return (source.Source, null);
+        }
+
+        byte[] bytes = (byte[])source.DecodedSource.Clone();
+        return (source.Source with
+        {
+            SnapshotDigest = ProjectFiles.Hash(bytes),
+            SnapshotLength = bytes.Length
+        }, bytes);
+    }
+
+    public SourceMapInventory ReadSourceMapInventory(Guid terrainId)
+    {
+        ThrowIfDisposed();
+        TerrainAsset terrain = Document.Terrains.Single(asset => asset.Id == terrainId);
+        TerrainSource source = terrain.Source
+            ?? throw new InvalidDataException("Select a source-extracted terrain.");
+        if (source.SnapshotDigest is null)
+        {
+            throw new InvalidDataException("This terrain has no owned source-map snapshot. Refresh it from the source installation.");
+        }
+
+        return SourceMapInventory.Read(terrain.MapDataId, source, _mapSources[source.SnapshotDigest]);
     }
 
     public void EditTerrainExits(Guid id, ImmutableArray<TerrainExitMarker> exits)
