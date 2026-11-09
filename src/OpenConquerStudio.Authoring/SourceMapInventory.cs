@@ -25,6 +25,8 @@ public sealed record SourceMapInventory(int FormatVersion, uint MapDataId, strin
     int ExitCount, ImmutableArray<SourceMapScenery> Scenery,
     ImmutableArray<SourceMapOverlayGroup> Overlays, ImmutableArray<SourceMapReference> References)
 {
+    public ImmutableArray<SourcePuzzleInput> Puzzles { get; init; } = [];
+
     internal static SourceMapInventory Read(uint id, TerrainSource source, byte[] decoded)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -87,9 +89,26 @@ public sealed record SourceMapInventory(int FormatVersion, uint MapDataId, strin
                 group.HeaderInt1, entries.MoveToImmutable()));
         }
 
-        return new SourceMapInventory(1, id, source.MapPath, digest, grid.Width, grid.Height,
+        ImmutableArray<SourceMapReference> ordered = references.ToImmutable();
+        if (!source.Puzzles.IsEmpty)
+        {
+            string[] puzzlePaths = [.. ordered.Where(reference => reference.Kind is
+                    SourceMapReferenceKind.GroundPuzzle or SourceMapReferenceKind.PositionedPuzzle)
+                .Select(reference => reference.ResourcePath).Distinct(StringComparer.OrdinalIgnoreCase)];
+            if (puzzlePaths.Length != source.Puzzles.Length ||
+                puzzlePaths.Where((path, index) =>
+                    !string.Equals(path, source.Puzzles[index].Path, StringComparison.OrdinalIgnoreCase)).Any())
+            {
+                throw new InvalidDataException("Captured puzzle inputs do not match their source-map references.");
+            }
+        }
+
+        return new SourceMapInventory(source.Puzzles.IsEmpty ? 1 : 2, id, source.MapPath, digest, grid.Width, grid.Height,
             grid.PuzzlePath, scene.ExitMarkers.Count, scenery.MoveToImmutable(),
-            overlays.MoveToImmutable(), references.ToImmutable());
+            overlays.MoveToImmutable(), ordered)
+        {
+            Puzzles = source.Puzzles
+        };
     }
 
     public static void Export(StudioProject project, Guid terrainId, string destination,
