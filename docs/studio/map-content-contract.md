@@ -88,6 +88,28 @@ and schema-2 source-extracted terrain remain readable; map-only snapshots use sc
 projects owning puzzle tile grids use schema-4 terrain revisions, and captured ANI
 indexes use schema-5 terrain revisions. Scene/frame inputs use schema-6 revisions.
 
+## Source-backed scenery coordinate authoring
+
+The authored terrain can retain GUID-addressed placements derived from the
+verified type-1 and type-4 scenery record layouts. Each carries the source
+record ordinal, type, resource path, optional ANI section, and original signed
+X/Y fields separately from the editable signed position. Scenery types 10
+and 15, positioned overlay groups and empty type-4 placeholders remain in
+the immutable source-map snapshot and are not promoted into guessed objects.
+
+On source refresh, distinct type/path/section references preserve placement
+GUIDs even when reordered. Authored X and Y overrides persist independently;
+unchanged fields follow the refreshed source. Repeated identical references
+match in source occurrence order. The editor never rewrites captured map bytes.
+The source inventory exports both raw record metadata and authored placements,
+and reopening checks every authored placement against the indexed source record.
+The terrain revision uses schema 8 when sourced placements exist. Schemas 1–7
+remain readable. Unsupported records remain a blocker to complete authored
+scene compilation rather than being dropped.
+
+This is coordinate authoring, not yet scene hierarchy, layer transforms,
+rendering order, full scenery material authoring or client map output.
+
 ## Source frame to authored texture identity
 
 Captured frames can be promoted selectively to independent authored texture resources.
